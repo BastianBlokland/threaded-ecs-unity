@@ -53,12 +53,12 @@ namespace ECS.Storage
 			entityAllocator.Free(entity);
 		}
 
-		public void GetEntities(ComponentMask mask, IList<EntityID> outputList)
+		public void GetEntities(ComponentMask requiredComps, ComponentMask illegalComps, IList<EntityID> outputList)
 		{
 			outputList.Clear();
 			for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
 			{
-				if(entities[entity].Has(mask))
+				if(entities[entity].Has(requiredComps) && entities[entity].NotHas(illegalComps))
 					outputList.Add(entity);
 			}
 		}

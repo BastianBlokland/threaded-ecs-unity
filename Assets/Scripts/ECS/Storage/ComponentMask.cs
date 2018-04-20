@@ -63,6 +63,27 @@ namespace ECS.Storage
 					(other.val4 & val4) == other.val4;
 		}
 
+		public bool NotHas(CompID comp)
+		{
+			return NotHas(new ComponentMask(comp));
+		}
+
+		public bool NotHas(ComponentMask other)
+		{
+			return	(other.val1 & val1) == 0 &&
+					(other.val2 & val2) == 0 &&
+					(other.val3 & val3) == 0 &&
+					(other.val4 & val4) == 0;
+		}
+
+		public void Invert()
+		{
+			val1 = ~val1;
+			val2 = ~val2;
+			val3 = ~val3;
+			val4 = ~val4;
+		}
+
 		public void Clear()
 		{
 			val1 = 0;
