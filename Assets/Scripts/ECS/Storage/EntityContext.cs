@@ -5,17 +5,23 @@ using System.Collections.Generic;
 using EntityID = System.UInt16;
 using CompID = System.Byte;
 
-namespace ECS
+namespace ECS.Storage
 {
-    public class EntityContainer
+    public class EntityContext
     {
 		private readonly ComponentReflector reflector;
+		private readonly EntityAllocator entityAllocator;
         private readonly IComponentContainer[] containers;
 		private readonly ComponentMask[] entities;
+		
+		public EntityContext()
+			: this(componentAssembly: typeof(EntityContext).Assembly)
+		{}
 
-		public EntityContainer(Assembly componentAssembly)
+		public EntityContext(Assembly componentAssembly)
 		{
 			reflector = new ComponentReflector(componentAssembly);
+			entityAllocator = new EntityAllocator();
 			containers = new IComponentContainer[reflector.ComponentCount];
 			entities = new ComponentMask[EntityID.MaxValue];
 
@@ -29,6 +35,22 @@ namespace ECS
 			//Create a component-mask for each entity
 			for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
 				entities[entity] = new ComponentMask();
+		}
+
+		public EntityID CreateEntity()
+		{
+			return entityAllocator.Allocate();
+		}
+
+		public bool HasEntity(EntityID entity)
+		{
+			return entityAllocator.IsAllocated(entity);
+		}
+
+		public void RemoveEntity(EntityID entity)
+		{
+			entities[entity].Clear();
+			entityAllocator.Free(entity);
 		}
 
 		public void GetEntities(ComponentMask mask, IList<EntityID> outputList)
@@ -78,11 +100,6 @@ namespace ECS
 		{
 			CompID comp = GetID<T>();
 			entities[entity].Unset(comp);
-		}
-
-		public void RemoveAllComponents(EntityID entity)
-		{
-			entities[entity].Clear();
 		}
 
 		public IComponentContainer<T> GetContainer<T>()

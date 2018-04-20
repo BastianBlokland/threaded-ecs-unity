@@ -1,6 +1,6 @@
 using CompID = System.Byte;
 
-namespace ECS
+namespace ECS.Storage
 {
     public struct ComponentMask
     {

@@ -5,7 +5,7 @@ using System.Reflection;
 
 using CompID = System.Byte;
 
-namespace ECS
+namespace ECS.Storage
 {
     public class ComponentReflector
     {

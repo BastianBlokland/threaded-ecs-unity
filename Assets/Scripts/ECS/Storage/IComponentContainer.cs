@@ -1,6 +1,6 @@
 using EntityID = System.UInt16;
 
-namespace ECS
+namespace ECS.Storage
 {
 	public interface IComponentContainer 
 	{
