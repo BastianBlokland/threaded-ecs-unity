@@ -11,12 +11,9 @@ namespace ECS.Storage
 	/// <summary>
 	/// Responsible for creating and removing of entities and adding and removing of components on those.
 	/// 
-	/// Thread-safety: This class is thread-safe IF you don't touch the same 'entity' from multiple threads.
-	/// So its perfectly safe if thread 1 is adding / removing components from entityA and thread 2 is 
-	/// from entityB, but thread1 and thread2 cannot both be adjusting entityA. Multiple threads are allowed to 
-	/// create entities but 2 threads cannot remove the same entity at the same time, but different threads removing
-	/// different entities at the same time is no problem. Also querying for entities is allways safe, but its using
-	/// locks to stop the writing during the 'quering'.
+	/// Thread-safety: This class is thread-safe IF you don't touch the same components on the same entity from multiple threads. So its
+	/// important to manually keep track of not running tasks in parallel that touch the same components on the same entities. Adding and removing
+	/// entities is completely safe and also adding and removing of components is completely safe.
 	/// </summary>
     public class EntityContext
     {
@@ -26,14 +23,16 @@ namespace ECS.Storage
 		//Storage for the actual component data
 		private readonly IComponentContainer[] containers;
 		
-		//Storage for lookup of what components are on what entities
-		//Locking on this array is done in a way that allows for safe 'reading' with 'GetEntities' (stops writing
-		//while using the 'GetEntities') And allows for multiple threads to write to SEPARATE entries in the array
-		//this way we can can go wide easily without requiring locking but you have to manually make sure that you 
-		//are not writing to the same entry from multiple threads.
+		//To make access to the component-masks thread-safe there are to layers of locking, if you want to read from the ENTIRE
+		//array (as done by the 'GetEntities' that queries ALL the entries) then it locks the entire array into reading mode. That's 
+		//also what the 'entityReaders' readers count is used for so that only the first thread takes the 'read' lock and all other threads
+		//are then also allowed to read. And any thread that does modification to the array first takes a lock to put the array into 'write'
+		//mode and then all other threads are also allowed to write. For safety for individual writes it has lock objects per entity entry
+		//so that you can 'lock' access to a single entry in the array
 		private readonly ComponentMask[] entities;
-		private int entitiesReaders; //How many threads are currently reading from 'entities'
-		private int entitiesWriters; //How many threads are currently writing to 'entities'
+		private readonly object[] entityLocks;
+		private int entityReaders; //How many threads are currently reading from 'entities'
+		private int entityWriters; //How many threads are currently writing to 'entities'
 		
 		public EntityContext()
 			: this(componentAssembly: typeof(EntityContext).Assembly)
@@ -45,6 +44,7 @@ namespace ECS.Storage
 			entityAllocator = new EntityAllocator();
 			containers = new IComponentContainer[reflector.ComponentCount];
 			entities = new ComponentMask[EntityID.MaxValue];
+			entityLocks = new object[EntityID.MaxValue];
 
 			//Allocate a container for each component type
 			for (CompID comp = 0; comp < reflector.ComponentCount; comp++)
@@ -53,9 +53,12 @@ namespace ECS.Storage
 				containers[comp] = ComponentContainerUtils.Create(compType);
 			}
 
-			//Create a component-mask for each entity
+			//Create a component-mask and a lock object for each entity
 			for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
+			{
 				entities[entity] = new ComponentMask();
+				entityLocks[entity] = new object();
+			}
 		}
 
 		public EntityID CreateEntity()
@@ -73,11 +76,15 @@ namespace ECS.Storage
 			entityAllocator.Free(entity);
 
 			//Locks the 'entities' array if its the first 'writer' and releases when it was the last
-			if(Interlocked.Increment(ref entitiesWriters) == 1) Monitor.Enter(entities);
+			if(Interlocked.Increment(ref entityWriters) == 1) Monitor.Enter(entities);
 			{
-				entities[entity].Clear();	
+				//Lock this particular entity for modification
+				lock(entityLocks[entity])
+				{
+					entities[entity].Clear();
+				}
 			}
-			if(Interlocked.Decrement(ref entitiesWriters) == 0) Monitor.Exit(entities);
+			if(Interlocked.Decrement(ref entityWriters) == 0) Monitor.Exit(entities);
 		}
 
 		public void GetEntities(ComponentMask requiredComps, ComponentMask illegalComps, IList<EntityID> outputList)
@@ -85,7 +92,7 @@ namespace ECS.Storage
 			outputList.Clear();
 
 			//Locks the 'entities' array if its the first 'reader' and releases when it was the last
-			if(Interlocked.Increment(ref entitiesReaders) == 1) Monitor.Enter(entities);
+			if(Interlocked.Increment(ref entityReaders) == 1) Monitor.Enter(entities);
 			{
 				for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
 				{
@@ -93,7 +100,7 @@ namespace ECS.Storage
 						outputList.Add(entity);
 				}
 			}
-			if(Interlocked.Decrement(ref entitiesReaders) == 0) Monitor.Exit(entities);
+			if(Interlocked.Decrement(ref entityReaders) == 0) Monitor.Exit(entities);
 		}
 
 		public bool HasComponent<T>(EntityID entity)
@@ -111,16 +118,11 @@ namespace ECS.Storage
 		public bool HasComponents(EntityID entity, ComponentMask mask)
 		{
 			bool has;
-
-			//Locks the 'entities' array if its the first 'reader' and releases when it was the last
-			//TODO: Need to investigate if we need locking here, its safer but it might cause unnecessary stalls
-			//as its actually perfectly safe to writer to entity A and check for components on entity B.
-			if(Interlocked.Increment(ref entitiesReaders) == 1) Monitor.Enter(entities);
+			//Lock this entity so that it won't be modified while we are reading it
+			lock(entityLocks[entity])
 			{
 				has = entities[entity].Has(mask);
 			}
-			if(Interlocked.Decrement(ref entitiesReaders) == 0) Monitor.Exit(entities);
-
 			return has;
 		}
 
@@ -139,12 +141,15 @@ namespace ECS.Storage
 			((IComponentContainer<T>)containers[comp]).Set(entity, data);
 
 			//Note: locks the entities array for reading IF its the first one to start writing
-			//BUT: there is no safety against trying to write to the same entity from multiple threads
-			if(Interlocked.Increment(ref entitiesWriters) == 1) Monitor.Enter(entities);
+			if(Interlocked.Increment(ref entityWriters) == 1) Monitor.Enter(entities);
 			{
-				entities[entity].Add(compMask);
+				//Locks this particular entity for modification.
+				lock(entityLocks[entity])
+				{
+					entities[entity].Add(compMask);
+				}
 			}
-			if(Interlocked.Decrement(ref entitiesWriters) == 0) Monitor.Exit(entities);
+			if(Interlocked.Decrement(ref entityWriters) == 0) Monitor.Exit(entities);
 		}
 
 		public void RemoveComponent<T>(EntityID entity)
@@ -153,12 +158,27 @@ namespace ECS.Storage
 			ComponentMask compMask = GetMask<T>();
 
 			//Note: locks the entities array for reading IF its the first one to start writing
-			//BUT: there is no safety against trying to write to the same entity from multiple threads
-			if(Interlocked.Increment(ref entitiesWriters) == 1) Monitor.Enter(entities);
+			if(Interlocked.Increment(ref entityWriters) == 1) Monitor.Enter(entities);
 			{
-				entities[entity].Remove(compMask);
+				//Locks this particular entity for modification.
+				lock(entityLocks[entity])
+				{
+					entities[entity].Remove(compMask);
+				}
 			}
-			if(Interlocked.Decrement(ref entitiesWriters) == 0) Monitor.Exit(entities);
+			if(Interlocked.Decrement(ref entityWriters) == 0) Monitor.Exit(entities);
+		}
+
+		public void Clear()
+		{
+			//Allways lock the entire entities array, btw 'lock' turns into Monitor.Enter and Monitor.Exit so 
+			//its safe to mix lock on 'entities' and the 'Monitor.Enter' calls that the individual modifiction calls use
+			//to lock the entities array into write mode.
+			lock(entities)
+			{
+				for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
+					entities[entity].Clear();
+			}
 		}
 
 		public IComponentContainer<T> GetContainer<T>()
