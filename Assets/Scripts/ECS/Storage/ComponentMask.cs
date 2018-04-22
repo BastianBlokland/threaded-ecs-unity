@@ -29,20 +29,22 @@ namespace ECS.Storage
 				1L << (comp - 192) : 0;
 		}
 
-		public void Add(ComponentMask other)
+		public ComponentMask Add(ComponentMask other)
 		{
 			val1 |= other.val1;
 			val2 |= other.val2;
 			val3 |= other.val3;
 			val4 |= other.val4;
+			return this;
 		}
 
-		public void Remove(ComponentMask other)
+		public ComponentMask Remove(ComponentMask other)
 		{
 			val1 &= ~other.val1;
 			val2 &= ~other.val2;
 			val3 &= ~other.val3;
 			val4 &= ~other.val4;
+			return this;
 		}
 
 		public bool Has(ComponentMask other)
@@ -61,20 +63,22 @@ namespace ECS.Storage
 					(other.val4 & val4) == 0;
 		}
 
-		public void Invert()
+		public ComponentMask Invert()
 		{
 			val1 = ~val1;
 			val2 = ~val2;
 			val3 = ~val3;
 			val4 = ~val4;
+			return this;
 		}
 
-		public void Clear()
+		public ComponentMask Clear()
 		{
 			val1 = 0;
 			val2 = 0;
 			val3 = 0;
 			val4 = 0;
+			return this;
 		}
 
 		#region Utilities for creating masks
@@ -85,29 +89,23 @@ namespace ECS.Storage
 
 		public static ComponentMask CreateMask(CompID comp1, CompID comp2)
 		{
-			ComponentMask mask = new ComponentMask();
-			mask.Add(new ComponentMask(comp1));
-			mask.Add(new ComponentMask(comp2));
-			return mask;
+			return 	new ComponentMask(comp1).Add(
+					new ComponentMask(comp1));
 		}
 
 		public static ComponentMask CreateMask(CompID comp1, CompID comp2, CompID comp3)
 		{
-			ComponentMask mask = new ComponentMask();
-			mask.Add(new ComponentMask(comp1));
-			mask.Add(new ComponentMask(comp2));
-			mask.Add(new ComponentMask(comp3));
-			return mask;
+			return	new ComponentMask(comp1).Add(
+					new ComponentMask(comp2)).Add(
+					new ComponentMask(comp3));
 		}
 
 		public static ComponentMask CreateMask(CompID comp1, CompID comp2, CompID comp3, CompID comp4)
 		{
-			ComponentMask mask = new ComponentMask();
-			mask.Add(new ComponentMask(comp1));
-			mask.Add(new ComponentMask(comp2));
-			mask.Add(new ComponentMask(comp3));
-			mask.Add(new ComponentMask(comp4));
-			return mask;
+			return	new ComponentMask(comp1).Add(
+					new ComponentMask(comp2)).Add(
+					new ComponentMask(comp3)).Add(
+					new ComponentMask(comp4));
 		}
 		#endregion
     }

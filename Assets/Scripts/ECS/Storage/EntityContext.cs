@@ -105,7 +105,7 @@ namespace ECS.Storage
 
 		public bool HasComponent(EntityID entity, CompID comp)
 		{
-			return HasComponents(entity, new ComponentMask(comp));
+			return HasComponents(entity, ComponentMask.CreateMask(comp));
 		}
 
 		public bool HasComponents(EntityID entity, ComponentMask mask)
@@ -135,13 +135,14 @@ namespace ECS.Storage
 			where T : struct, IComponent
 		{
 			CompID comp = GetID<T>();
+			ComponentMask compMask = ComponentMask.CreateMask(comp);
 			((IComponentContainer<T>)containers[comp]).Set(entity, data);
 
 			//Note: locks the entities array for reading IF its the first one to start writing
 			//BUT: there is no safety against trying to write to the same entity from multiple threads
 			if(Interlocked.Increment(ref entitiesWriters) == 1) Monitor.Enter(entities);
 			{
-				entities[entity].Add(new ComponentMask(comp));
+				entities[entity].Add(compMask);
 			}
 			if(Interlocked.Decrement(ref entitiesWriters) == 0) Monitor.Exit(entities);
 		}
@@ -149,13 +150,13 @@ namespace ECS.Storage
 		public void RemoveComponent<T>(EntityID entity)
 			where T : struct, IComponent
 		{
-			CompID comp = GetID<T>();
+			ComponentMask compMask = GetMask<T>();
 
 			//Note: locks the entities array for reading IF its the first one to start writing
 			//BUT: there is no safety against trying to write to the same entity from multiple threads
 			if(Interlocked.Increment(ref entitiesWriters) == 1) Monitor.Enter(entities);
 			{
-				entities[entity].Remove(new ComponentMask());
+				entities[entity].Remove(compMask);
 			}
 			if(Interlocked.Decrement(ref entitiesWriters) == 0) Monitor.Exit(entities);
 		}
