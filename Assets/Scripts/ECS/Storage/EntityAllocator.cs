@@ -8,13 +8,11 @@ namespace ECS.Storage
 {
     public class EntityAllocator
     {
-		private readonly ReaderWriterLockSlim readWriteLock;
 		private readonly bool[] entityFreeStatus;
 		private readonly Stack<EntityID> freeEntities;
 
 		public EntityAllocator()
 		{
-			readWriteLock = new ReaderWriterLockSlim();
 			entityFreeStatus = new bool[EntityID.MaxValue];
 			freeEntities = new Stack<EntityID>();
 
@@ -29,7 +27,8 @@ namespace ECS.Storage
 		public EntityID Allocate()
 		{
 			EntityID? result = null;
-			readWriteLock.EnterWriteLock();
+			
+			lock(freeEntities)
 			{
 				if(freeEntities.Count > 0)
 				{
@@ -37,7 +36,6 @@ namespace ECS.Storage
 					entityFreeStatus[result.Value] = false;
 				}
 			}
-			readWriteLock.ExitWriteLock();
 
 			if(result == null)
 				throw new Exception("[StackEntityAllocator] No free entities left to allocate!");
@@ -46,23 +44,17 @@ namespace ECS.Storage
 
 		public bool IsAllocated(EntityID entity)
 		{
-			return !IsFree(entity);
+			return !entityFreeStatus[entity];
 		}
 	
 		public bool IsFree(EntityID entity)
 		{
-			bool result;
-			readWriteLock.EnterReadLock();
-			{
-				result = entityFreeStatus[entity];
-			}
-			readWriteLock.ExitReadLock();
-			return result;
+			return entityFreeStatus[entity];
 		}
 
 		public void Free(EntityID entity)
 		{
-			readWriteLock.EnterWriteLock();
+			lock(freeEntities)
 			{
 				if(!entityFreeStatus[entity])
 				{
@@ -70,7 +62,6 @@ namespace ECS.Storage
 					freeEntities.Push(entity);
 				}
 			}
-			readWriteLock.ExitWriteLock();
 		}
     }
 }
