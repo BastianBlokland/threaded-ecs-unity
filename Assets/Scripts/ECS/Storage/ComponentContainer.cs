@@ -7,21 +7,23 @@ namespace ECS.Storage
 	public class ComponentContainer<T> : IComponentContainer<T>
 		where T : struct, IComponent
 	{
-		public readonly T[] Data;
+		public T[] Data { get { return data; } }
+
+		private readonly T[] data;
 
 		public ComponentContainer()
 		{
-			Data = new T[EntityID.MaxValue];
+			data = new T[EntityID.MaxValue];
 		}
 
 		public T Get(EntityID entity)
 		{
-			return Data[entity];
+			return data[entity];
 		}
 
 		public void Set(EntityID entity, T dataEntry)
 		{
-			Data[entity] = dataEntry;
+			data[entity] = dataEntry;
 		}
 	}
 
