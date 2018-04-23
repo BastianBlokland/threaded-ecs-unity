@@ -16,9 +16,9 @@ namespace ECS.Systems
 		/// is scheduled linearly but the items in the inner array run in parallel. Need to see if i can
 		/// come up with nicer syntax for this. 
 		/// </summary>
-		public SystemManager(params System[][] systems)
+		public SystemManager(bool multiThreaded, params System[][] systems)
 		{
-			this.runner = new SystemRunner();
+			this.runner = new SystemRunner(multiThreaded);
 			this.systems = systems;
 		}
 
@@ -27,7 +27,7 @@ namespace ECS.Systems
 			while(!isCompleted)
 				runner.Help();
 		}
-
+		
 		public void Schedule()
 		{
 			//First complete the previous run

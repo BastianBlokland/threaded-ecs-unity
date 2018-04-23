@@ -31,15 +31,15 @@ namespace ECS.Systems
 
 			//Note: entities list actually owned by the system so get what we want from it and then discard the reference
 			IList<EntityID> entities = system.GetEntities();
-			
+
 			entitiesLeft = entities.Count;
 			if(entitiesLeft == 0)
-			{
 				Completed();
-			}
 			else
 			{
-				for (int i = 0; i < entitiesLeft; i++)
+				//NOTE: do not use 'entitiesLeft' instead of 'entities.Count' here as 'entitiesLeft' can be modified during the loop if
+				//the tasks take very little time to execute, took me an hour to figure out why not all entities where scheduled :)
+				for (int i = 0; i < entities.Count; i++)
 					runner.Schedule(this, entities[i]);
 			}
 		}
@@ -51,9 +51,7 @@ namespace ECS.Systems
 			catch(Exception) { }
 
 			if(Interlocked.Decrement(ref entitiesLeft) == 0)
-			{
 				Completed();
-			}
 		}
 		//----> RUNNING ON SEPARATE THREAD
     }
