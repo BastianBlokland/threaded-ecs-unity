@@ -6,7 +6,8 @@ namespace ECS.Systems
 	{
 		public bool IsRunning { get { return !isCompleted; } }
 
-		private readonly SystemRunner runner;
+		private readonly int batchSize;
+		private readonly ActionRunner runner;
 		private readonly System[][] systems;
 		private readonly Profiler.SystemTimelineTrack[][] timelineTracks;
 
@@ -17,9 +18,10 @@ namespace ECS.Systems
 		/// is scheduled linearly but the items in the inner array run in parallel. Need to see if i can
 		/// come up with nicer syntax for this. 
 		/// </summary>
-		public SystemManager(int executorCount, Profiler.Timeline timeline, params System[][] systems)
+		public SystemManager(int executorCount, int batchSize, Profiler.Timeline timeline, params System[][] systems)
 		{
-			this.runner = new SystemRunner(executorCount);
+			this.batchSize = batchSize;
+			this.runner = new ActionRunner(executorCount);
 			this.systems = systems;
 
 			//Create profiler tracks for all the systems
@@ -58,7 +60,8 @@ namespace ECS.Systems
 				TrackExecuteHandle trackHandle = new TrackExecuteHandle
 				(
 					runner: runner,
-					systems: systems[i], 
+					systems: systems[i],
+					batchSize: batchSize,
 					profilerTracks: timelineTracks == null ? null : timelineTracks[i]
 				);
 				if(firstTrack == null)

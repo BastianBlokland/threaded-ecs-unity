@@ -6,19 +6,22 @@ using EntityID = System.UInt16;
 
 namespace ECS.Systems
 {
-    public class SystemExecuteHandle
+    public class SystemExecuteHandle : IActionExecutor
     {
         //NOTE: VERY important to realize that this can be called from any thread
 		public event Action Completed = delegate {};
 
-		private readonly SystemRunner runner;
+		private readonly int batchSize;
+		private readonly ActionRunner runner;
 		private readonly System system;
 
 		private bool isScheduled;
+		private IList<EntityID> entities;
 		private int entitiesLeft;
 
-		public SystemExecuteHandle(SystemRunner runner, System system)
+		public SystemExecuteHandle(int batchSize, ActionRunner runner, System system)
 		{
+			this.batchSize = batchSize;
 			this.runner = runner;
 			this.system = system;
 		}
@@ -29,25 +32,36 @@ namespace ECS.Systems
 				return;
 			isScheduled = true;
 
-			//Note: entities list actually owned by the system so get what we want from it and then discard the reference
-			IList<EntityID> entities = system.GetEntities();
+			//Note: entities list actually owned by the system so need to realise that you can't schedule the same system twice
+			//as both of them would be the same entities reference
+			entities = system.GetEntities();
+			int count = entities.Count;
 
-			entitiesLeft = entities.Count;
+			entitiesLeft = count;
 			if(entitiesLeft == 0)
 				Completed();
 			else
 			{
 				//NOTE: do not use 'entitiesLeft' instead of 'entities.Count' here as 'entitiesLeft' can be modified during the loop if
 				//the tasks take very little time to execute, took me an hour to figure out why not all entities where scheduled :)
-				for (int i = 0; i < entities.Count; i++)
-					runner.Schedule(this, entities[i]);
+				int startOffset = batchSize - 1;
+				for (int i = 0; i < count; i += batchSize)
+				{
+					int start = i;
+					int end = start + startOffset;
+					runner.Schedule(this, start, end >= count ? (count - 1) : end);
+				}
 			}
 		}
 
 		//----> RUNNING ON SEPARATE THREAD
-		public void Execute(EntityID entity)
+		public void ExecuteElement(int index)
 		{
-			try { system.Execute(entity); } 
+			try 
+			{
+				EntityID entity = entities[index];
+				system.Execute(entity); 
+			} 
 			catch(Exception) { }
 
 			if(Interlocked.Decrement(ref entitiesLeft) == 0)

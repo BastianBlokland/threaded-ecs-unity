@@ -6,22 +6,25 @@ using EntityID = System.UInt16;
 
 namespace ECS.Systems
 {
-	public class SystemRunner : IDisposable
+	public class ActionRunner : IDisposable
 	{
 		private struct ActionInfo
 		{
-			private readonly SystemExecuteHandle executor;
-			private readonly EntityID entity;
+			private readonly IActionExecutor executor;
+			private readonly int minIndex;
+			private readonly int maxIndex;
 
-			public ActionInfo(SystemExecuteHandle executor, EntityID entity)
+			public ActionInfo(IActionExecutor executor, int minIndex, int maxIndex)
 			{
 				this.executor = executor;
-				this.entity = entity;
+				this.minIndex = minIndex;
+				this.maxIndex = maxIndex;
 			}
 
 			public void Execute()
 			{
-				executor.Execute(entity);
+				for (int i = minIndex; i <= maxIndex; i++)
+					executor.ExecuteElement(i);
 			}
 		}
 
@@ -29,7 +32,7 @@ namespace ECS.Systems
 		private readonly CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		private readonly BlockingCollection<ActionInfo> actionQueue = new BlockingCollection<ActionInfo>();
 
-		public SystemRunner(int executorCount)
+		public ActionRunner(int executorCount)
 		{
 			for(int i = 0; i < executorCount; i++)
 			{
@@ -39,9 +42,9 @@ namespace ECS.Systems
 			}
 		}
 
-		public void Schedule(SystemExecuteHandle executor, EntityID entity)
+		public void Schedule(IActionExecutor executor, int minIndex, int maxIndex)
 		{
-			actionQueue.Add(new ActionInfo(executor, entity));
+			actionQueue.Add(new ActionInfo(executor, minIndex, maxIndex));
 		}
 
 		public void Help()

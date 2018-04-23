@@ -7,15 +7,21 @@ namespace ECS.Systems
 	{
 		public event Action Completed = delegate {};
 
-		private readonly SystemRunner runner;
+		private readonly int batchSize;
+		private readonly ActionRunner runner;
 		private readonly System[] systems;
 		private readonly Profiler.SystemTimelineTrack[] profilerTracks;
-
+		
 		private bool isScheduled;
 		private int systemsLeft;
 
-		public TrackExecuteHandle(SystemRunner runner, System[] systems, Profiler.SystemTimelineTrack[] profilerTracks = null)
+		public TrackExecuteHandle(
+			int batchSize,
+			ActionRunner runner, 
+			System[] systems,
+			Profiler.SystemTimelineTrack[] profilerTracks = null)
 		{
+			this.batchSize = batchSize;
 			this.runner = runner;
 			this.systems = systems;
 			this.profilerTracks = profilerTracks;
@@ -30,7 +36,7 @@ namespace ECS.Systems
 			systemsLeft = systems.Length;
 			for (int i = 0; i < systems.Length; i++)
 			{
-				SystemExecuteHandle handle = new SystemExecuteHandle(runner, systems[i]);
+				SystemExecuteHandle handle = new SystemExecuteHandle(batchSize, runner, systems[i]);
 
 				if(profilerTracks != null)
 					profilerTracks[i].Track(handle);
