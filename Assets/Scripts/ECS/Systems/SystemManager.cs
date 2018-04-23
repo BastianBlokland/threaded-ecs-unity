@@ -2,7 +2,7 @@
 
 namespace ECS.Systems
 {
-	public class SystemManager
+	public class SystemManager : IDisposable
 	{
 		public bool IsRunning { get { return !isCompleted; } }
 
@@ -27,7 +27,7 @@ namespace ECS.Systems
 			while(!isCompleted)
 				runner.Help();
 		}
-		
+
 		public void Schedule()
 		{
 			//First complete the previous run
@@ -59,6 +59,11 @@ namespace ECS.Systems
 				firstTrack.Schedule();
 			else //If there where no track then consider it to be complete allready
 				LastTrackCompleted();
+		}
+
+		public void Dispose()
+		{
+			runner.Dispose();
 		}
 
 		private void LastTrackCompleted()

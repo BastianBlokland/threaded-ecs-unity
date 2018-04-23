@@ -2,10 +2,11 @@ using Utils;
 using ECS.Storage;
 using ECS.Systems;
 using UnityEngine;
+using Test.Components;
 
 using EntityID = System.UInt16;
 
-namespace Test
+namespace Test.Systems
 {
     public class ApplyVelocitySystem : System<VelocityComponent, TransformComponent>
     {

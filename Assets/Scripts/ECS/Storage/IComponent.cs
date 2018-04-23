@@ -1,4 +1,4 @@
-namespace ECS
+namespace ECS.Storage
 {
 	public interface IComponent
 	{

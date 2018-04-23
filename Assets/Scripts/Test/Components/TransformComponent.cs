@@ -1,7 +1,7 @@
-using ECS;
+using ECS.Storage;
 using UnityEngine;
 
-namespace Test
+namespace Test.Components
 {
     public struct TransformComponent : IComponent
     {
