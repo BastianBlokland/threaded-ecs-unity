@@ -13,7 +13,7 @@ namespace ECS.Systems
 		private readonly Profiler.SystemTimelineTrack[] profilerTracks;
 		
 		private bool isScheduled;
-		private int systemsLeft;
+		private CountdownEvent countdownEvent;
 
 		public TrackExecuteHandle(
 			ActionRunner runner, 
@@ -31,7 +31,7 @@ namespace ECS.Systems
 				return;
 			isScheduled = true;
 
-			systemsLeft = systems.Length;
+			countdownEvent = new CountdownEvent(systems.Length);
 			for (int i = 0; i < systems.Length; i++)
 			{
 				SystemExecuteHandle handle = new SystemExecuteHandle(runner, systems[i]);
@@ -46,9 +46,10 @@ namespace ECS.Systems
 
 		private void SingleSystemComplete()
 		{
-			if(Interlocked.Decrement(ref systemsLeft) == 0)
+			if(countdownEvent.Signal())
 			{
 				Completed();
+				countdownEvent.Dispose();
 			}
 		}
 	}

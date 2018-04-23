@@ -16,7 +16,7 @@ namespace ECS.Systems
 
 		private bool isScheduled;
 		private IList<EntityID> entities;
-		private int entitiesLeft;
+		private CountdownEvent countdownEvent;
 
 		public SystemExecuteHandle(ActionRunner runner, System system)
 		{
@@ -35,11 +35,12 @@ namespace ECS.Systems
 			entities = system.GetEntities();
 			int count = entities.Count;
 
-			entitiesLeft = count;
-			if(entitiesLeft == 0)
+			if(count == 0)
 				Completed();
 			else
 			{
+				countdownEvent = new CountdownEvent(count);
+
 				//NOTE: do not use 'entitiesLeft' instead of 'entities.Count' here as 'entitiesLeft' can be modified during the loop if
 				//the tasks take very little time to execute, took me an hour to figure out why not all entities where scheduled :)
 				int startOffset = system.BatchSize - 1;
@@ -62,8 +63,11 @@ namespace ECS.Systems
 			} 
 			catch(Exception) { }
 
-			if(Interlocked.Decrement(ref entitiesLeft) == 0)
+			if(countdownEvent.Signal())
+			{
 				Completed();
+				countdownEvent.Dispose();
+			}
 		}
 		//----> RUNNING ON SEPARATE THREAD
     }
