@@ -11,13 +11,18 @@ namespace Test
 {
 	public class TestController : MonoBehaviour
 	{
-		[SerializeField] private bool multiThreaded = true;
+		[SerializeField] private int executorCount = 1;
 		[SerializeField] private GraphicsAssetsLibrary assetsLibrary;
+		[SerializeField] private Profiler.Timeline timeline;
 
 		private EntityContext entityContext;
 		private DeltaTimeHandle deltaTime;
 		private RenderSet renderSet;
 		private SystemManager systemManager;
+
+		private Profiler.TimelineTrack blockMainTrack;
+		private Profiler.TimelineTrack renderTrack;
+		private Profiler.TimelineTrack scheduleTrack;
 
 		protected void Awake()
 		{
@@ -30,7 +35,7 @@ namespace Test
 			entityContext = new EntityContext();
 			deltaTime = new DeltaTimeHandle();
 			renderSet = new RenderSet(assetsLibrary);
-			systemManager = new SystemManager(multiThreaded, new []
+			systemManager = new SystemManager(executorCount, timeline, new []
 			{
 				new ECS.Systems.System[] { new ApplyVelocitySystem(deltaTime, entityContext) },
 				new ECS.Systems.System[] { new CreateRenderBatchesSystem(renderSet, entityContext) }
@@ -42,24 +47,44 @@ namespace Test
 				EntityID entity = entityContext.CreateEntity();
 				entityContext.SetComponent(entity, new TransformComponent { Position = position, Rotation = Quaternion.identity });
 				entityContext.SetComponent(entity, new VelocityComponent { Velocity = Vector3.up * Random.value });
-				entityContext.SetComponent(entity, new GraphicsComponent { GraphicsID = 1 });	
+				entityContext.SetComponent(entity, new GraphicsComponent { GraphicsID = (byte)Random.Range(1, 4) });	
+			}
+
+			if(timeline != null)
+			{
+				blockMainTrack = timeline.CreateTrack<Profiler.TimelineTrack>("Finishing systems on main");
+				renderTrack = timeline.CreateTrack<Profiler.TimelineTrack>("Rendering");
+				scheduleTrack = timeline.CreateTrack<Profiler.TimelineTrack>("Scheduling");
+				timeline.StartTimers();
 			}
 		}
 		
 		protected void Update()
 		{
-			//Wait for the systems to be complete
-			systemManager.Complete();
+			if(blockMainTrack != null) blockMainTrack.LogStartWork();
+			{
+				//Wait for the systems to be complete
+				systemManager.Complete();
+			}
+			if(blockMainTrack != null) blockMainTrack.LogEndWork();
 
-			//Render the results of the systems
-			renderSet.Render();
+			if(renderTrack != null) renderTrack.LogStartWork();
+			{
+				//Render the results of the systems
+				renderSet.Render();
+			}
+			if(renderTrack != null) renderTrack.LogEndWork();
 
 			//Setup the systems
 			renderSet.Clear();
 			deltaTime.Update(Time.deltaTime);
 
-			//Schedule the systems
-			systemManager.Schedule();
+			if(scheduleTrack != null) scheduleTrack.LogStartWork();
+			{
+				//Schedule the systems
+				systemManager.Schedule();
+			}
+			if(scheduleTrack != null) scheduleTrack.LogEndWork();
 		}
 
 		protected void OnDestroy()

@@ -8,6 +8,7 @@ namespace ECS.Systems
 
 		private readonly SystemRunner runner;
 		private readonly System[][] systems;
+		private readonly Profiler.SystemTimelineTrack[][] timelineTracks;
 
 		private volatile bool isCompleted = true;
 
@@ -16,10 +17,25 @@ namespace ECS.Systems
 		/// is scheduled linearly but the items in the inner array run in parallel. Need to see if i can
 		/// come up with nicer syntax for this. 
 		/// </summary>
-		public SystemManager(bool multiThreaded, params System[][] systems)
+		public SystemManager(int executorCount, Profiler.Timeline timeline, params System[][] systems)
 		{
-			this.runner = new SystemRunner(multiThreaded);
+			this.runner = new SystemRunner(executorCount);
 			this.systems = systems;
+
+			//Create profiler tracks for all the systems
+			if(timeline != null)
+			{
+				this.timelineTracks = new Profiler.SystemTimelineTrack[systems.Length][];
+				for (int i = 0; i < systems.Length; i++)
+				{
+					timelineTracks[i] = new Profiler.SystemTimelineTrack[systems[i].Length];
+					for (int j = 0; j < systems[i].Length; j++)
+					{
+						string trackName = systems[i][j].GetType().Name;
+						timelineTracks[i][j] = timeline.CreateTrack<Profiler.SystemTimelineTrack>(trackName);
+					}
+				}
+			}
 		}
 
 		public void Complete()
@@ -39,7 +55,12 @@ namespace ECS.Systems
 			TrackExecuteHandle previousTrack = null;
 			for (int i = 0; i < systems.Length; i++)
 			{
-				TrackExecuteHandle trackHandle = new TrackExecuteHandle(runner, systems[i]);
+				TrackExecuteHandle trackHandle = new TrackExecuteHandle
+				(
+					runner: runner,
+					systems: systems[i], 
+					profilerTracks: timelineTracks == null ? null : timelineTracks[i]
+				);
 				if(firstTrack == null)
 					firstTrack = trackHandle;
 

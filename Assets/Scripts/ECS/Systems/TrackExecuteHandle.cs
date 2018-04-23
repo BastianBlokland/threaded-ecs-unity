@@ -9,14 +9,16 @@ namespace ECS.Systems
 
 		private readonly SystemRunner runner;
 		private readonly System[] systems;
+		private readonly Profiler.SystemTimelineTrack[] profilerTracks;
 
 		private bool isScheduled;
 		private int systemsLeft;
 
-		public TrackExecuteHandle(SystemRunner runner, params System[] systems)
+		public TrackExecuteHandle(SystemRunner runner, System[] systems, Profiler.SystemTimelineTrack[] profilerTracks = null)
 		{
 			this.runner = runner;
 			this.systems = systems;
+			this.profilerTracks = profilerTracks;
 		}
 
 		public void Schedule()
@@ -29,6 +31,10 @@ namespace ECS.Systems
 			for (int i = 0; i < systems.Length; i++)
 			{
 				SystemExecuteHandle handle = new SystemExecuteHandle(runner, systems[i]);
+
+				if(profilerTracks != null)
+					profilerTracks[i].Track(handle);
+
 				handle.Completed += SingleSystemComplete;
 				handle.Schedule();
 			}

@@ -29,10 +29,6 @@ namespace ECS.Systems
 		private readonly CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		private readonly BlockingCollection<ActionInfo> actionQueue = new BlockingCollection<ActionInfo>();
 
-		public SystemRunner(bool multiThreaded)
-			: this(executorCount: multiThreaded ? Environment.ProcessorCount - 1 : 0)
-		{ }
-
 		public SystemRunner(int executorCount)
 		{
 			for(int i = 0; i < executorCount; i++)
