@@ -12,7 +12,7 @@ namespace Test.Systems
     {
 		private readonly DeltaTimeHandle deltaTime;
 
-		public ApplyVelocitySystem(DeltaTimeHandle deltaTime, EntityContext context) : base(context)
+		public ApplyVelocitySystem(DeltaTimeHandle deltaTime, EntityContext context, int batchSize) : base(context, batchSize)
 		{
 			this.deltaTime = deltaTime;
 		}

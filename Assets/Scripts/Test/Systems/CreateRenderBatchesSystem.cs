@@ -12,7 +12,7 @@ namespace Test.Systems
     {
 		private readonly RenderSet renderSet;
 
-		public CreateRenderBatchesSystem(RenderSet renderSet, EntityContext context) : base(context)
+		public CreateRenderBatchesSystem(RenderSet renderSet, EntityContext context, int batchSize) : base(context, batchSize)
 		{
 			this.renderSet = renderSet;
 		}

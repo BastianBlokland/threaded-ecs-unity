@@ -16,12 +16,10 @@ namespace ECS.Systems
 		private int systemsLeft;
 
 		public TrackExecuteHandle(
-			int batchSize,
 			ActionRunner runner, 
 			System[] systems,
 			Profiler.SystemTimelineTrack[] profilerTracks = null)
 		{
-			this.batchSize = batchSize;
 			this.runner = runner;
 			this.systems = systems;
 			this.profilerTracks = profilerTracks;
@@ -36,7 +34,7 @@ namespace ECS.Systems
 			systemsLeft = systems.Length;
 			for (int i = 0; i < systems.Length; i++)
 			{
-				SystemExecuteHandle handle = new SystemExecuteHandle(batchSize, runner, systems[i]);
+				SystemExecuteHandle handle = new SystemExecuteHandle(runner, systems[i]);
 
 				if(profilerTracks != null)
 					profilerTracks[i].Track(handle);

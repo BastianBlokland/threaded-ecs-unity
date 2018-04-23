@@ -10,7 +10,7 @@ namespace ECS.Systems
 	{
 		private readonly IComponentContainer<Comp1> container1;
 
-		public System(EntityContext context) : base(context)
+		public System(EntityContext context, int batchSize) : base(context, batchSize)
 		{
 			this.container1 = context.GetContainer<Comp1>();
 		}
@@ -36,7 +36,7 @@ namespace ECS.Systems
 		private readonly IComponentContainer<Comp1> container1;
 		private readonly IComponentContainer<Comp2> container2;
 
-		public System(EntityContext context) : base(context)
+		public System(EntityContext context, int batchSize) : base(context, batchSize)
 		{
 			this.container1 = context.GetContainer<Comp1>();
 			this.container2 = context.GetContainer<Comp2>();
@@ -66,7 +66,7 @@ namespace ECS.Systems
 		private readonly IComponentContainer<Comp2> container2;
 		private readonly IComponentContainer<Comp3> container3;
 
-		public System(EntityContext context) : base(context)
+		public System(EntityContext context, int batchSize) : base(context, batchSize)
 		{
 			this.container1 = context.GetContainer<Comp1>();
 			this.container2 = context.GetContainer<Comp2>();
@@ -103,7 +103,7 @@ namespace ECS.Systems
 		private readonly IComponentContainer<Comp3> container3;
 		private readonly IComponentContainer<Comp4> container4;
 
-		public System(EntityContext context) : base(context)
+		public System(EntityContext context, int batchSize) : base(context, batchSize)
 		{
 			this.container1 = context.GetContainer<Comp1>();
 			this.container2 = context.GetContainer<Comp2>();
@@ -149,7 +149,7 @@ namespace ECS.Systems
 		private readonly IComponentContainer<Comp4> container4;
 		private readonly IComponentContainer<Comp5> container5;
 
-		public System(EntityContext context) : base(context)
+		public System(EntityContext context, int batchSize) : base(context, batchSize)
 		{
 			this.container1 = context.GetContainer<Comp1>();
 			this.container2 = context.GetContainer<Comp2>();
@@ -188,16 +188,20 @@ namespace ECS.Systems
 
     public abstract class System
     {
+		public readonly int BatchSize;
+
 		private readonly EntityContext context;
 		private readonly IList<EntityID> entities;
 
 		private readonly ComponentMask requiredComponents;
 		private readonly ComponentMask illegalComponents;
 
-		public System(EntityContext context)
+		public System(EntityContext context, int batchSize)
 		{
 			this.context = context;
 			this.entities = new List<EntityID>();
+			
+			BatchSize = batchSize;
 			
 			requiredComponents = GetRequiredComponents(context);
 			illegalComponents = GetIllegalComponents(context);

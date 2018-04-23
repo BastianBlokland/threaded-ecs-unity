@@ -11,7 +11,6 @@ namespace ECS.Systems
         //NOTE: VERY important to realize that this can be called from any thread
 		public event Action Completed = delegate {};
 
-		private readonly int batchSize;
 		private readonly ActionRunner runner;
 		private readonly System system;
 
@@ -19,9 +18,8 @@ namespace ECS.Systems
 		private IList<EntityID> entities;
 		private int entitiesLeft;
 
-		public SystemExecuteHandle(int batchSize, ActionRunner runner, System system)
+		public SystemExecuteHandle(ActionRunner runner, System system)
 		{
-			this.batchSize = batchSize;
 			this.runner = runner;
 			this.system = system;
 		}
@@ -44,8 +42,8 @@ namespace ECS.Systems
 			{
 				//NOTE: do not use 'entitiesLeft' instead of 'entities.Count' here as 'entitiesLeft' can be modified during the loop if
 				//the tasks take very little time to execute, took me an hour to figure out why not all entities where scheduled :)
-				int startOffset = batchSize - 1;
-				for (int i = 0; i < count; i += batchSize)
+				int startOffset = system.BatchSize - 1;
+				for (int i = 0; i < count; i += system.BatchSize)
 				{
 					int start = i;
 					int end = start + startOffset;

@@ -12,7 +12,6 @@ namespace Test
 	public class TestController : MonoBehaviour
 	{
 		[SerializeField] private int executorCount = 1;
-		[SerializeField] private int batchSize = 50;
 		[SerializeField] private GraphicsAssetsLibrary assetsLibrary;
 		[SerializeField] private Profiler.Timeline timeline;
 
@@ -36,10 +35,10 @@ namespace Test
 			entityContext = new EntityContext();
 			deltaTime = new DeltaTimeHandle();
 			renderSet = new RenderSet(assetsLibrary);
-			systemManager = new SystemManager(executorCount, batchSize, timeline, new []
+			systemManager = new SystemManager(executorCount, timeline, new []
 			{
-				new ECS.Systems.System[] { new ApplyVelocitySystem(deltaTime, entityContext) },
-				new ECS.Systems.System[] { new CreateRenderBatchesSystem(renderSet, entityContext) }
+				new ECS.Systems.System[] { new ApplyVelocitySystem(deltaTime, entityContext, batchSize: 50) },
+				new ECS.Systems.System[] { new CreateRenderBatchesSystem(renderSet, entityContext, batchSize: 1000000) }
 			});
 
 			for (int i = 0; i < EntityID.MaxValue; i++)
