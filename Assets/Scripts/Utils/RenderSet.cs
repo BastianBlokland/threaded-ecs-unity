@@ -26,64 +26,61 @@ namespace Utils
 		public const int MAX_BATCH_SIZE = 1023;
 
 		private readonly GraphicsAssetsLibrary assetsLibrary;
-		private readonly MaterialPropertyBlock propertyBlock;
-		private readonly List<BatchData> batches;
+		private readonly ConcurrentDictionary<int, List<BatchData>> batchesLookupPerThread;
 
 		public RenderSet(GraphicsAssetsLibrary assetsLibrary)
 		{
 			this.assetsLibrary = assetsLibrary;
-			this.propertyBlock = new MaterialPropertyBlock();
-			this.batches = new List<BatchData>();
+			this.batchesLookupPerThread = new ConcurrentDictionary<int, List<BatchData>>();
 		}
 
 		public void Add(byte graphicsID, Matrix4x4 matrix)
 		{
-			lock(batches)
+			int threadId = Thread.CurrentThread.ManagedThreadId;
+			List<BatchData> list = batchesLookupPerThread.GetOrAdd(threadId, (_) => new List<BatchData>());
+			
+			bool added = false;
+			for (int i = 0; i < list.Count; i++)
 			{
-				bool added = false;
-				for (int i = 0; i < batches.Count; i++)
+				BatchData batch = list[i];
+				if(batch.GraphicsID == graphicsID && batch.Count < MAX_BATCH_SIZE)
 				{
-					BatchData batch = batches[i];
-					if(batch.GraphicsID == graphicsID && batch.Count < MAX_BATCH_SIZE)
-					{
-						batch.Matrices[batch.Count] = matrix;
-						batch.Count++;
-						batches[i] = batch;
-						added = true;
-						break;
-					}
+					batch.Matrices[batch.Count] = matrix;
+					batch.Count++;
+					list[i] = batch;
+					added = true;
+					break;
 				}
-
-				if(!added)
-				{
-					BatchData newBatch = new BatchData(graphicsID, new Matrix4x4[MAX_BATCH_SIZE]);
-					newBatch.Matrices[0] = matrix;
-					newBatch.Count = 1;
-					batches.Add(newBatch);
-				}
+			}
+			if(!added)
+			{
+				BatchData newBatch = new BatchData(graphicsID, new Matrix4x4[MAX_BATCH_SIZE]);
+				newBatch.Matrices[0] = matrix;
+				newBatch.Count = 1;
+				list.Add(newBatch);
 			}
 		}
 
 		public void Clear()
 		{
-			lock(batches)
+			foreach(KeyValuePair<int, List<BatchData>> kvp in batchesLookupPerThread)
 			{
-				for (int i = 0; i < batches.Count; i++)
+				for (int i = 0; i < kvp.Value.Count; i++)
 				{
-					BatchData batch = batches[i];
+					BatchData batch = kvp.Value[i];
 					batch.Count = 0;
-					batches[i] = batch;
+					kvp.Value[i] = batch;
 				}
 			}
 		}
 
 		public void Render()
 		{
-			lock(batches)
+			foreach(KeyValuePair<int, List<BatchData>> kvp in batchesLookupPerThread)
 			{
-				for (int i = 0; i < batches.Count; i++)
+				for (int i = 0; i < kvp.Value.Count; i++)
 				{
-					BatchData batch = batches[i];
+					BatchData batch = kvp.Value[i];
 					if(batch.Count == 0)
 						continue;
 					
@@ -97,8 +94,7 @@ namespace Utils
 						submeshIndex: 0, 
 						material: assets.Material,
 						matrices: batch.Matrices,
-						count: batch.Count,
-						properties: propertyBlock
+						count: batch.Count
 					);
 				}
 			}

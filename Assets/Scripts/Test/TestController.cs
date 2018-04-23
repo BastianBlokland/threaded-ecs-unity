@@ -32,13 +32,15 @@ namespace Test
 				return;
 			}
 
+			Application.targetFrameRate = -1;
+
 			entityContext = new EntityContext();
 			deltaTime = new DeltaTimeHandle();
 			renderSet = new RenderSet(assetsLibrary);
 			systemManager = new SystemManager(executorCount, timeline, new []
 			{
 				new ECS.Systems.System[] { new ApplyVelocitySystem(deltaTime, entityContext, batchSize: 50) },
-				new ECS.Systems.System[] { new CreateRenderBatchesSystem(renderSet, entityContext, batchSize: 1000000) }
+				new ECS.Systems.System[] { new CreateRenderBatchesSystem(renderSet, entityContext, batchSize: 200) }
 			});
 
 			for (int i = 0; i < EntityID.MaxValue; i++)
