@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 
 using EntityID = System.UInt16;
@@ -23,17 +23,23 @@ namespace ECS.Systems
 
 			public void Execute()
 			{
-				for (int i = minIndex; i <= maxIndex; i++)
-					executor.ExecuteElement(i);
+				if(executor != null)
+				{
+					for (int i = minIndex; i <= maxIndex; i++)
+						executor.ExecuteElement(i);
+				}
 			}
 		}
 
-		//----> Syncing data
-		private readonly CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
-		private readonly BlockingCollection<ActionInfo> actionQueue = new BlockingCollection<ActionInfo>();
+		private readonly Queue<ActionInfo> actionQueue;
+		private readonly object lockObject;
+		private volatile bool cancel;
 
 		public ActionRunner(int executorCount)
 		{
+			actionQueue = new Queue<ActionInfo>();
+			lockObject = new object();
+
 			for(int i = 0; i < executorCount; i++)
 			{
 				Thread executorThread = new Thread(ThreadExecutor);
@@ -44,32 +50,52 @@ namespace ECS.Systems
 
 		public void Schedule(IActionExecutor executor, int minIndex, int maxIndex)
 		{
-			actionQueue.Add(new ActionInfo(executor, minIndex, maxIndex));
+			lock(lockObject)
+			{
+				actionQueue.Enqueue(new ActionInfo(executor, minIndex, maxIndex));
+				Monitor.Pulse(lockObject);
+			}
 		}
 
 		public void Help()
 		{
-			ActionInfo action;
-			if(actionQueue.TryTake(out action))
+			ActionInfo action = new ActionInfo();
+			lock(lockObject)
 			{
-				try { action.Execute(); }
-				catch(Exception) { }
+				if(actionQueue.Count > 0)
+					action = actionQueue.Dequeue();
 			}
+			try { action.Execute(); }
+			catch(Exception) {}
 		}
 
 		public void Dispose()
 		{
-			cancelTokenSource.Cancel();
+			cancel = true;
+			//Wake up all the executors thread so they can cancel themselves
+			lock(lockObject)
+			{
+				Monitor.PulseAll(lockObject); 
+			}
 		}
 
 		//----> RUNNING ON SEPARATE THREAD
 		private void ThreadExecutor()
 		{
-			while(!cancelTokenSource.IsCancellationRequested)
+			while(!cancel)
 			{
-				ActionInfo action = actionQueue.Take(cancelTokenSource.Token);
-				try { action.Execute(); }
-				catch(Exception) { }
+				ActionInfo action;				
+				lock(lockObject)
+				{
+					while(actionQueue.Count == 0 && !cancel)
+						Monitor.Wait(lockObject);
+					action = actionQueue.Dequeue();
+				}
+				if(!cancel)
+				{
+					try { action.Execute(); }
+					catch(Exception) { }
+				}
 			}
 		}
 		//----> RUNNING ON SEPARATE THREAD
