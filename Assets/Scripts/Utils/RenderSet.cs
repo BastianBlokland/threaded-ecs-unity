@@ -26,6 +26,9 @@ namespace Utils
 		public const int MAX_BATCH_SIZE = 1023;
 
 		private readonly GraphicsAssetsLibrary assetsLibrary;
+
+		//Even tho this seems like the perfect usage for ThreadLocal<List<BatchData>> but i was see-ing considerable
+		//slowdowns of ThreadLocal vs just keeping a dictionary indexed by threadID. Very strange if anyone knows why, let me know.
 		private readonly ConcurrentDictionary<int, List<BatchData>> batchesLookupPerThread;
 
 		public RenderSet(GraphicsAssetsLibrary assetsLibrary)
