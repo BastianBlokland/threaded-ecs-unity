@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using ECS.Storage;
 
 using EntityID = System.UInt16;
 
@@ -15,7 +16,7 @@ namespace ECS.Systems
 		private readonly System system;
 
 		private bool isScheduled;
-		private IList<EntityID> entities;
+		private EntitySet entities;
 		private CountdownEvent countdownEvent;
 
 		public SystemExecuteHandle(ActionRunner runner, System system)
@@ -58,7 +59,7 @@ namespace ECS.Systems
 		{
 			try 
 			{
-				EntityID entity = entities[index];
+				EntityID entity = entities.Data[index];
 				system.Execute(entity); 
 			} 
 			catch(Exception) { }

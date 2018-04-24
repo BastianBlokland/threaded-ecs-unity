@@ -88,9 +88,9 @@ namespace ECS.Storage
 			entityQueryLock.ExitReadLock();
 		}
 
-		public void GetEntities(ComponentMask requiredComps, ComponentMask illegalComps, IList<EntityID> outputList)
+		public void GetEntities(ComponentMask requiredComps, ComponentMask illegalComps, EntitySet outputSet)
 		{
-			outputList.Clear();
+			outputSet.Clear();
 
 			//I know this looks like its reversed but i wanted to avoid locking each individual entity in the
 			//for loop as that adds a significant cost, so thats why its using the 'write' portion of a 'ReaderWriterLockSlim'
@@ -101,7 +101,7 @@ namespace ECS.Storage
 				for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
 				{
 					if(entities[entity].Has(requiredComps) && entities[entity].NotHas(illegalComps))
-						outputList.Add(entity);
+						outputSet.Add(entity);
 				}
 			}
 			entityQueryLock.ExitWriteLock();

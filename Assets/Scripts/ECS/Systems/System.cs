@@ -191,7 +191,7 @@ namespace ECS.Systems
 		public readonly int BatchSize;
 
 		private readonly EntityContext context;
-		private readonly IList<EntityID> entities;
+		private readonly EntitySet entities;
 
 		private readonly ComponentMask requiredComponents;
 		private readonly ComponentMask illegalComponents;
@@ -199,7 +199,7 @@ namespace ECS.Systems
 		public System(EntityContext context, int batchSize)
 		{
 			this.context = context;
-			this.entities = new List<EntityID>();
+			this.entities = new EntitySet();
 			
 			BatchSize = batchSize;
 			
@@ -212,7 +212,7 @@ namespace ECS.Systems
 		/// for every frame, so beware to threat this a very short lived data as another call to 'GetEntities'
 		/// will change the data
 		/// </summary>
-		public IList<EntityID> GetEntities()
+		public EntitySet GetEntities()
 		{
 			context.GetEntities(requiredComponents, illegalComponents, entities);
 			return entities;
