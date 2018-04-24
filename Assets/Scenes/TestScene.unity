@@ -293,7 +293,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48998b29b5f4c48628445327d6b41f49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  multiThreaded: 1
+  executorCount: 6
   assetsLibrary: {fileID: 11400000, guid: 6206a5aecfa5f499bb1ad0ad828eb2aa, type: 2}
   timeline: {fileID: 634226421}
 --- !u!4 &1739203811

@@ -16,8 +16,8 @@ MonoBehaviour:
     mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
     material: {fileID: 2100000, guid: 5f77eb819d312417daa66292d8bf52c2, type: 2}
   - graphicsID: 2
-    mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+    mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
     material: {fileID: 2100000, guid: 5f77eb819d312417daa66292d8bf52c2, type: 2}
   - graphicsID: 3
-    mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+    mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
     material: {fileID: 2100000, guid: 5f77eb819d312417daa66292d8bf52c2, type: 2}

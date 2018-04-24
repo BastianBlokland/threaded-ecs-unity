@@ -14,15 +14,17 @@ namespace ECS.Systems
 
 		private readonly ActionRunner runner;
 		private readonly System system;
+		private readonly Profiler.TimelineTrack timelineTrack;
 
 		private bool isScheduled;
 		private EntitySet entities;
 		private CountdownEvent countdownEvent;
 
-		public SystemExecuteHandle(ActionRunner runner, System system)
+		public SystemExecuteHandle(ActionRunner runner, System system, Profiler.TimelineTrack timelineTrack = null)
 		{
 			this.runner = runner;
 			this.system = system;
+			this.timelineTrack = timelineTrack;
 		}
 
 		public void Schedule()
@@ -31,13 +33,16 @@ namespace ECS.Systems
 				return;
 			isScheduled = true;
 
+			if(timelineTrack != null)
+				timelineTrack.LogStartWork();
+
 			//Note: entities list actually owned by the system so need to realise that you can't schedule the same system twice
 			//as both of them would be the same entities reference
 			entities = system.GetEntities();
 			int count = entities.Count;
 
 			if(count == 0)
-				Completed();
+				Complete();
 			else
 			{
 				countdownEvent = new CountdownEvent(count);
@@ -66,10 +71,17 @@ namespace ECS.Systems
 
 			if(countdownEvent.Signal())
 			{
-				Completed();
+				Complete();
 				countdownEvent.Dispose();
 			}
 		}
 		//----> RUNNING ON SEPARATE THREAD
+
+		private void Complete()
+		{
+			Completed();
+			if(timelineTrack != null)
+				timelineTrack.LogEndWork();
+		}
     }
 }

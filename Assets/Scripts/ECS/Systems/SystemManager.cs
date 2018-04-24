@@ -7,17 +7,12 @@ namespace ECS.Systems
 		public bool IsRunning { get { return !isCompleted; } }
 
 		private readonly ActionRunner runner;
-		private readonly System[][] systems;
-		private readonly Profiler.SystemTimelineTrack[][] timelineTracks;
+		private readonly System[] systems;
+		private readonly Profiler.TimelineTrack[] timelineTracks;
 
 		private volatile bool isCompleted = true;
 
-		/// <summary>
-		/// Wierd syntax but this 'systems' jagged array is a array of system tracks. So the outer array
-		/// is scheduled linearly but the items in the inner array run in parallel. Need to see if i can
-		/// come up with nicer syntax for this. 
-		/// </summary>
-		public SystemManager(int executorCount, Profiler.Timeline timeline, params System[][] systems)
+		public SystemManager(int executorCount, Profiler.Timeline timeline, params System[] systems)
 		{
 			this.runner = new ActionRunner(executorCount);
 			this.systems = systems;
@@ -25,16 +20,9 @@ namespace ECS.Systems
 			//Create profiler tracks for all the systems
 			if(timeline != null)
 			{
-				this.timelineTracks = new Profiler.SystemTimelineTrack[systems.Length][];
+				this.timelineTracks = new Profiler.TimelineTrack[systems.Length];
 				for (int i = 0; i < systems.Length; i++)
-				{
-					timelineTracks[i] = new Profiler.SystemTimelineTrack[systems[i].Length];
-					for (int j = 0; j < systems[i].Length; j++)
-					{
-						string trackName = systems[i][j].GetType().Name;
-						timelineTracks[i][j] = timeline.CreateTrack<Profiler.SystemTimelineTrack>(trackName);
-					}
-				}
+					timelineTracks[i] = timeline.CreateTrack<Profiler.TimelineTrack>(systems[i].GetType().Name);
 			}
 		}
 
@@ -51,33 +39,28 @@ namespace ECS.Systems
 
 			isCompleted = false;
 
-			TrackExecuteHandle firstTrack = null;
-			TrackExecuteHandle previousTrack = null;
+			SystemExecuteHandle firstSystem = null;
+			SystemExecuteHandle previousSystem = null;
 			for (int i = 0; i < systems.Length; i++)
 			{
-				TrackExecuteHandle trackHandle = new TrackExecuteHandle
-				(
-					runner: runner,
-					systems: systems[i],
-					profilerTracks: timelineTracks == null ? null : timelineTracks[i]
-				);
-				if(firstTrack == null)
-					firstTrack = trackHandle;
+				SystemExecuteHandle executeHandle = new SystemExecuteHandle(runner, systems[i], timelineTracks[i]);
+				if(firstSystem == null)
+					firstSystem = executeHandle;
 
 				//Chain all the track together in a linear fashion
-				if(previousTrack != null)
-					previousTrack.Completed += trackHandle.Schedule;
+				if(previousSystem != null)
+					previousSystem.Completed += executeHandle.Schedule;
 
-				previousTrack = trackHandle;
+				previousSystem = executeHandle;
 			}
 
 			//Follow the completion of the last track
-			if(previousTrack != null)
-				previousTrack.Completed += LastTrackCompleted;
+			if(previousSystem != null)
+				previousSystem.Completed += LastTrackCompleted;
 
 			//Start the chain
-			if(firstTrack != null)
-				firstTrack.Schedule();
+			if(firstSystem != null)
+				firstSystem.Schedule();
 			else //If there where no track then consider it to be complete allready
 				LastTrackCompleted();
 		}

@@ -37,10 +37,10 @@ namespace Test
 			entityContext = new EntityContext();
 			deltaTime = new DeltaTimeHandle();
 			renderSet = new RenderSet(assetsLibrary);
-			systemManager = new SystemManager(executorCount, timeline, new []
+			systemManager = new SystemManager(executorCount, timeline, new ECS.Systems.System[]
 			{
-				new ECS.Systems.System[] { new ApplyVelocitySystem(deltaTime, entityContext, batchSize: 50) },
-				new ECS.Systems.System[] { new CreateRenderBatchesSystem(renderSet, entityContext, batchSize: 200) }
+				new ApplyVelocitySystem(deltaTime, entityContext, batchSize: 100),
+				new CreateRenderBatchesSystem(renderSet, entityContext, batchSize: 100)
 			});
 
 			for (int i = 0; i < EntityID.MaxValue; i++)
