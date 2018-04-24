@@ -23,16 +23,17 @@ namespace ECS.Storage
 		//Storage for the actual component data
 		private readonly IComponentContainer[] containers;
 		
-		//To make access to the component-masks thread-safe there are to layers of locking, if you want to read from the ENTIRE
-		//array (as done by the 'GetEntities' that queries ALL the entries) then it locks the entire array into reading mode. That's 
-		//also what the 'entityReaders' readers count is used for so that only the first thread takes the 'read' lock and all other threads
-		//are then also allowed to read. And any thread that does modification to the array first takes a lock to put the array into 'write'
-		//mode and then all other threads are also allowed to write. For safety for individual writes it has lock objects per entity entry
-		//so that you can 'lock' access to a single entry in the array
+		//Locking on the entities array is done with per element locks that are being held in the 'entityLocks' array, this
+		//makes it possible for multiple concurrent writers to different elements. There one additional method of locking for the
+		//'GetEntities' method because individually locking each element was adding to much time to the query so its using a 
+		//'ReaderWriterLockSlim' lock in reverse in the sense that its takes a 'writer' lock when querying and all the places
+		//that do modifictions take a 'read' lock. This we we can still have concurrent modifications (to different elements) as 
+		//the 'ReaderWriterLockSlim' allows for multiple simultaneous readers but will stop all modifications we we are quering
+		//one done side is that this will NOT allow for concurrent 'GetEntities' queries even tho that would be save, but i suspect
+		//that will be a very rare occurrence. In the mean time if anyone comes up with a smarter way to do this locking feel free :)
 		private readonly ComponentMask[] entities;
 		private readonly object[] entityLocks;
-		private int entityReaders; //How many threads are currently reading from 'entities'
-		private int entityWriters; //How many threads are currently writing to 'entities'
+		private readonly ReaderWriterLockSlim entityQueryLock;
 		
 		public EntityContext()
 			: this(componentAssembly: typeof(EntityContext).Assembly)
@@ -45,6 +46,7 @@ namespace ECS.Storage
 			containers = new IComponentContainer[reflector.ComponentCount];
 			entities = new ComponentMask[EntityID.MaxValue];
 			entityLocks = new object[EntityID.MaxValue];
+			entityQueryLock = new ReaderWriterLockSlim();
 
 			//Allocate a container for each component type
 			for (CompID comp = 0; comp < reflector.ComponentCount; comp++)
@@ -75,8 +77,7 @@ namespace ECS.Storage
 		{
 			entityAllocator.Free(entity);
 
-			//Locks the 'entities' array if its the first 'writer' and releases when it was the last
-			if(Interlocked.Increment(ref entityWriters) == 1) Monitor.Enter(entities);
+			entityQueryLock.EnterReadLock();
 			{
 				//Lock this particular entity for modification
 				lock(entityLocks[entity])
@@ -84,15 +85,18 @@ namespace ECS.Storage
 					entities[entity].Clear();
 				}
 			}
-			if(Interlocked.Decrement(ref entityWriters) == 0) Monitor.Exit(entities);
+			entityQueryLock.ExitReadLock();
 		}
 
 		public void GetEntities(ComponentMask requiredComps, ComponentMask illegalComps, IList<EntityID> outputList)
 		{
 			outputList.Clear();
 
-			//Locks the 'entities' array if its the first 'reader' and releases when it was the last
-			if(Interlocked.Increment(ref entityReaders) == 1) Monitor.Enter(entities);
+			//I know this looks like its reversed but i wanted to avoid locking each individual entity in the
+			//for loop as that adds a significant cost, so thats why its using the 'write' portion of a 'ReaderWriterLockSlim'
+			//Its not using a entire 'lock' on  the 'entities' array as we still want to have multiple concurrent writers (as they
+			//still individually lock each entry they modify)
+			entityQueryLock.EnterWriteLock();
 			{
 				for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
 				{
@@ -100,7 +104,7 @@ namespace ECS.Storage
 						outputList.Add(entity);
 				}
 			}
-			if(Interlocked.Decrement(ref entityReaders) == 0) Monitor.Exit(entities);
+			entityQueryLock.ExitWriteLock();
 		}
 
 		public bool HasComponent<T>(EntityID entity)
@@ -118,7 +122,6 @@ namespace ECS.Storage
 		public bool HasComponents(EntityID entity, ComponentMask mask)
 		{
 			bool has;
-			//Lock this entity so that it won't be modified while we are reading it
 			lock(entityLocks[entity])
 			{
 				has = entities[entity].Has(mask);
@@ -140,8 +143,7 @@ namespace ECS.Storage
 			ComponentMask compMask = ComponentMask.CreateMask(comp);
 			((IComponentContainer<T>)containers[comp]).Set(entity, data);
 
-			//Note: locks the entities array for reading IF its the first one to start writing
-			if(Interlocked.Increment(ref entityWriters) == 1) Monitor.Enter(entities);
+			entityQueryLock.EnterReadLock();
 			{
 				//Locks this particular entity for modification.
 				lock(entityLocks[entity])
@@ -149,7 +151,7 @@ namespace ECS.Storage
 					entities[entity].Add(compMask);
 				}
 			}
-			if(Interlocked.Decrement(ref entityWriters) == 0) Monitor.Exit(entities);
+			entityQueryLock.ExitReadLock();
 		}
 
 		public void RemoveComponent<T>(EntityID entity)
@@ -157,8 +159,7 @@ namespace ECS.Storage
 		{
 			ComponentMask compMask = GetMask<T>();
 
-			//Note: locks the entities array for reading IF its the first one to start writing
-			if(Interlocked.Increment(ref entityWriters) == 1) Monitor.Enter(entities);
+			entityQueryLock.EnterReadLock();
 			{
 				//Locks this particular entity for modification.
 				lock(entityLocks[entity])
@@ -166,19 +167,22 @@ namespace ECS.Storage
 					entities[entity].Remove(compMask);
 				}
 			}
-			if(Interlocked.Decrement(ref entityWriters) == 0) Monitor.Exit(entities);
+			entityQueryLock.ExitReadLock();
 		}
 
 		public void Clear()
 		{
-			//Allways lock the entire entities array, btw 'lock' turns into Monitor.Enter and Monitor.Exit so 
-			//its safe to mix lock on 'entities' and the 'Monitor.Enter' calls that the individual modifiction calls use
-			//to lock the entities array into write mode.
-			lock(entities)
+			entityQueryLock.EnterReadLock();
 			{
 				for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
-					entities[entity].Clear();
+				{
+					lock(entityLocks[entity])
+					{
+						entities[entity].Clear();					
+					}
+				}
 			}
+			entityQueryLock.ExitReadLock();
 		}
 
 		public IComponentContainer<T> GetContainer<T>()
