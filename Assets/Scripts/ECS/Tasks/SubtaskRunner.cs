@@ -4,40 +4,45 @@ using System.Threading;
 
 using EntityID = System.UInt16;
 
-namespace ECS.Systems
+namespace ECS.Tasks
 {
-	public class ActionRunner : IDisposable
+	public class SubtaskRunner : IDisposable
 	{
-		private struct ActionInfo
+		public interface ISubtaskExecutor
 		{
-			private readonly IActionExecutor executor;
-			private readonly int minIndex;
-			private readonly int maxIndex;
+			void ExecuteSubtask(int subtaskIndex);
+		}
 
-			public ActionInfo(IActionExecutor executor, int minIndex, int maxIndex)
+		private struct ExecuteInfo
+		{
+			private readonly ISubtaskExecutor executor;
+			private readonly int minSubtaskIndex;
+			private readonly int maxSubtaskIndex;
+
+			public ExecuteInfo(ISubtaskExecutor executor, int minSubtaskIndex, int maxSubtaskIndex)
 			{
 				this.executor = executor;
-				this.minIndex = minIndex;
-				this.maxIndex = maxIndex;
+				this.minSubtaskIndex = minSubtaskIndex;
+				this.maxSubtaskIndex = maxSubtaskIndex;
 			}
 
 			public void Execute()
 			{
 				if(executor != null)
 				{
-					for (int i = minIndex; i <= maxIndex; i++)
-						executor.ExecuteElement(i);
+					for (int i = minSubtaskIndex; i <= maxSubtaskIndex; i++)
+						executor.ExecuteSubtask(i);
 				}
 			}
 		}
 
-		private readonly Queue<ActionInfo> actionQueue;
+		private readonly Queue<ExecuteInfo> workQueue;
 		private readonly object lockObject;
 		private volatile bool cancel;
 
-		public ActionRunner(int executorCount)
+		public SubtaskRunner(int executorCount)
 		{
-			actionQueue = new Queue<ActionInfo>();
+			workQueue = new Queue<ExecuteInfo>();
 			lockObject = new object();
 
 			for(int i = 0; i < executorCount; i++)
@@ -48,24 +53,24 @@ namespace ECS.Systems
 			}
 		}
 
-		public void Schedule(IActionExecutor executor, int minIndex, int maxIndex)
+		public void Schedule(ISubtaskExecutor executor, int minIndex, int maxIndex)
 		{
 			lock(lockObject)
 			{
-				actionQueue.Enqueue(new ActionInfo(executor, minIndex, maxIndex));
+				workQueue.Enqueue(new ExecuteInfo(executor, minIndex, maxIndex));
 				Monitor.Pulse(lockObject);
 			}
 		}
 
 		public void Help()
 		{
-			ActionInfo action = new ActionInfo();
+			ExecuteInfo work = new ExecuteInfo();
 			lock(lockObject)
 			{
-				if(actionQueue.Count > 0)
-					action = actionQueue.Dequeue();
+				if(workQueue.Count > 0)
+					work = workQueue.Dequeue();
 			}
-			try { action.Execute(); }
+			try { work.Execute(); }
 			catch(Exception) {}
 		}
 
@@ -84,16 +89,16 @@ namespace ECS.Systems
 		{
 			while(!cancel)
 			{
-				ActionInfo action;				
+				ExecuteInfo task;				
 				lock(lockObject)
 				{
-					while(actionQueue.Count == 0 && !cancel)
+					while(workQueue.Count == 0 && !cancel)
 						Monitor.Wait(lockObject);
-					action = actionQueue.Dequeue();
+					task = workQueue.Dequeue();
 				}
 				if(!cancel)
 				{
-					try { action.Execute(); }
+					try { task.Execute(); }
 					catch(Exception) { }
 				}
 			}

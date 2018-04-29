@@ -1,6 +1,6 @@
 using Utils;
 using ECS.Storage;
-using ECS.Systems;
+using ECS.Tasks;
 using UnityEngine;
 using Test.Components;
 
@@ -8,11 +8,11 @@ using EntityID = System.UInt16;
 
 namespace Test.Systems
 {
-    public class ApplyVelocitySystem : System<VelocityComponent, TransformComponent>
+    public class ApplyVelocitySystem : EntityTask<VelocityComponent, TransformComponent>
     {
 		private readonly DeltaTimeHandle deltaTime;
 
-		public ApplyVelocitySystem(DeltaTimeHandle deltaTime, EntityContext context, int batchSize) : base(context, batchSize)
+		public ApplyVelocitySystem(DeltaTimeHandle deltaTime, EntityContext context) : base(context)
 		{
 			this.deltaTime = deltaTime;
 		}

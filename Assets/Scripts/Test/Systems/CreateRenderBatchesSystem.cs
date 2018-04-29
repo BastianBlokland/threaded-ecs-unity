@@ -1,6 +1,6 @@
 ﻿using Utils;
 using ECS.Storage;
-using ECS.Systems;
+using ECS.Tasks;
 using UnityEngine;
 using Test.Components;
 
@@ -8,11 +8,11 @@ using EntityID = System.UInt16;
 
 namespace Test.Systems
 {
-    public class CreateRenderBatchesSystem : System<GraphicsComponent, TransformComponent>
+    public class CreateRenderBatchesSystem : EntityTask<GraphicsComponent, TransformComponent>
     {
 		private readonly RenderSet renderSet;
 
-		public CreateRenderBatchesSystem(RenderSet renderSet, EntityContext context, int batchSize) : base(context, batchSize)
+		public CreateRenderBatchesSystem(RenderSet renderSet, EntityContext context) : base(context)
 		{
 			this.renderSet = renderSet;
 		}

@@ -3,19 +3,19 @@ using ECS.Storage;
 
 using EntityID = System.UInt16;
 
-namespace ECS.Systems
+namespace ECS.Tasks
 {
-	public abstract class System<Comp1> : System
+	public abstract class EntityTask<Comp1> : EntityTask
 		where Comp1 : struct, IComponent
 	{
 		private readonly IComponentContainer<Comp1> container1;
 
-		public System(EntityContext context, int batchSize) : base(context, batchSize)
+		public EntityTask(EntityContext context) : base(context)
 		{
 			this.container1 = context.GetContainer<Comp1>();
 		}
 
-		public sealed override void Execute(EntityID entity)
+		protected sealed override void Execute(EntityID entity)
 		{
 			Execute(entity, ref container1.Data[entity]);
 		}
@@ -29,20 +29,20 @@ namespace ECS.Systems
 		}
 	}
 
-	public abstract class System<Comp1, Comp2> : System
+	public abstract class EntityTask<Comp1, Comp2> : EntityTask
 		where Comp1 : struct, IComponent
 		where Comp2 : struct, IComponent
 	{
 		private readonly IComponentContainer<Comp1> container1;
 		private readonly IComponentContainer<Comp2> container2;
 
-		public System(EntityContext context, int batchSize) : base(context, batchSize)
+		public EntityTask(EntityContext context) : base(context)
 		{
 			this.container1 = context.GetContainer<Comp1>();
 			this.container2 = context.GetContainer<Comp2>();
 		}
 
-		public sealed override void Execute(EntityID entity)
+		protected sealed override void Execute(EntityID entity)
 		{
 			Execute(entity, ref container1.Data[entity], ref container2.Data[entity]);
 		}
@@ -57,7 +57,7 @@ namespace ECS.Systems
 		}
 	}
 
-	public abstract class System<Comp1, Comp2, Comp3> : System
+	public abstract class EntityTask<Comp1, Comp2, Comp3> : EntityTask
 		where Comp1 : struct, IComponent
 		where Comp2 : struct, IComponent
 		where Comp3 : struct, IComponent
@@ -66,14 +66,14 @@ namespace ECS.Systems
 		private readonly IComponentContainer<Comp2> container2;
 		private readonly IComponentContainer<Comp3> container3;
 
-		public System(EntityContext context, int batchSize) : base(context, batchSize)
+		public EntityTask(EntityContext context) : base(context)
 		{
 			this.container1 = context.GetContainer<Comp1>();
 			this.container2 = context.GetContainer<Comp2>();
 			this.container3 = context.GetContainer<Comp3>();
 		}
 
-		public sealed override void Execute(EntityID entity)
+		protected sealed override void Execute(EntityID entity)
 		{
 			Execute(entity, 
 				ref container1.Data[entity],
@@ -92,7 +92,7 @@ namespace ECS.Systems
 		}
 	}
 
-	public abstract class System<Comp1, Comp2, Comp3, Comp4> : System
+	public abstract class EntityTask<Comp1, Comp2, Comp3, Comp4> : EntityTask
 		where Comp1 : struct, IComponent
 		where Comp2 : struct, IComponent
 		where Comp3 : struct, IComponent
@@ -103,7 +103,7 @@ namespace ECS.Systems
 		private readonly IComponentContainer<Comp3> container3;
 		private readonly IComponentContainer<Comp4> container4;
 
-		public System(EntityContext context, int batchSize) : base(context, batchSize)
+		public EntityTask(EntityContext context) : base(context)
 		{
 			this.container1 = context.GetContainer<Comp1>();
 			this.container2 = context.GetContainer<Comp2>();
@@ -111,7 +111,7 @@ namespace ECS.Systems
 			this.container4 = context.GetContainer<Comp4>();
 		}
 
-		public sealed override void Execute(EntityID entity)
+		protected sealed override void Execute(EntityID entity)
 		{
 			Execute(entity, 
 				ref container1.Data[entity],
@@ -136,7 +136,7 @@ namespace ECS.Systems
 		}
 	}
 
-	public abstract class System<Comp1, Comp2, Comp3, Comp4, Comp5> : System
+	public abstract class EntityTask<Comp1, Comp2, Comp3, Comp4, Comp5> : EntityTask
 		where Comp1 : struct, IComponent
 		where Comp2 : struct, IComponent
 		where Comp3 : struct, IComponent
@@ -149,7 +149,7 @@ namespace ECS.Systems
 		private readonly IComponentContainer<Comp4> container4;
 		private readonly IComponentContainer<Comp5> container5;
 
-		public System(EntityContext context, int batchSize) : base(context, batchSize)
+		public EntityTask(EntityContext context) : base(context)
 		{
 			this.container1 = context.GetContainer<Comp1>();
 			this.container2 = context.GetContainer<Comp2>();
@@ -158,7 +158,7 @@ namespace ECS.Systems
 			this.container5 = context.GetContainer<Comp5>();
 		}
 
-		public sealed override void Execute(EntityID entity)
+		protected sealed override void Execute(EntityID entity)
 		{
 			Execute(entity, 
 				ref container1.Data[entity],
@@ -186,7 +186,7 @@ namespace ECS.Systems
 		}
 	}
 
-    public abstract class System
+    public abstract class EntityTask : ITask, TaskExecuteHandle.IExecutableTask
     {
 		public readonly int BatchSize;
 
@@ -196,29 +196,14 @@ namespace ECS.Systems
 		private readonly ComponentMask requiredComponents;
 		private readonly ComponentMask illegalComponents;
 
-		public System(EntityContext context, int batchSize)
+		public EntityTask(EntityContext context)
 		{
 			this.context = context;
 			this.entities = new EntitySet();
 			
-			BatchSize = batchSize;
-			
 			requiredComponents = GetRequiredComponents(context);
 			illegalComponents = GetIllegalComponents(context);
 		}
-
-		/// <summary>
-		/// NOTE: The reference returned here is re-used between calls to avoid having to re-allocate 
-		/// for every frame, so beware to threat this a very short lived data as another call to 'GetEntities'
-		/// will change the data
-		/// </summary>
-		public EntitySet GetEntities()
-		{
-			context.GetEntities(requiredComponents, illegalComponents, entities);
-			return entities;
-		}
-
-		public abstract void Execute(EntityID entity);
 
 		protected virtual ComponentMask GetRequiredComponents(EntityContext context)
 		{
@@ -229,5 +214,19 @@ namespace ECS.Systems
 		{
 			return ComponentMask.Empty;
 		}
-    }
+
+		int TaskExecuteHandle.IExecutableTask.PrepareSubtasks()
+		{
+			context.GetEntities(requiredComponents, illegalComponents, entities);
+			return entities.Count;
+		}
+
+		void TaskExecuteHandle.IExecutableTask.ExecuteSubtask(int index)
+		{
+			EntityID entity = entities.Data[index];
+			Execute(entity);
+		}
+
+		protected abstract void Execute(EntityID entity);
+	}
 }
