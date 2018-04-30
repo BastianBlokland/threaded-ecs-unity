@@ -1,13 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
-using ECS.Storage;
-
-using EntityID = System.UInt16;
 
 namespace ECS.Tasks
 {
-    public class TaskExecuteHandle : SubtaskRunner.ISubtaskExecutor
+    public class SingleTaskExecutor : ITaskExecutor, SubtaskRunner.ISubtaskExecutor
     {
 		public interface IExecutableTask
 		{
@@ -22,17 +18,17 @@ namespace ECS.Tasks
 		private readonly IExecutableTask task;
 		private readonly SubtaskRunner runner;
 		private readonly int batchSize;
-		private readonly Profiler.TimelineTrack timelineTrack;
+		private readonly Profiler.TimelineTrack profilerTrack;
 
 		private bool isScheduled;
 		private CountdownEvent countdownEvent;
 
-		public TaskExecuteHandle(IExecutableTask task, SubtaskRunner runner, int batchSize, Profiler.TimelineTrack timelineTrack = null)
+		public SingleTaskExecutor(IExecutableTask task, SubtaskRunner runner, int batchSize, Profiler.TimelineTrack profilerTrack = null)
 		{
 			this.task = task;
 			this.runner = runner;
 			this.batchSize = batchSize;
-			this.timelineTrack = timelineTrack;
+			this.profilerTrack = profilerTrack;
 		}
 
 		public void Schedule()
@@ -41,8 +37,8 @@ namespace ECS.Tasks
 				return;
 			isScheduled = true;
 
-			if(timelineTrack != null)
-				timelineTrack.LogStartWork();
+			if(profilerTrack != null)
+				profilerTrack.LogStartWork();
 
 			int subtaskCount = task.PrepareSubtasks();
 			if(subtaskCount == 0)
@@ -77,8 +73,8 @@ namespace ECS.Tasks
 		private void Complete()
 		{
 			Completed();
-			if(timelineTrack != null)
-				timelineTrack.LogEndWork();
+			if(profilerTrack != null)
+				profilerTrack.LogEndWork();
 		}
 		//----> RUNNING ON SEPARATE THREAD
     }

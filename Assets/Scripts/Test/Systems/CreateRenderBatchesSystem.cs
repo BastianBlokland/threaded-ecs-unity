@@ -12,7 +12,8 @@ namespace Test.Systems
     {
 		private readonly RenderSet renderSet;
 
-		public CreateRenderBatchesSystem(RenderSet renderSet, EntityContext context) : base(context)
+		public CreateRenderBatchesSystem(RenderSet renderSet, EntityContext context, Profiler.Timeline profiler) 
+			: base(context, profiler)
 		{
 			this.renderSet = renderSet;
 		}

@@ -1,17 +1,15 @@
 namespace ECS.Tasks
 {
-	public abstract class SingleTask : ITask, TaskExecuteHandle.IExecutableTask
+	public abstract class SingleTask : RepeatedTask
     {
-		int TaskExecuteHandle.IExecutableTask.PrepareSubtasks()
+		public SingleTask() : base(batchSize: 1)
+		{
+
+		}
+
+		protected sealed override int GetRepeatCount()
 		{
 			return 1;
 		}
-
-		void TaskExecuteHandle.IExecutableTask.ExecuteSubtask(int index)
-		{
-			Execute();
-		}
-
-		protected abstract void Execute();
 	}
 }

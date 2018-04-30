@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731725, g: 0.1341475, b: 0.12107855, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731728, g: 0.13414751, b: 0.12107858, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -294,6 +294,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   executorCount: 6
+  batchSize: 100
   assetsLibrary: {fileID: 11400000, guid: 6206a5aecfa5f499bb1ad0ad828eb2aa, type: 2}
   timeline: {fileID: 634226421}
 --- !u!4 &1739203811

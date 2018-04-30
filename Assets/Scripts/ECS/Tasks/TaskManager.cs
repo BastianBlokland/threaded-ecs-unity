@@ -6,26 +6,15 @@ namespace ECS.Tasks
 	{
 		public bool IsRunning { get { return !isCompleted; } }
 
-		private readonly int batchCount;
 		private readonly SubtaskRunner runner;
 		private readonly ITask[] tasks;
-		private readonly Profiler.TimelineTrack[] timelineTracks;
 
 		private volatile bool isCompleted = true;
 
-		public TaskManager(int executorCount, int batchCount, Profiler.Timeline timeline, params ITask[] tasks)
+		public TaskManager(int executorCount, params ITask[] tasks)
 		{
-			this.batchCount = batchCount;
 			this.runner = new SubtaskRunner(executorCount);
 			this.tasks = tasks;
-
-			//Create profiler tracks for all the tasks
-			if(timeline != null)
-			{
-				this.timelineTracks = new Profiler.TimelineTrack[tasks.Length];
-				for (int i = 0; i < tasks.Length; i++)
-					timelineTracks[i] = timeline.CreateTrack<Profiler.TimelineTrack>(tasks[i].GetType().Name);
-			}
 		}
 
 		public void Complete()
@@ -41,11 +30,11 @@ namespace ECS.Tasks
 
 			isCompleted = false;
 
-			TaskExecuteHandle firstTask = null;
-			TaskExecuteHandle previousTask = null;
+			ITaskExecutor firstTask = null;
+			ITaskExecutor previousTask = null;
 			for (int i = 0; i < tasks.Length; i++)
 			{
-				TaskExecuteHandle executor = new TaskExecuteHandle(tasks[i], runner, batchCount, timelineTracks[i]);
+				ITaskExecutor executor = tasks[i].CreateExecutor(runner);
 				if(firstTask == null)
 					firstTask = executor;
 

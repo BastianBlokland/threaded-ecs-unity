@@ -1,13 +1,29 @@
 namespace ECS.Tasks
 {
-	public abstract class RepeatedTask : ITask, TaskExecuteHandle.IExecutableTask
+	public abstract class RepeatedTask : ITask, SingleTaskExecutor.IExecutableTask
     {
-		int TaskExecuteHandle.IExecutableTask.PrepareSubtasks()
+		private readonly int batchSize;
+		private readonly Profiler.TimelineTrack profilerTrack;
+
+		public RepeatedTask(int batchSize = 50, Profiler.Timeline profiler = null)
+		{
+			this.batchSize = batchSize;
+			
+			if(profiler != null)
+				profilerTrack = profiler.CreateTrack<Profiler.TimelineTrack>(GetType().Name);
+		}
+
+		public ITaskExecutor CreateExecutor(SubtaskRunner runner)
+		{
+			return new SingleTaskExecutor(this, runner, batchSize, profilerTrack);
+		}
+
+		int SingleTaskExecutor.IExecutableTask.PrepareSubtasks()
 		{
 			return GetRepeatCount();
 		}
 
-		void TaskExecuteHandle.IExecutableTask.ExecuteSubtask(int index)
+		void SingleTaskExecutor.IExecutableTask.ExecuteSubtask(int index)
 		{
 			Execute();
 		}

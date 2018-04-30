@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-using EntityID = System.UInt16;
-
 namespace ECS.Tasks
 {
 	public class SubtaskRunner : IDisposable
