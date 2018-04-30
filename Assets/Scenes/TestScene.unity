@@ -226,7 +226,7 @@ MonoBehaviour:
   timeline: {fileID: 634226421}
   drawInGame: 0
   minDuration: 0
-  maxDuration: 0.1
+  maxDuration: 0.015
 --- !u!114 &634226420
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -294,7 +294,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   executorCount: 6
-  batchSize: 100
+  cubeCount: 25000
   assetsLibrary: {fileID: 11400000, guid: 6206a5aecfa5f499bb1ad0ad828eb2aa, type: 2}
   timeline: {fileID: 634226421}
 --- !u!4 &1739203811

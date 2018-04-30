@@ -4,7 +4,19 @@ namespace Utils
 {
 	public static class RandomUtils
 	{
-		public static Vector3 Direction(this IRandomProvider random)
+		public static Vector2 Direction2D(this IRandomProvider random)
+		{
+			Vector2 dir = new Vector2
+			(
+				x: random.GetNext() - .5f, 
+				y: random.GetNext() - .5f
+			);
+			if(dir == Vector2.zero) //Should be very rare
+				return Vector2.up;
+			return MathUtils.FastNormalize(dir);
+		}
+
+		public static Vector3 Direction3D(this IRandomProvider random)
 		{
 			Vector3 dir = new Vector3
 			(

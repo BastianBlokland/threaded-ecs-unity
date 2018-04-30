@@ -11,12 +11,14 @@ namespace Test.Systems
     public class SpawnCubesSystem : RepeatedTask
     {
 		private readonly int targetObjectCount;
+		private readonly IRandomProvider random;
 		private readonly EntityContext context;
 
-		public SpawnCubesSystem(int targetObjectCount, EntityContext context, Profiler.Timeline profiler) 
+		public SpawnCubesSystem(int targetObjectCount, IRandomProvider random, EntityContext context, Profiler.Timeline profiler) 
 			: base(profiler)
 		{
 			this.targetObjectCount = targetObjectCount;
+			this.random = random;
 			this.context = context;
 		}
 
@@ -28,9 +30,12 @@ namespace Test.Systems
 
         protected override void Execute()
 		{
+			const float STARTING_HEIGHT = 100f;
+			const float STARTING_SPEED = 25f;
+
 			EntityID entity = context.CreateEntity();
-			context.SetComponent(entity, new TransformComponent(position: new Vector3(0f, 10f, 0f)));
-			context.SetComponent(entity, new VelocityComponent());
+			context.SetComponent(entity, new TransformComponent(position: new Vector3(0f, STARTING_HEIGHT, 0f)));
+			context.SetComponent(entity, new VelocityComponent(velocity: random.Direction3D() * STARTING_SPEED));
 			context.SetComponent(entity, new GraphicsComponent(graphicsID: 1));
 			context.SetComponent(entity, new GravityComponent());
 			context.SetComponent(entity, new CubeComponent());

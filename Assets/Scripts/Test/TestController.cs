@@ -15,6 +15,7 @@ namespace Test
 
 		private EntityContext entityContext;
 		private DeltaTimeHandle deltaTime;
+		private IRandomProvider random;
 		private RenderSet renderSet;
 		private TaskManager systemManager;
 
@@ -34,10 +35,11 @@ namespace Test
 
 			entityContext = new EntityContext();
 			deltaTime = new DeltaTimeHandle();
+			random = new ShiftRandomProvider();
 			renderSet = new RenderSet(assetsLibrary);
 			systemManager = new TaskManager(executorCount, new ECS.Tasks.ITask[]
 			{
-				new SpawnCubesSystem(cubeCount, entityContext, timeline),
+				new SpawnCubesSystem(cubeCount, random, entityContext, timeline),
 				new ApplyVelocitySystem(deltaTime, entityContext, timeline),
 				new ApplyGravitySystem(deltaTime, entityContext, timeline),
 				new DestroyBelow0System(entityContext, timeline),

@@ -26,6 +26,13 @@ namespace Utils
 	 		return conv.FloatValue;
 		}
 
+		public static Vector2 FastNormalize(Vector2 vector)
+		{
+			float sqrMag = vector.sqrMagnitude;
+			float invSqrRoot = FastInvSqrRoot(sqrMag);
+			return new Vector2(vector.x * invSqrRoot, vector.y * invSqrRoot);
+		}
+
 		public static Vector3 FastNormalize(Vector3 vector)
 		{
 			float sqrMag = vector.sqrMagnitude;
