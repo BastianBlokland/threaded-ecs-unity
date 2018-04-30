@@ -188,8 +188,6 @@ namespace ECS.Tasks
 
     public abstract class EntityTask : ITask, TaskExecuteHandle.IExecutableTask
     {
-		public readonly int BatchSize;
-
 		private readonly EntityContext context;
 		private readonly EntitySet entities;
 
