@@ -107,6 +107,22 @@ namespace ECS.Storage
 			entityQueryLock.ExitWriteLock();
 		}
 
+		public int GetEntityCount(ComponentMask requiredComps, ComponentMask illegalComps)
+		{
+			int count = 0;
+			//For info about this reverse looking lock: see comment on 'GetEntities' method
+			entityQueryLock.EnterWriteLock();
+			{
+				for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
+				{
+					if(entities[entity].Has(requiredComps) && entities[entity].NotHas(illegalComps))
+						count++;
+				}
+			}
+			entityQueryLock.ExitWriteLock();
+			return count;
+		}
+
 		public bool HasComponent<T>(EntityID entity)
 			where T : struct, IComponent
 		{

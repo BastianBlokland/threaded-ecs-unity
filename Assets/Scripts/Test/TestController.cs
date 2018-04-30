@@ -1,17 +1,15 @@
 ﻿using ECS.Storage;
 using ECS.Tasks;
-using Test.Components;
 using Test.Systems;
 using UnityEngine;
 using Utils;
-
-using EntityID = System.UInt16;
 
 namespace Test
 {
 	public class TestController : MonoBehaviour
 	{
 		[SerializeField] private int executorCount = 1;
+		[SerializeField] private int cubeCount = 100;
 		[SerializeField] private GraphicsAssetsLibrary assetsLibrary;
 		[SerializeField] private Profiler.Timeline timeline;
 
@@ -39,18 +37,12 @@ namespace Test
 			renderSet = new RenderSet(assetsLibrary);
 			systemManager = new TaskManager(executorCount, new ECS.Tasks.ITask[]
 			{
+				new SpawnCubesSystem(cubeCount, entityContext, timeline),
 				new ApplyVelocitySystem(deltaTime, entityContext, timeline),
+				new ApplyGravitySystem(deltaTime, entityContext, timeline),
+				new DestroyBelow0System(entityContext, timeline),
 				new CreateRenderBatchesSystem(renderSet, entityContext, timeline)
 			});
-
-			for (int i = 0; i < EntityID.MaxValue; i++)
-			{
-				Vector3 position = new Vector3(Random.Range(-100f, 100f), 0, Random.Range(-100f, 100f));
-				EntityID entity = entityContext.CreateEntity();
-				entityContext.SetComponent(entity, new TransformComponent { Position = position, Rotation = Quaternion.identity });
-				entityContext.SetComponent(entity, new VelocityComponent { Velocity = Vector3.up * Random.value });
-				entityContext.SetComponent(entity, new GraphicsComponent { GraphicsID = (byte)Random.Range(1, 4) });	
-			}
 
 			if(timeline != null)
 			{

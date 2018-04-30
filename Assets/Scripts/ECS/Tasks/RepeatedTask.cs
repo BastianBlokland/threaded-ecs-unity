@@ -5,7 +5,7 @@ namespace ECS.Tasks
 		private readonly int batchSize;
 		private readonly Profiler.TimelineTrack profilerTrack;
 
-		public RepeatedTask(int batchSize = 50, Profiler.Timeline profiler = null)
+		public RepeatedTask(Profiler.Timeline profiler = null, int batchSize = 50)
 		{
 			this.batchSize = batchSize;
 			
