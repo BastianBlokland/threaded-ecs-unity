@@ -91,6 +91,7 @@ namespace ECS.Storage
 		public void GetEntities(ComponentMask requiredComps, ComponentMask illegalComps, EntitySet outputSet)
 		{
 			outputSet.Clear();
+			bool noIllegalComps = illegalComps.IsEmpty;
 
 			//I know this looks like its reversed but i wanted to avoid locking each individual entity in the
 			//for loop as that adds a significant cost, so thats why its using the 'write' portion of a 'ReaderWriterLockSlim'
@@ -100,7 +101,7 @@ namespace ECS.Storage
 			{
 				for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
 				{
-					if(entities[entity].Has(requiredComps) && entities[entity].NotHas(illegalComps))
+					if(entities[entity].Has(requiredComps) && (noIllegalComps || entities[entity].NotHas(illegalComps)))
 						outputSet.Add(entity);
 				}
 			}
@@ -110,12 +111,14 @@ namespace ECS.Storage
 		public int GetEntityCount(ComponentMask requiredComps, ComponentMask illegalComps)
 		{
 			int count = 0;
+			bool noIllegalComps = illegalComps.IsEmpty;
+
 			//For info about this reverse looking lock: see comment on 'GetEntities' method
 			entityQueryLock.EnterWriteLock();
 			{
 				for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
 				{
-					if(entities[entity].Has(requiredComps) && entities[entity].NotHas(illegalComps))
+					if(entities[entity].Has(requiredComps) && (noIllegalComps || entities[entity].NotHas(illegalComps)))
 						count++;
 				}
 			}

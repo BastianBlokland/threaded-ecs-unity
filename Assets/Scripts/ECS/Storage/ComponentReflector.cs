@@ -23,7 +23,6 @@ namespace ECS.Storage
 			//Find all the component types and add them to the lookups
 			Type requiredBase = typeof(IComponent);
 			CompID id = 0;
-			bool full = false;
 			foreach(Type compType in assembly
 				.GetTypes()
 				.Where(type => 
@@ -34,17 +33,13 @@ namespace ECS.Storage
 					requiredBase.IsAssignableFrom(type))
 				.OrderBy(type => type.Name)) //Order by name to make the order deterministic
 			{
-				if(full)
-					throw new Exception("[ComponentReflector] No more then '256' components are supported!");
-
 				typeToIDLookup[compType] = id;
 				idToTypeLookup[id] = compType;
 
 				//Increment id-counter
-				if(id == 255)
-					full = true;
-				else
-					id++;
+				id++;
+				if(id >= 64)
+					throw new Exception("[ComponentReflector] No more then '64' components are supported!");
 			}
 
 			//Store the count
