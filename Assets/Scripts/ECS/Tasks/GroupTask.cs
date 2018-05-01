@@ -9,7 +9,7 @@ namespace ECS.Tasks
 			this.tasks = tasks;
 		}
 
-		public ITaskExecutor CreateExecutor(SubtaskRunner runner)
+		public ITaskExecutor CreateExecutor(Runner.SubtaskRunner runner)
 		{
 			return new GroupTaskExecutor(runner, tasks);
 		}

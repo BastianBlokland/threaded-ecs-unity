@@ -6,14 +6,14 @@ namespace ECS.Tasks
 	{
 		public bool IsRunning { get { return !isCompleted; } }
 
-		private readonly SubtaskRunner runner;
+		private readonly Runner.SubtaskRunner runner;
 		private readonly ITask[] tasks;
 
 		private volatile bool isCompleted = true;
 
 		public TaskManager(int executorCount, params ITask[] tasks)
 		{
-			this.runner = new SubtaskRunner(executorCount);
+			this.runner = new Runner.SubtaskRunner(executorCount);
 			this.tasks = tasks;
 		}
 

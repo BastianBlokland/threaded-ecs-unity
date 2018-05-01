@@ -13,7 +13,7 @@ namespace ECS.Tasks
 		private bool isScheduled;
 		private CountdownEvent countdownEvent;
 
-		public GroupTaskExecutor(SubtaskRunner runner, params ITask[] innerTasks)
+		public GroupTaskExecutor(Runner.SubtaskRunner runner, params ITask[] innerTasks)
 		{
 			innerExecutors = new ITaskExecutor[innerTasks.Length];
 			for (int i = 0; i < innerTasks.Length; i++)

@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace ECS.Tasks
 {
-    public class SingleTaskExecutor : ITaskExecutor, SubtaskRunner.ISubtaskExecutor
+    public class SingleTaskExecutor : ITaskExecutor, Runner.ExecuteInfo.ISubtaskExecutor
     {
 		public interface IExecutableTask
 		{
@@ -16,18 +16,17 @@ namespace ECS.Tasks
 		public event Action Completed = delegate {};
 
 		private readonly IExecutableTask task;
-		private readonly SubtaskRunner runner;
-		private readonly int batchSize;
+		private readonly int batchSize = 50;
+		private readonly Runner.SubtaskRunner runner;
 		private readonly Profiler.TimelineTrack profilerTrack;
 
 		private bool isScheduled;
 		private CountdownEvent countdownEvent;
 
-		public SingleTaskExecutor(IExecutableTask task, SubtaskRunner runner, int batchSize, Profiler.TimelineTrack profilerTrack = null)
+		public SingleTaskExecutor(IExecutableTask task, Runner.SubtaskRunner runner, Profiler.TimelineTrack profilerTrack = null)
 		{
 			this.task = task;
 			this.runner = runner;
-			this.batchSize = batchSize;
 			this.profilerTrack = profilerTrack;
 		}
 
@@ -47,18 +46,22 @@ namespace ECS.Tasks
 			{
 				countdownEvent = new CountdownEvent(subtaskCount);
 
-				int startOffset = batchSize - 1;
-				for (int i = 0; i < subtaskCount; i += batchSize)
+				runner.BeginPushingTasks();
 				{
-					int start = i;
-					int end = start + startOffset;
-					runner.Schedule(this, start, end >= subtaskCount ? (subtaskCount - 1) : end);
+					int startOffset = batchSize - 1;
+					for (int i = 0; i < subtaskCount; i += batchSize)
+					{
+						int start = i;
+						int end = start + startOffset;
+						runner.PushTask(this, start, end >= subtaskCount ? (subtaskCount - 1) : end);
+					}
 				}
+				runner.EndPushingTasks();
 			}
 		}
 
 		//----> RUNNING ON SEPARATE THREAD
-		void SubtaskRunner.ISubtaskExecutor.ExecuteSubtask(int subtaskIndex)
+		void Runner.ExecuteInfo.ISubtaskExecutor.ExecuteSubtask(int subtaskIndex)
 		{
 			try { task.ExecuteSubtask(subtaskIndex); }
 			catch(Exception) { }

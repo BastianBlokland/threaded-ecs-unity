@@ -10,8 +10,8 @@ namespace ECS.Tasks
 	{
 		private readonly IComponentContainer<Comp1> container1;
 
-		public EntityTask(EntityContext context, Profiler.Timeline profiler = null, int batchSize = 50)
-			: base(context, profiler, batchSize)
+		public EntityTask(EntityContext context, Profiler.Timeline profiler = null)
+			: base(context, profiler)
 		{
 			this.container1 = context.GetContainer<Comp1>();
 		}
@@ -37,8 +37,8 @@ namespace ECS.Tasks
 		private readonly IComponentContainer<Comp1> container1;
 		private readonly IComponentContainer<Comp2> container2;
 
-		public EntityTask(EntityContext context, Profiler.Timeline profiler = null, int batchSize = 50)
-			: base(context, profiler, batchSize)
+		public EntityTask(EntityContext context, Profiler.Timeline profiler = null)
+			: base(context, profiler)
 		{
 			this.container1 = context.GetContainer<Comp1>();
 			this.container2 = context.GetContainer<Comp2>();
@@ -68,8 +68,8 @@ namespace ECS.Tasks
 		private readonly IComponentContainer<Comp2> container2;
 		private readonly IComponentContainer<Comp3> container3;
 
-		public EntityTask(EntityContext context, Profiler.Timeline profiler = null, int batchSize = 50)
-			: base(context, profiler, batchSize)
+		public EntityTask(EntityContext context, Profiler.Timeline profiler = null)
+			: base(context, profiler)
 		{
 			this.container1 = context.GetContainer<Comp1>();
 			this.container2 = context.GetContainer<Comp2>();
@@ -106,8 +106,8 @@ namespace ECS.Tasks
 		private readonly IComponentContainer<Comp3> container3;
 		private readonly IComponentContainer<Comp4> container4;
 
-		public EntityTask(EntityContext context, Profiler.Timeline profiler = null, int batchSize = 50)
-			: base(context, profiler, batchSize)
+		public EntityTask(EntityContext context, Profiler.Timeline profiler = null)
+			: base(context, profiler)
 		{
 			this.container1 = context.GetContainer<Comp1>();
 			this.container2 = context.GetContainer<Comp2>();
@@ -153,8 +153,8 @@ namespace ECS.Tasks
 		private readonly IComponentContainer<Comp4> container4;
 		private readonly IComponentContainer<Comp5> container5;
 
-		public EntityTask(EntityContext context, Profiler.Timeline profiler = null, int batchSize = 50)
-			: base(context, profiler, batchSize)
+		public EntityTask(EntityContext context, Profiler.Timeline profiler = null)
+			: base(context, profiler)
 		{
 			this.container1 = context.GetContainer<Comp1>();
 			this.container2 = context.GetContainer<Comp2>();
@@ -194,7 +194,6 @@ namespace ECS.Tasks
     public abstract class EntityTask : ITask, SingleTaskExecutor.IExecutableTask
     {
 		private readonly EntityContext context;
-		private readonly int batchSize;
 		private readonly EntitySet entities;
 
 		private readonly ComponentMask requiredComponents;
@@ -202,10 +201,9 @@ namespace ECS.Tasks
 
 		private readonly Profiler.TimelineTrack profilerTrack;
 
-		public EntityTask(EntityContext context, Profiler.Timeline profiler = null, int batchSize = 50)
+		public EntityTask(EntityContext context, Profiler.Timeline profiler = null)
 		{
 			this.context = context;
-			this.batchSize = batchSize;
 			this.entities = new EntitySet();
 			
 			requiredComponents = GetRequiredComponents(context);
@@ -215,9 +213,9 @@ namespace ECS.Tasks
 				profilerTrack = profiler.CreateTrack<Profiler.TimelineTrack>(label: GetType().Name);
 		}
 
-		public ITaskExecutor CreateExecutor(SubtaskRunner runner)
+		public ITaskExecutor CreateExecutor(Runner.SubtaskRunner runner)
 		{
-			return new SingleTaskExecutor(this, runner, batchSize, profilerTrack);
+			return new SingleTaskExecutor(this, runner, profilerTrack);
 		}
 
 		protected virtual ComponentMask GetRequiredComponents(EntityContext context)

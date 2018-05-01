@@ -2,6 +2,6 @@ namespace ECS.Tasks
 {
     public interface ITask
 	{
-		ITaskExecutor CreateExecutor(SubtaskRunner runner);
+		ITaskExecutor CreateExecutor(Runner.SubtaskRunner runner);
 	}
 }
