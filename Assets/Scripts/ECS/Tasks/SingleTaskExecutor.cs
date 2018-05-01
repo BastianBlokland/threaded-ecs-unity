@@ -72,9 +72,9 @@ namespace ECS.Tasks
 
 		private void Complete()
 		{
-			Completed();
 			if(profilerTrack != null)
 				profilerTrack.LogEndWork();
+			Completed();
 		}
 		//----> RUNNING ON SEPARATE THREAD
     }
