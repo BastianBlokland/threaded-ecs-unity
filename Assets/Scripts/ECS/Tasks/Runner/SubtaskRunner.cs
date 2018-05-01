@@ -15,7 +15,7 @@ namespace ECS.Tasks.Runner
 	
 		public SubtaskRunner(int numberOfExecutors)
 		{
-			taskQueueCount = executorCount > 0 ? executorCount : 1;
+			taskQueueCount = numberOfExecutors > 0 ? numberOfExecutors : 1;
 			executorCount = numberOfExecutors;
 
 			taskQueues = new TaskQueue[taskQueueCount];
