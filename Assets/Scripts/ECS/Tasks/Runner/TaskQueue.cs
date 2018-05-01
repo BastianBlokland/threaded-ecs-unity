@@ -1,23 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
+using System.Collections.Concurrent;
 
 namespace ECS.Tasks.Runner
 {
 	public class TaskQueue
 	{
-		private readonly Queue<ExecuteInfo> queue;
-		private readonly object lockObject;
+		private readonly ConcurrentQueue<ExecuteInfo> queue;
 	
 		public TaskQueue()
 		{
-			queue = new Queue<ExecuteInfo>();
-			lockObject = new object();
-		}
-
-		public void BeginPushingTasks()
-		{
-			Monitor.Enter(lockObject);
+			queue = new ConcurrentQueue<ExecuteInfo>();
 		}
 
 		public void PushTask(ExecuteInfo executeInfo)
@@ -25,19 +16,12 @@ namespace ECS.Tasks.Runner
 			queue.Enqueue(executeInfo);
 		}
 
-		public void EndPushingTasks()
-		{
-			Monitor.Exit(lockObject);
-		}	
-
 		public ExecuteInfo? GetTask()
 		{
-			lock(lockObject)
-			{
-				if(queue.Count == 0)
-					return null;
-				return queue.Dequeue();
-			}
+			ExecuteInfo info;
+			if(queue.TryDequeue(out info))
+				return info;
+			return null;
 		}
 	}
 }

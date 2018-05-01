@@ -46,17 +46,14 @@ namespace ECS.Tasks
 			{
 				countdownEvent = new CountdownEvent(subtaskCount);
 
-				runner.BeginPushingTasks();
+				int startOffset = batchSize - 1;
+				for (int i = 0; i < subtaskCount; i += batchSize)
 				{
-					int startOffset = batchSize - 1;
-					for (int i = 0; i < subtaskCount; i += batchSize)
-					{
-						int start = i;
-						int end = start + startOffset;
-						runner.PushTask(this, start, end >= subtaskCount ? (subtaskCount - 1) : end);
-					}
+					int start = i;
+					int end = start + startOffset;
+					runner.PushTask(this, start, end >= subtaskCount ? (subtaskCount - 1) : end);
 				}
-				runner.EndPushingTasks();
+				runner.WakeExecutors();
 			}
 		}
 

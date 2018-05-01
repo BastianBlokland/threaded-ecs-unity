@@ -29,30 +29,20 @@ namespace ECS.Tasks.Runner
 			pushLock = new object();
 		}
 
-		public void BeginPushingTasks()
-		{
-			Monitor.Enter(pushLock);
-			
-			for (int i = 0; i < taskQueueCount; i++)
-				taskQueues[i].BeginPushingTasks();
-		}
-
 		public void PushTask(ExecuteInfo.ISubtaskExecutor executor, int minIndex, int maxIndex)
 		{
-			ExecuteInfo info = new ExecuteInfo(executor, minIndex, maxIndex);
-			taskQueues[currentPushQueueIndex].PushTask(info);
-			currentPushQueueIndex = (currentPushQueueIndex + 1) % taskQueueCount;
+			lock(pushLock)
+			{
+				ExecuteInfo info = new ExecuteInfo(executor, minIndex, maxIndex);
+				taskQueues[currentPushQueueIndex].PushTask(info);
+				currentPushQueueIndex = (currentPushQueueIndex + 1) % taskQueueCount;
+			}
 		}
 
-		public void EndPushingTasks()
+		public void WakeExecutors()
 		{
-			for (int i = 0; i < taskQueueCount; i++)
-				taskQueues[i].EndPushingTasks();
-
 			for (int i = 0; i < executorCount; i++)
 				executors[i].Wake();
-
-			Monitor.Exit(pushLock);
 		}
 
 		public void Help()
