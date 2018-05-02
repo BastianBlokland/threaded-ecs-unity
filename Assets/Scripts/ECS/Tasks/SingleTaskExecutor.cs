@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace ECS.Tasks
 {
-    public class SingleTaskExecutor : ITaskExecutor, Runner.ExecuteInfo.ISubtaskExecutor
+    public sealed class SingleTaskExecutor : ITaskExecutor, Runner.ExecuteInfo.ISubtaskExecutor
     {
 		public interface IExecutableTask
 		{

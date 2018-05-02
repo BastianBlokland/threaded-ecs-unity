@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace ECS.Tasks.Runner
 {
-	public class SubtaskRunner : ITaskSource, IDisposable
+	public sealed class SubtaskRunner : ITaskSource, IDisposable
 	{
 		private readonly int taskQueueCount;
 		private readonly int executorCount;

@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace ECS.Tasks.Runner
 {
-	public class ExecutorThread : IDisposable
+	public sealed class ExecutorThread : IDisposable
 	{
 		private readonly int executorID;
 		private readonly ITaskSource taskSource;

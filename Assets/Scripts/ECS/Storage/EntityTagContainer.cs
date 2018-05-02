@@ -8,7 +8,7 @@ using CompID = System.Byte;
 
 namespace ECS.Storage
 {
-	public class EntityTagContainer
+	public sealed class EntityTagContainer : IDisposable
     {	
 		//Locking on the entities array is done with per element locks that are being held in the 'entityLocks' array, this
 		//makes it possible for multiple concurrent writers to different elements. There one additional method of locking for the
@@ -108,6 +108,11 @@ namespace ECS.Storage
 			}
 			entityQueryLock.ExitWriteLock();
 			return count;
+		}
+
+		public void Dispose()
+		{
+			entityQueryLock.Dispose();
 		}
     }
 }

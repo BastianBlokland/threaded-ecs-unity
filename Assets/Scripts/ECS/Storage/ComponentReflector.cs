@@ -7,7 +7,7 @@ using CompID = System.Byte;
 
 namespace ECS.Storage
 {
-    public class ComponentReflector
+    public sealed class ComponentReflector
     {
 		public readonly int ComponentCount;
 

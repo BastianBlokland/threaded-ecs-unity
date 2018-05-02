@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Utils
 {
-	public class RenderSet
+	public sealed class RenderSet
 	{
 		private struct BatchData
 		{

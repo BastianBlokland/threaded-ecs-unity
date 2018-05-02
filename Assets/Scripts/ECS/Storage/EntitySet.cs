@@ -10,7 +10,7 @@ namespace ECS.Storage
 	/// list to clear the entries (https://referencesource.microsoft.com/#mscorlib/system/collections/generic/list.cs)
 	/// - Without c#7 (ref-returns) we need to expose the actually array to be able to modify elements directly
 	/// </summary>
-	public class EntitySet
+	public sealed class EntitySet
 	{
 		public readonly EntityID[] Data;
 		public int Count;

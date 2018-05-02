@@ -6,7 +6,7 @@ using EntityID = System.UInt16;
 
 namespace ECS.Storage
 {
-    public class EntityAllocator
+    public sealed class EntityAllocator
     {
 		private readonly bool[] entityFreeStatus;
 		private readonly Stack<EntityID> freeEntities;

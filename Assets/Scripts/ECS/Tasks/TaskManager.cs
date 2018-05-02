@@ -2,7 +2,7 @@
 
 namespace ECS.Tasks
 {
-	public class TaskManager : IDisposable
+	public sealed class TaskManager : IDisposable
 	{
 		public bool IsRunning { get { return !isCompleted; } }
 

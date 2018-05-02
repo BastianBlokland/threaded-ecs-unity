@@ -2,7 +2,7 @@
 
 namespace Utils
 {
-	public class ShiftRandomProvider : IRandomProvider
+	public sealed class ShiftRandomProvider : IRandomProvider
 	{
 		private readonly object lockObject;
 		private ushort lfsr;

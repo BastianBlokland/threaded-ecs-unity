@@ -85,6 +85,11 @@ namespace Test
 
 		protected void OnDestroy()
 		{
+			if(entityContext != null)
+			{
+				entityContext.Dispose();
+				entityContext = null;
+			}
 			if(systemManager != null)
 			{
 				systemManager.Dispose();

@@ -15,7 +15,7 @@ namespace ECS.Storage
 	/// important to manually keep track of not running tasks in parallel that touch the same components on the same entities. Adding and removing
 	/// entities is completely safe and also adding and removing of components is completely safe.
 	/// </summary>
-    public class EntityContext
+    public sealed class EntityContext : IDisposable
     {
 		private readonly ComponentReflector reflector;
 		private readonly EntityAllocator entityAllocator;
@@ -128,6 +128,11 @@ namespace ECS.Storage
 			where T2 : struct, ITagComponent
 		{
 			return ComponentMask.CreateMask(GetID<T1>(), GetID<T2>());
+		}
+
+		public void Dispose()
+		{
+			tagContainer.Dispose();
 		}
     }
 }

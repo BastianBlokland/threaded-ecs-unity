@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 
 namespace ECS.Tasks.Runner
 {
-	public class TaskQueue
+	public sealed class TaskQueue
 	{
 		private readonly ConcurrentQueue<ExecuteInfo> queue;
 	

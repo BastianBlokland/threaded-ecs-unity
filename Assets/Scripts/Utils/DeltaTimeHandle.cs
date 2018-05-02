@@ -1,6 +1,6 @@
 namespace Utils
 {
-    public class DeltaTimeHandle
+    public sealed class DeltaTimeHandle
     {
         public float Value { get; private set; }
 
