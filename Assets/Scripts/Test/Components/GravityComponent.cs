@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Test.Components
 {
-    public struct GravityComponent : IComponent
+    public struct GravityComponent : ITagComponent
     {
 		
     }

@@ -21,7 +21,7 @@ namespace ECS.Storage
 			idToTypeLookup = new Type[CompID.MaxValue];
 			
 			//Find all the component types and add them to the lookups
-			Type requiredBase = typeof(IComponent);
+			Type requiredBase = typeof(ITagComponent);
 			CompID id = 0;
 			foreach(Type compType in assembly
 				.GetTypes()
@@ -47,7 +47,7 @@ namespace ECS.Storage
 		}
 
 		public CompID GetID<T>()
-			where T : struct, IComponent
+			where T : struct, ITagComponent
 		{
 			return GetID(typeof(T));
 		}
@@ -70,6 +70,11 @@ namespace ECS.Storage
 		public bool IsComponent(Type type)
 		{
 			return typeToIDLookup.ContainsKey(type);
+		}
+
+		public bool IsDataComponent(Type type)
+		{
+			return typeof(IDataComponent).IsAssignableFrom(type);
 		}
     }
 }

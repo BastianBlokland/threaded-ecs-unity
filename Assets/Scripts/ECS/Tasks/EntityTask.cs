@@ -6,7 +6,7 @@ using EntityID = System.UInt16;
 namespace ECS.Tasks
 {
 	public abstract class EntityTask<Comp1> : EntityTask
-		where Comp1 : struct, IComponent
+		where Comp1 : struct, IDataComponent
 	{
 		private readonly IComponentContainer<Comp1> container1;
 
@@ -31,8 +31,8 @@ namespace ECS.Tasks
 	}
 
 	public abstract class EntityTask<Comp1, Comp2> : EntityTask
-		where Comp1 : struct, IComponent
-		where Comp2 : struct, IComponent
+		where Comp1 : struct, IDataComponent
+		where Comp2 : struct, IDataComponent
 	{
 		private readonly IComponentContainer<Comp1> container1;
 		private readonly IComponentContainer<Comp2> container2;
@@ -60,9 +60,9 @@ namespace ECS.Tasks
 	}
 
 	public abstract class EntityTask<Comp1, Comp2, Comp3> : EntityTask
-		where Comp1 : struct, IComponent
-		where Comp2 : struct, IComponent
-		where Comp3 : struct, IComponent
+		where Comp1 : struct, IDataComponent
+		where Comp2 : struct, IDataComponent
+		where Comp3 : struct, IDataComponent
 	{
 		private readonly IComponentContainer<Comp1> container1;
 		private readonly IComponentContainer<Comp2> container2;
@@ -96,10 +96,10 @@ namespace ECS.Tasks
 	}
 
 	public abstract class EntityTask<Comp1, Comp2, Comp3, Comp4> : EntityTask
-		where Comp1 : struct, IComponent
-		where Comp2 : struct, IComponent
-		where Comp3 : struct, IComponent
-		where Comp4 : struct, IComponent
+		where Comp1 : struct, IDataComponent
+		where Comp2 : struct, IDataComponent
+		where Comp3 : struct, IDataComponent
+		where Comp4 : struct, IDataComponent
 	{
 		private readonly IComponentContainer<Comp1> container1;
 		private readonly IComponentContainer<Comp2> container2;
@@ -141,11 +141,11 @@ namespace ECS.Tasks
 	}
 
 	public abstract class EntityTask<Comp1, Comp2, Comp3, Comp4, Comp5> : EntityTask
-		where Comp1 : struct, IComponent
-		where Comp2 : struct, IComponent
-		where Comp3 : struct, IComponent
-		where Comp4 : struct, IComponent
-		where Comp5 : struct, IComponent
+		where Comp1 : struct, IDataComponent
+		where Comp2 : struct, IDataComponent
+		where Comp3 : struct, IDataComponent
+		where Comp4 : struct, IDataComponent
+		where Comp5 : struct, IDataComponent
 	{
 		private readonly IComponentContainer<Comp1> container1;
 		private readonly IComponentContainer<Comp2> container2;

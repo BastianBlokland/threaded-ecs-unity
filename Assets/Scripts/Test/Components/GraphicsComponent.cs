@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Test.Components
 {
-    public struct GraphicsComponent : IComponent
+    public struct GraphicsComponent : IDataComponent
     {
         public byte GraphicsID;
 

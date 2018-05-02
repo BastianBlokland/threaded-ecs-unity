@@ -48,11 +48,14 @@ namespace ECS.Storage
 			entityLocks = new object[EntityID.MaxValue];
 			entityQueryLock = new ReaderWriterLockSlim();
 
-			//Allocate a container for each component type
+			//Allocate a container for each data component type
 			for (CompID comp = 0; comp < reflector.ComponentCount; comp++)
 			{
 				Type compType = reflector.GetType(comp);
-				containers[comp] = ComponentContainerUtils.Create(compType);
+				if(reflector.IsDataComponent(compType))
+					containers[comp] = ComponentContainerUtils.Create(compType);
+				else
+					containers[comp] = null;
 			}
 
 			//Create a component-mask and a lock object for each entity
@@ -76,7 +79,6 @@ namespace ECS.Storage
 		public void RemoveEntity(EntityID entity)
 		{
 			entityAllocator.Free(entity);
-
 			entityQueryLock.EnterReadLock();
 			{
 				//Lock this particular entity for modification
@@ -126,18 +128,6 @@ namespace ECS.Storage
 			return count;
 		}
 
-		public bool HasComponent<T>(EntityID entity)
-			where T : struct, IComponent
-		{
-			CompID comp = GetID<T>();
-			return HasComponent(entity, comp);
-		}
-
-		public bool HasComponent(EntityID entity, CompID comp)
-		{
-			return HasComponents(entity, ComponentMask.CreateMask(comp));
-		}
-
 		public bool HasComponents(EntityID entity, ComponentMask mask)
 		{
 			bool has;
@@ -149,19 +139,16 @@ namespace ECS.Storage
 		}
 
 		public T GetComponent<T>(EntityID entity)
-			where T : struct, IComponent
+			where T : struct, IDataComponent
 		{
 			CompID comp = GetID<T>();
 			return ((IComponentContainer<T>)containers[comp]).Get(entity);
 		}
 
-		public void SetComponent<T>(EntityID entity, T data)
-			where T : struct, IComponent
+		public void SetComponent<T>(EntityID entity)
+			where T : struct, ITagComponent
 		{
-			CompID comp = GetID<T>();
-			ComponentMask compMask = ComponentMask.CreateMask(comp);
-			((IComponentContainer<T>)containers[comp]).Set(entity, data);
-
+			ComponentMask compMask = GetMask<T>();
 			entityQueryLock.EnterReadLock();
 			{
 				//Locks this particular entity for modification.
@@ -173,11 +160,18 @@ namespace ECS.Storage
 			entityQueryLock.ExitReadLock();
 		}
 
+		public void SetComponent<T>(EntityID entity, T data)
+			where T : struct, IDataComponent
+		{
+			CompID comp = GetID<T>();
+			((IComponentContainer<T>)containers[comp]).Set(entity, data);
+			SetComponent<T>(entity);
+		}
+
 		public void RemoveComponent<T>(EntityID entity)
-			where T : struct, IComponent
+			where T : struct, ITagComponent
 		{
 			ComponentMask compMask = GetMask<T>();
-
 			entityQueryLock.EnterReadLock();
 			{
 				//Locks this particular entity for modification.
@@ -205,27 +199,27 @@ namespace ECS.Storage
 		}
 
 		public IComponentContainer<T> GetContainer<T>()
-			where T : struct, IComponent
+			where T : struct, IDataComponent
 		{
 			CompID comp = GetID<T>();
 			return ((IComponentContainer<T>)containers[comp]);
 		}
 
 		public CompID GetID<T>()
-			where T : struct, IComponent
+			where T : struct, ITagComponent
 		{
 			return reflector.GetID<T>();
 		}
 
 		public ComponentMask GetMask<T1>()
-			where T1 : struct, IComponent
+			where T1 : struct, ITagComponent
 		{
 			return ComponentMask.CreateMask(GetID<T1>());
 		}
 
 		public ComponentMask GetMask<T1, T2>()
-			where T1 : struct, IComponent
-			where T2 : struct, IComponent
+			where T1 : struct, ITagComponent
+			where T2 : struct, ITagComponent
 		{
 			return ComponentMask.CreateMask(GetID<T1>(), GetID<T2>());
 		}

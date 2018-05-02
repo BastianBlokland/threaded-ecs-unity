@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Test.Components
 {
-    public struct VelocityComponent : IComponent
+    public struct VelocityComponent : IDataComponent
     {
         public Vector3 Velocity;
 

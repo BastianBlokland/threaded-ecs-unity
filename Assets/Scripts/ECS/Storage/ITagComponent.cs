@@ -1,6 +1,6 @@
 namespace ECS.Storage
 {
-	public interface IComponent
+	public interface ITagComponent
 	{
 		
 	}

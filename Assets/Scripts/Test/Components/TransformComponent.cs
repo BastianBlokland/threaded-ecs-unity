@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Test.Components
 {
-    public struct TransformComponent : IComponent
+    public struct TransformComponent : IDataComponent
     {
         public Vector3 Position;
 		public Quaternion Rotation;

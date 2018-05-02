@@ -5,7 +5,7 @@ using EntityID = System.UInt16;
 namespace ECS.Storage
 {
 	public class ComponentContainer<T> : IComponentContainer<T>
-		where T : struct, IComponent
+		where T : struct, IDataComponent
 	{
 		public T[] Data { get { return data; } }
 
