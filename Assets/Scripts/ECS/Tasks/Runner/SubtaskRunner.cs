@@ -31,9 +31,9 @@ namespace ECS.Tasks.Runner
 
 		public void PushTask(ExecuteInfo.ISubtaskExecutor executor, int minIndex, int maxIndex)
 		{
+			ExecuteInfo info = new ExecuteInfo(executor, minIndex, maxIndex);
 			lock(pushLock)
 			{
-				ExecuteInfo info = new ExecuteInfo(executor, minIndex, maxIndex);
 				taskQueues[currentPushQueueIndex].PushTask(info);
 				currentPushQueueIndex = (currentPushQueueIndex + 1) % taskQueueCount;
 			}

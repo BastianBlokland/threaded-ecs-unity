@@ -44,24 +44,29 @@ namespace ECS.Tasks
 				Complete();
 			else
 			{
-				countdownEvent = new CountdownEvent(subtaskCount);
+				int batchCount = (subtaskCount - 1) / batchSize + 1; //'Trick' to round up using integer division
+				countdownEvent = new CountdownEvent(batchCount);
 
 				int startOffset = batchSize - 1;
+				int maxIndex = subtaskCount - 1;
 				for (int i = 0; i < subtaskCount; i += batchSize)
 				{
 					int start = i;
 					int end = start + startOffset;
-					runner.PushTask(this, start, end >= subtaskCount ? (subtaskCount - 1) : end);
+					runner.PushTask(this, start, end >= subtaskCount ? maxIndex : end);
 				}
 				runner.WakeExecutors();
 			}
 		}
 
 		//----> RUNNING ON SEPARATE THREAD
-		void Runner.ExecuteInfo.ISubtaskExecutor.ExecuteSubtask(int subtaskIndex)
+		void Runner.ExecuteInfo.ISubtaskExecutor.ExecuteSubtask(int minSubtaskIndex, int maxSubtaskIndex)
 		{
-			try { task.ExecuteSubtask(subtaskIndex); }
-			catch(Exception) { }
+			try
+			{
+				for (int i = minSubtaskIndex; i <= maxSubtaskIndex; i++)
+					task.ExecuteSubtask(i);
+			} catch (Exception) { }
 
 			if(countdownEvent.Signal())
 			{
