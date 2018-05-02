@@ -19,21 +19,8 @@ namespace ECS.Storage
     {
 		private readonly ComponentReflector reflector;
 		private readonly EntityAllocator entityAllocator;
-        
-		//Storage for the actual component data
+		private readonly EntityTagContainer tagContainer;	
 		private readonly IComponentContainer[] containers;
-		
-		//Locking on the entities array is done with per element locks that are being held in the 'entityLocks' array, this
-		//makes it possible for multiple concurrent writers to different elements. There one additional method of locking for the
-		//'GetEntities' method because individually locking each element was adding to much time to the query so its using a 
-		//'ReaderWriterLockSlim' lock in reverse in the sense that its takes a 'writer' lock when querying and all the places
-		//that do modifictions take a 'read' lock. This we we can still have concurrent modifications (to different elements) as 
-		//the 'ReaderWriterLockSlim' allows for multiple simultaneous readers but will stop all modifications we we are quering
-		//one done side is that this will NOT allow for concurrent 'GetEntities' queries even tho that would be save, but i suspect
-		//that will be a very rare occurrence. In the mean time if anyone comes up with a smarter way to do this locking feel free :)
-		private readonly ComponentMask[] entities;
-		private readonly object[] entityLocks;
-		private readonly ReaderWriterLockSlim entityQueryLock;
 		
 		public EntityContext()
 			: this(componentAssembly: typeof(EntityContext).Assembly)
@@ -43,11 +30,9 @@ namespace ECS.Storage
 		{
 			reflector = new ComponentReflector(componentAssembly);
 			entityAllocator = new EntityAllocator();
+			tagContainer = new EntityTagContainer();
 			containers = new IComponentContainer[reflector.ComponentCount];
-			entities = new ComponentMask[EntityID.MaxValue];
-			entityLocks = new object[EntityID.MaxValue];
-			entityQueryLock = new ReaderWriterLockSlim();
-
+			
 			//Allocate a container for each data component type
 			for (CompID comp = 0; comp < reflector.ComponentCount; comp++)
 			{
@@ -56,13 +41,6 @@ namespace ECS.Storage
 					containers[comp] = ComponentContainerUtils.Create(compType);
 				else
 					containers[comp] = null;
-			}
-
-			//Create a component-mask and a lock object for each entity
-			for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
-			{
-				entities[entity] = new ComponentMask();
-				entityLocks[entity] = new object();
 			}
 		}
 
@@ -79,63 +57,22 @@ namespace ECS.Storage
 		public void RemoveEntity(EntityID entity)
 		{
 			entityAllocator.Free(entity);
-			entityQueryLock.EnterReadLock();
-			{
-				//Lock this particular entity for modification
-				lock(entityLocks[entity])
-				{
-					entities[entity].Clear();
-				}
-			}
-			entityQueryLock.ExitReadLock();
+			tagContainer.RemoveTags(entity, ComponentMask.Full);
 		}
 
 		public void GetEntities(ComponentMask requiredComps, ComponentMask illegalComps, EntitySet outputSet)
 		{
-			outputSet.Clear();
-			bool noIllegalComps = illegalComps.IsEmpty;
-
-			//I know this looks like its reversed but i wanted to avoid locking each individual entity in the
-			//for loop as that adds a significant cost, so thats why its using the 'write' portion of a 'ReaderWriterLockSlim'
-			//Its not using a entire 'lock' on  the 'entities' array as we still want to have multiple concurrent writers (as they
-			//still individually lock each entry they modify)
-			entityQueryLock.EnterWriteLock();
-			{
-				for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
-				{
-					if(entities[entity].Has(requiredComps) && (noIllegalComps || entities[entity].NotHas(illegalComps)))
-						outputSet.Add(entity);
-				}
-			}
-			entityQueryLock.ExitWriteLock();
+			tagContainer.GetEntities(requiredComps, illegalComps, outputSet);
 		}
 
 		public int GetEntityCount(ComponentMask requiredComps, ComponentMask illegalComps)
 		{
-			int count = 0;
-			bool noIllegalComps = illegalComps.IsEmpty;
-
-			//For info about this reverse looking lock: see comment on 'GetEntities' method
-			entityQueryLock.EnterWriteLock();
-			{
-				for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
-				{
-					if(entities[entity].Has(requiredComps) && (noIllegalComps || entities[entity].NotHas(illegalComps)))
-						count++;
-				}
-			}
-			entityQueryLock.ExitWriteLock();
-			return count;
+			return tagContainer.GetEntityCount(requiredComps, illegalComps);
 		}
 
 		public bool HasComponents(EntityID entity, ComponentMask mask)
 		{
-			bool has;
-			lock(entityLocks[entity])
-			{
-				has = entities[entity].Has(mask);
-			}
-			return has;
+			return tagContainer.HasTags(entity, mask);
 		}
 
 		public T GetComponent<T>(EntityID entity)
@@ -149,15 +86,7 @@ namespace ECS.Storage
 			where T : struct, ITagComponent
 		{
 			ComponentMask compMask = GetMask<T>();
-			entityQueryLock.EnterReadLock();
-			{
-				//Locks this particular entity for modification.
-				lock(entityLocks[entity])
-				{
-					entities[entity].Add(compMask);
-				}
-			}
-			entityQueryLock.ExitReadLock();
+			tagContainer.SetTags(entity, compMask);
 		}
 
 		public void SetComponent<T>(EntityID entity, T data)
@@ -172,30 +101,7 @@ namespace ECS.Storage
 			where T : struct, ITagComponent
 		{
 			ComponentMask compMask = GetMask<T>();
-			entityQueryLock.EnterReadLock();
-			{
-				//Locks this particular entity for modification.
-				lock(entityLocks[entity])
-				{
-					entities[entity].Remove(compMask);
-				}
-			}
-			entityQueryLock.ExitReadLock();
-		}
-
-		public void Clear()
-		{
-			entityQueryLock.EnterReadLock();
-			{
-				for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
-				{
-					lock(entityLocks[entity])
-					{
-						entities[entity].Clear();					
-					}
-				}
-			}
-			entityQueryLock.ExitReadLock();
+			tagContainer.RemoveTags(entity, compMask);
 		}
 
 		public IComponentContainer<T> GetContainer<T>()

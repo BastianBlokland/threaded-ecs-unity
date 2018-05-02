@@ -9,6 +9,11 @@ namespace ECS.Storage
 			get { return new ComponentMask(); } 
 		}
 
+		public static ComponentMask Full
+		{
+			get { return new ComponentMask().Invert(); }
+		}
+
 		public bool IsEmpty { get { return val == 0; } }
 
         private long val;
