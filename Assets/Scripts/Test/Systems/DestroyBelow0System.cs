@@ -13,7 +13,7 @@ namespace Test.Systems
 		private readonly EntityContext context;
 
 		public DestroyBelow0System(EntityContext context, Profiler.Timeline profiler) 
-			: base(context, profiler)
+			: base(context, batchSize: 100, profiler: profiler)
 		{
 			this.context = context;
 		}

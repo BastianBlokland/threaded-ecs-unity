@@ -15,7 +15,7 @@ namespace Test.Systems
 		private readonly EntityContext context;
 
 		public SpawnCubesSystem(int targetObjectCount, IRandomProvider random, EntityContext context, Profiler.Timeline profiler) 
-			: base(profiler)
+			: base(batchSize: 100, profiler: profiler)
 		{
 			this.targetObjectCount = targetObjectCount;
 			this.random = random;

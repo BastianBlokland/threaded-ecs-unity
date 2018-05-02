@@ -16,17 +16,18 @@ namespace ECS.Tasks
 		public event Action Completed = delegate {};
 
 		private readonly IExecutableTask task;
-		private readonly int batchSize = 50;
+		private readonly int batchSize;
 		private readonly Runner.SubtaskRunner runner;
 		private readonly Profiler.TimelineTrack profilerTrack;
 
 		private bool isScheduled;
 		private CountdownEvent countdownEvent;
 
-		public SingleTaskExecutor(IExecutableTask task, Runner.SubtaskRunner runner, Profiler.TimelineTrack profilerTrack = null)
+		public SingleTaskExecutor(IExecutableTask task, Runner.SubtaskRunner runner, int batchSize, Profiler.TimelineTrack profilerTrack = null)
 		{
 			this.task = task;
 			this.runner = runner;
+			this.batchSize = batchSize;
 			this.profilerTrack = profilerTrack;
 		}
 

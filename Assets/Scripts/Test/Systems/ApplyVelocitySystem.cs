@@ -13,7 +13,7 @@ namespace Test.Systems
 		private readonly DeltaTimeHandle deltaTime;
 
 		public ApplyVelocitySystem(DeltaTimeHandle deltaTime, EntityContext context, Profiler.Timeline profiler) 
-			: base(context, profiler)
+			: base(context, batchSize: 100, profiler: profiler)
 		{
 			this.deltaTime = deltaTime;
 		}

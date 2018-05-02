@@ -5,15 +5,17 @@ namespace ECS.Tasks
 		private readonly int batchSize;
 		private readonly Profiler.TimelineTrack profilerTrack;
 
-		public RepeatedTask(Profiler.Timeline profiler = null)
+		public RepeatedTask(int batchSize, Profiler.Timeline profiler = null)
 		{
+			this.batchSize = batchSize;
+
 			if(profiler != null)
 				profilerTrack = profiler.CreateTrack<Profiler.TimelineTrack>(GetType().Name);
 		}
 
 		public ITaskExecutor CreateExecutor(Runner.SubtaskRunner runner)
 		{
-			return new SingleTaskExecutor(this, runner, profilerTrack);
+			return new SingleTaskExecutor(this, runner, batchSize, profilerTrack);
 		}
 
 		int SingleTaskExecutor.IExecutableTask.PrepareSubtasks()
