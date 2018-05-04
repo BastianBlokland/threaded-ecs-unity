@@ -57,30 +57,30 @@ namespace Test
 		
 		protected void Update()
 		{
-			if(blockMainTrack != null) blockMainTrack.LogStartWork();
+			blockMainTrack?.LogStartWork();
 			{
 				//Wait for the systems to be complete
 				systemManager.Complete();
 			}
-			if(blockMainTrack != null) blockMainTrack.LogEndWork();
+			blockMainTrack?.LogEndWork();
 
-			if(renderTrack != null) renderTrack.LogStartWork();
+			renderTrack?.LogStartWork();
 			{
 				//Render the results of the systems
 				renderSet.Render();
 			}
-			if(renderTrack != null) renderTrack.LogEndWork();
+			renderTrack?.LogEndWork();
 
 			//Setup the systems
 			renderSet.Clear();
 			deltaTime.Update(Time.deltaTime);
 
-			if(scheduleTrack != null) scheduleTrack.LogStartWork();
+			scheduleTrack?.LogStartWork();
 			{
 				//Schedule the systems
 				systemManager.Schedule();
 			}
-			if(scheduleTrack != null) scheduleTrack.LogEndWork();
+			scheduleTrack?.LogEndWork();
 		}
 
 		protected void OnDestroy()

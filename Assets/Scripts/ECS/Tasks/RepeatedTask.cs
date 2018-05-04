@@ -9,8 +9,7 @@ namespace ECS.Tasks
 		{
 			this.batchSize = batchSize;
 
-			if(profiler != null)
-				profilerTrack = profiler.CreateTrack<Profiler.TimelineTrack>(GetType().Name);
+			profilerTrack = profiler?.CreateTrack<Profiler.TimelineTrack>(GetType().Name);
 		}
 
 		public ITaskExecutor CreateExecutor(Runner.SubtaskRunner runner)

@@ -211,8 +211,7 @@ namespace ECS.Tasks
 			requiredComponents = GetRequiredComponents(context);
 			illegalComponents = GetIllegalComponents(context);
 
-			if(profiler != null)
-				profilerTrack = profiler.CreateTrack<Profiler.TimelineTrack>(label: GetType().Name);
+			profilerTrack = profiler?.CreateTrack<Profiler.TimelineTrack>(label: GetType().Name);
 		}
 
 		public ITaskExecutor CreateExecutor(Runner.SubtaskRunner runner)

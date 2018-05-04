@@ -6,7 +6,7 @@ namespace ECS.Tasks
     public sealed class GroupTaskExecutor : ITaskExecutor
     {
         //NOTE: VERY important to realize that this can be called from any thread
-		public event Action Completed = delegate {};
+		public event Action Completed;
 
 		private readonly ITaskExecutor[] innerExecutors;
 
@@ -38,7 +38,7 @@ namespace ECS.Tasks
 		{
 			if(countdownEvent.Signal())
 			{
-				Completed();
+				Completed?.Invoke();
 				countdownEvent.Dispose();
 			}
 		}

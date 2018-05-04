@@ -13,7 +13,7 @@ namespace ECS.Tasks
 		}
 
         //NOTE: VERY important to realize that this can be called from any thread
-		public event Action Completed = delegate {};
+		public event Action Completed;
 
 		private readonly IExecutableTask task;
 		private readonly int batchSize;
@@ -37,8 +37,7 @@ namespace ECS.Tasks
 				return;
 			isScheduled = true;
 
-			if(profilerTrack != null)
-				profilerTrack.LogStartWork();
+			profilerTrack?.LogStartWork();
 
 			int subtaskCount = task.PrepareSubtasks();
 			if(subtaskCount == 0)
@@ -78,9 +77,8 @@ namespace ECS.Tasks
 
 		private void Complete()
 		{
-			if(profilerTrack != null)
-				profilerTrack.LogEndWork();
-			Completed();
+			profilerTrack?.LogEndWork();
+			Completed?.Invoke();
 		}
 		//----> RUNNING ON SEPARATE THREAD
     }

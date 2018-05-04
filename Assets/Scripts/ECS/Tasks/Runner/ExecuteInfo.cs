@@ -20,8 +20,7 @@ namespace ECS.Tasks.Runner
 
 		public void Execute()
 		{
-			if(executor != null)
-				executor.ExecuteSubtask(minSubtaskIndex, maxSubtaskIndex);
+			executor?.ExecuteSubtask(minSubtaskIndex, maxSubtaskIndex);
 		}
 	}
 }
