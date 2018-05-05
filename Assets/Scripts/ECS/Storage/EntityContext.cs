@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 
 using EntityID = System.UInt16;
-using CompID = System.Byte;
+using TagID = System.Byte;
 
 namespace ECS.Storage
 {
@@ -34,13 +34,13 @@ namespace ECS.Storage
 			containers = new IComponentContainer[reflector.ComponentCount];
 			
 			//Allocate a container for each data component type
-			for (CompID comp = 0; comp < reflector.ComponentCount; comp++)
+			for (TagID tag = 0; tag < reflector.ComponentCount; tag++)
 			{
-				Type compType = reflector.GetType(comp);
-				if(reflector.IsDataComponent(compType))
-					containers[comp] = ComponentContainerUtils.Create(compType);
+				Type compType = reflector.GetType(tag);
+				if(reflector.IsComponent(compType))
+					containers[tag] = ComponentContainerUtils.Create(compType);
 				else
-					containers[comp] = null;
+					containers[tag] = null;
 			}
 		}
 
@@ -76,49 +76,49 @@ namespace ECS.Storage
 		}
 
 		public T GetComponent<T>(EntityID entity)
-			where T : struct, IDataComponent
+			where T : struct, IComponent
 		{
-			CompID comp = GetID<T>();
-			return ((IComponentContainer<T>)containers[comp]).Get(entity);
+			TagID tag = GetID<T>();
+			return ((IComponentContainer<T>)containers[tag]).Get(entity);
 		}
 
-		public void SetComponent<T>(EntityID entity)
-			where T : struct, ITagComponent
+		public void SetTag<T>(EntityID entity)
+			where T : struct, ITag
 		{
-			TagMask compMask = GetMask<T>();
-			tagContainer.SetTags(entity, compMask);
+			TagMask tagMask = GetMask<T>();
+			tagContainer.SetTags(entity, tagMask);
 		}
 
 		public void SetComponent<T>(EntityID entity, T data)
-			where T : struct, IDataComponent
+			where T : struct, IComponent
 		{
-			CompID comp = GetID<T>();
-			((IComponentContainer<T>)containers[comp]).Set(entity, data);
-			SetComponent<T>(entity);
+			TagID tag = GetID<T>();
+			((IComponentContainer<T>)containers[tag]).Set(entity, data);
+			SetTag<T>(entity);
 		}
 
-		public void RemoveComponent<T>(EntityID entity)
-			where T : struct, ITagComponent
+		public void RemoveTag<T>(EntityID entity)
+			where T : struct, ITag
 		{
-			TagMask compMask = GetMask<T>();
-			tagContainer.RemoveTags(entity, compMask);
+			TagMask tagMask = GetMask<T>();
+			tagContainer.RemoveTags(entity, tagMask);
 		}
 
 		public IComponentContainer<T> GetContainer<T>()
-			where T : struct, IDataComponent
+			where T : struct, IComponent
 		{
-			CompID comp = GetID<T>();
-			return ((IComponentContainer<T>)containers[comp]);
+			TagID id = GetID<T>();
+			return ((IComponentContainer<T>)containers[id]);
 		}
 
-		public CompID GetID<T>()
-			where T : struct, ITagComponent
+		public TagID GetID<T>()
+			where T : struct, ITag
 		{
 			return reflector.GetID<T>();
 		}
 
 		public TagMask GetMask<T1>()
-			where T1 : struct, ITagComponent
+			where T1 : struct, ITag
 		{
 			return new TagMask(GetID<T1>());
 		}

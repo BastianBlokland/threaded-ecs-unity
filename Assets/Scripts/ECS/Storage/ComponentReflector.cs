@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-using CompID = System.Byte;
+using TagID = System.Byte;
 
 namespace ECS.Storage
 {
@@ -11,18 +11,18 @@ namespace ECS.Storage
     {
 		public readonly int ComponentCount;
 
-		private readonly Dictionary<Type, CompID> typeToIDLookup;
+		private readonly Dictionary<Type, TagID> typeToIDLookup;
 		private readonly Type[] idToTypeLookup;
 
 		public ComponentReflector(Assembly assembly)
 		{
 			//Create lookups
-			typeToIDLookup = new Dictionary<Type, CompID>(CompID.MaxValue);
-			idToTypeLookup = new Type[CompID.MaxValue];
+			typeToIDLookup = new Dictionary<Type, TagID>(TagID.MaxValue);
+			idToTypeLookup = new Type[TagID.MaxValue];
 			
 			//Find all the component types and add them to the lookups
-			Type requiredBase = typeof(ITagComponent);
-			CompID id = 0;
+			Type requiredBase = typeof(ITag);
+			TagID id = 0;
 			foreach(Type compType in assembly
 				.GetTypes()
 				.Where(type => 
@@ -46,35 +46,35 @@ namespace ECS.Storage
 			ComponentCount = id;
 		}
 
-		public CompID GetID<T>()
-			where T : struct, ITagComponent
+		public TagID GetID<T>()
+			where T : struct, ITag
 		{
 			return GetID(typeof(T));
 		}
 
-		public CompID GetID(Type type)
+		public TagID GetID(Type type)
 		{
-			CompID result;
+			TagID result;
 			if(!typeToIDLookup.TryGetValue(type, out result))
 				throw new Exception($"[ComponentReflector] '{type.FullName}' is not a known component");
 			return result;
 		}
 
-		public Type GetType(CompID id)
+		public Type GetType(TagID id)
 		{
 			if(id >= ComponentCount)
 				throw new Exception($"[ComponentReflector] '{id}' is higher then the component-count");
 			return idToTypeLookup[id];
 		}
 
-		public bool IsComponent(Type type)
+		public bool IsTag(Type type)
 		{
 			return typeToIDLookup.ContainsKey(type);
 		}
 
-		public bool IsDataComponent(Type type)
+		public bool IsComponent(Type type)
 		{
-			return typeof(IDataComponent).IsAssignableFrom(type);
+			return typeof(IComponent).IsAssignableFrom(type);
 		}
     }
 }

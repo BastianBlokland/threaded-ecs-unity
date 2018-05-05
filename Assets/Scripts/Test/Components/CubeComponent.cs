@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Test.Components
 {
-    public struct CubeComponent : ITagComponent
+    public struct CubeComponent : ITag
     {
 		
     }

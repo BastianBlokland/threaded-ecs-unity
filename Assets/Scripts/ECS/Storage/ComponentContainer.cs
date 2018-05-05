@@ -5,34 +5,32 @@ using EntityID = System.UInt16;
 namespace ECS.Storage
 {
 	public sealed class ComponentContainer<T> : IComponentContainer<T>
-		where T : struct, IDataComponent
+		where T : struct, IComponent
 	{
-		public T[] Data { get { return data; } }
-
-		private readonly T[] data;
+		public T[] Data { get; }
 
 		public ComponentContainer()
 		{
-			data = new T[EntityID.MaxValue];
+			Data = new T[EntityID.MaxValue];
 		}
 
 		public T Get(EntityID entity)
 		{
-			return data[entity];
+			return Data[entity];
 		}
 
-		public void Set(EntityID entity, T dataEntry)
+		public void Set(EntityID entity, T data)
 		{
-			data[entity] = dataEntry;
+			Data[entity] = data;
 		}
 	}
 
 	public static class ComponentContainerUtils
 	{
-		public static IComponentContainer Create(Type compType)
+		public static IComponentContainer Create(Type componentType)
 		{
-			Type containerType = typeof(ComponentContainer<>).MakeGenericType(compType);
-			return Activator.CreateInstance(containerType) as IComponentContainer;
+			var type = typeof(ComponentContainer<>).MakeGenericType(componentType);
+			return Activator.CreateInstance(type) as IComponentContainer;
 		}
 	}
 }

@@ -8,7 +8,7 @@ namespace ECS.Storage
 	}
 
 	public interface IComponentContainer<T> : IComponentContainer
-		where T : struct, IDataComponent
+		where T : struct, IComponent
 	{
 		T[] Data { get; }
 
