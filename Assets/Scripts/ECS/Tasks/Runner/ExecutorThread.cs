@@ -11,7 +11,7 @@ namespace ECS.Tasks.Runner
 		private readonly CancellationTokenSource cancelTokenSource;
 		private readonly ManualResetEventSlim wakeEvent;
 		private readonly Thread thread;
-		
+
 		public ExecutorThread(int executorID, ITaskSource taskSource)
 		{
 			this.executorID = executorID;
@@ -20,6 +20,7 @@ namespace ECS.Tasks.Runner
 			cancelTokenSource = new CancellationTokenSource();
 			wakeEvent = new ManualResetEventSlim();
 			thread = new Thread(ExecuteLoop);
+			thread.Name = "taskExecutor_" + executorID;
 			thread.IsBackground = true;
 			thread.Priority = ThreadPriority.AboveNormal;
 			thread.Start();
