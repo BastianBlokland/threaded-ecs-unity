@@ -8,7 +8,6 @@ namespace ECS.Tasks
 		public event Action Completed;
 
 		private readonly ITaskExecutor[] innerTasks;
-
 		private volatile bool isRunning;
 		private int remainingTasks;
 
@@ -22,7 +21,7 @@ namespace ECS.Tasks
 		public void Schedule()
 		{
 			if(isRunning)
-				throw new Exception("[SubtaskExecutor] Allready running!");
+				throw new Exception($"[{nameof(GroupTask)}] Allready running!");
 			isRunning = true;
 
 			remainingTasks = innerTasks.Length;

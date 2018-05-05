@@ -24,7 +24,7 @@ namespace ECS.Tasks
 		public void Schedule()
 		{
 			if(isRunning)
-				throw new Exception("[SubtaskExecutor] Allready running!");
+				throw new Exception($"[{nameof(SubtaskExecutor)}] Allready running!");
 			isRunning = true;
 
 			profilerTrack?.LogStartWork();

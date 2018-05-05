@@ -1,9 +1,9 @@
-using Utils;
 using ECS.Storage;
 using ECS.Tasks;
 using ECS.Tasks.Runner;
-using UnityEngine;
 using Test.Components;
+using UnityEngine;
+using Utils;
 
 using EntityID = System.UInt16;
 
@@ -26,9 +26,7 @@ namespace Test.Systems
 			velo.Velocity += Vector3.up * GRAVITY * deltaTime.Value;
 		}
 
-		protected override TagMask GetRequiredComponents(EntityContext context)
-		{
-			 return base.GetRequiredComponents(context) + context.GetMask<GravityComponent>();
-		}
+		protected override TagMask GetRequiredTags(EntityContext context)
+			=> base.GetRequiredTags(context) + context.GetMask<GravityComponent>();
     }
 }

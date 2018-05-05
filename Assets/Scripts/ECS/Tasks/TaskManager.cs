@@ -4,11 +4,10 @@ namespace ECS.Tasks
 {
 	public sealed class TaskManager
 	{
-		public bool IsRunning { get { return !isCompleted; } }
+		public bool IsRunning => !isCompleted;
 
 		private readonly Runner.SubtaskRunner runner;
 		private readonly ITaskExecutor[] tasks;
-
 		private volatile bool isCompleted = true;
 
 		public TaskManager(Runner.SubtaskRunner runner, params ITaskExecutor[] tasks)
@@ -50,9 +49,6 @@ namespace ECS.Tasks
 				LastTaskCompleted();
 		}
 
-		private void LastTaskCompleted()
-		{
-			isCompleted = true;
-		}
+		private void LastTaskCompleted() => isCompleted = true;
 	}
 }

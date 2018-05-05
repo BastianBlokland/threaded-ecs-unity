@@ -18,9 +18,6 @@ namespace ECS.Tasks.Runner
 			this.maxSubtaskIndex = maxSubtaskIndex;
 		}
 
-		public void Execute()
-		{
-			executor?.ExecuteSubtask(minSubtaskIndex, maxSubtaskIndex);
-		}
+		public void Execute() => executor?.ExecuteSubtask(minSubtaskIndex, maxSubtaskIndex);
 	}
 }

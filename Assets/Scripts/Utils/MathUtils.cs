@@ -5,20 +5,16 @@ namespace Utils
 {
 	public static class MathUtils
 	{
-		[StructLayout(LayoutKind.Explicit, Size = 4)]
-		private struct IntFloat 
+		[StructLayout(LayoutKind.Explicit, Size = 4)] private struct IntFloat 
 		{
-			[FieldOffset(0)]
-			public float FloatValue;
-
-			[FieldOffset(0)]
-			public int IntValue;
+			[FieldOffset(0)] public float FloatValue;
+			[FieldOffset(0)] public int IntValue;
 		}
 
 		//Implementation based on: https://en.wikipedia.org/wiki/Fast_inverse_square_root
 		public static float FastInvSqrRoot(float number)
 		{
-			IntFloat conv = new IntFloat { FloatValue = number }; 
+			var conv = new IntFloat { FloatValue = number }; 
 
 			float x2 = number * .5f;
 	 		conv.IntValue = 0x5f3759df - (conv.IntValue >> 1);

@@ -13,7 +13,7 @@ namespace Profiler
 		{
 			base.OnInspectorGUI();
 
-			DurationGraph durationGraph = target as DurationGraph;
+			var durationGraph = target as DurationGraph;
 			if(durationGraph != null && durationGraph.enabled)
 			{
 				Rect rect = GUILayoutUtility.GetRect(minWidth: WIDTH, maxWidth: WIDTH * 2f, minHeight: HEIGHT, maxHeight: HEIGHT * 2f);

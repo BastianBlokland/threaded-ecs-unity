@@ -4,15 +4,16 @@ using EntityID = System.UInt16;
 
 namespace ECS.Storage
 {
+	/// <summary>
+	/// Responsible for storing component data.
+	/// 
+	/// Thread-safety: Contains no locking but due to the nature of the storage its completely safe to
+	/// read or write to different entities. 
+	/// </summary>
 	public sealed class ComponentContainer<T> : IComponentContainer<T>
 		where T : struct, IComponent
 	{
-		public T[] Data { get; }
-
-		public ComponentContainer()
-		{
-			Data = new T[EntityID.MaxValue];
-		}
+		public T[] Data { get; } = new T[EntityID.MaxValue];
 
 		public T Get(EntityID entity)
 		{

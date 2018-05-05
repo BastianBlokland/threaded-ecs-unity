@@ -9,16 +9,13 @@ namespace ECS.Storage
 	/// - We need very fast clear (because its used in the quering) List<T>.Clear actually travels through each element in the
 	/// list to clear the entries (https://referencesource.microsoft.com/#mscorlib/system/collections/generic/list.cs)
 	/// - Without c#7 (ref-returns) we need to expose the actually array to be able to modify elements directly
+	/// 
+	/// Thread-safety: NOT thread-safe
 	/// </summary>
 	public sealed class EntitySet
 	{
-		public readonly EntityID[] Data;
-		public int Count;
-
-		public EntitySet()
-		{
-			Data = new EntityID[EntityID.MaxValue];
-		}
+		public EntityID[] Data { get; } = new EntityID[EntityID.MaxValue];
+		public int Count { get; set; }
 
 		public void Add(EntityID entity)
 		{
@@ -26,9 +23,6 @@ namespace ECS.Storage
 			Count++;
 		}
 
-		public void Clear()
-		{
-			Count = 0;
-		}
+		public void Clear() => Count = 0;
 	}
 }

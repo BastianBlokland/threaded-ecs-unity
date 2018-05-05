@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace ECS.Tasks.Runner
@@ -26,10 +25,7 @@ namespace ECS.Tasks.Runner
 			thread.Start();
 		}
 
-		public void Wake()
-		{
-			wakeEvent.Set();
-		}
+		public void Wake() => wakeEvent.Set();
 
 		public void Dispose()
 		{
@@ -44,10 +40,9 @@ namespace ECS.Tasks.Runner
 			wakeEvent.Dispose();
 		}
 
-		//----> RUNNING ON SEPARATE THREAD
 		private void ExecuteLoop()
 		{
-			CancellationToken token = cancelTokenSource.Token;
+			var token = cancelTokenSource.Token;
 			while(!token.IsCancellationRequested)
 			{
 				ExecuteInfo? task;
@@ -66,6 +61,5 @@ namespace ECS.Tasks.Runner
 				wakeEvent.Reset();
 			}
 		}
-		//----> RUNNING ON SEPARATE THREAD
 	}
 }

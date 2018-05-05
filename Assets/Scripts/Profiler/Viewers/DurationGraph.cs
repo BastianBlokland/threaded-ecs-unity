@@ -14,7 +14,6 @@ namespace Profiler
 		[SerializeField] private float maxDuration = .1f;
 
 		private readonly List<TimelineItem> itemCache = new List<TimelineItem>();
-
 		private Material linesMat;
 
 		public void Draw(Rect rect)
@@ -30,14 +29,14 @@ namespace Profiler
 			int numTracks = timeline.Tracks.Count;
 			for (int i = 0; i < timeline.Tracks.Count; i++)
 			{
-				Rect itemRect = new Rect(rect.x, rect.y + (rect.height / numTracks) * i, rect.width, rect.height / numTracks);
+				var itemRect = new Rect(rect.x, rect.y + (rect.height / numTracks) * i, rect.width, rect.height / numTracks);
 
 				//Draw header
 				GUI.color = Color.white;
 				GUI.Label(new Rect(itemRect.x, itemRect.y, itemRect.width, HEADER_HEIGHT), timeline.Tracks[i].Label);
 				
 				//Draw content
-				Rect contentRect = new Rect(itemRect.x, itemRect.y + HEADER_HEIGHT, itemRect.width, Mathf.Max(1f, itemRect.height - HEADER_HEIGHT));
+				var contentRect = new Rect(itemRect.x, itemRect.y + HEADER_HEIGHT, itemRect.width, Mathf.Max(1f, itemRect.height - HEADER_HEIGHT));
 				DrawTrack(contentRect, timeline.Tracks[i], timeline.CurrentTime);
 			}
 		}
@@ -50,7 +49,7 @@ namespace Profiler
 		protected void OnGUI()
 		{
 			if(drawInGame)
-				Draw(new Rect(10f, 270f, 600f, 400));
+				Draw(new Rect(10f, 270f, 600f, 400f));
 		}
 
 		protected void OnDestroy()
@@ -69,21 +68,20 @@ namespace Profiler
 			GUI.DrawTexture(rect, Texture2D.whiteTexture);
 
 			//Draw info
-			float averageDuration = GetAverageDuration(itemCache);
+			var averageDuration = GetAverageDuration(itemCache);
 			GUI.color = Color.white;
 			GUI.Label(rect, $"Avg: (ms) {(averageDuration * 1000f)}");
 
-			if(linesMat != null)
-				linesMat.SetPass(0);
+			linesMat?.SetPass(0);
 			GL.Begin(GL.LINES);
 			{
-				float lastXProg = -1f;
-				float lastYProg = -1f;
+				var lastXProg = -1f;
+				var lastYProg = -1f;
 				for (int i = 0; i < itemCache.Count; i++)
 				{
-					float xProg = i == 0 ? 0 : (float)i / (itemCache.Count - 1);
-					float duration = (itemCache[i].Running ? currentTime : itemCache[i].StopTime) - itemCache[i].StartTime;
-					float yProg = Mathf.InverseLerp(maxDuration, minDuration, duration);
+					var xProg = i == 0 ? 0 : (float)i / (itemCache.Count - 1);
+					var duration = (itemCache[i].Running ? currentTime : itemCache[i].StopTime) - itemCache[i].StartTime;
+					var yProg = Mathf.InverseLerp(maxDuration, minDuration, duration);
 					if(i != 0)
 					{
 						GL.Vertex(new Vector2(rect.x + rect.width * lastXProg, rect.y + rect.height * lastYProg));
@@ -101,15 +99,15 @@ namespace Profiler
 			if(items.Count == 0)
 				return 0f;
 			float sum = 0f;
-			int cnt = 0;
+			int count = 0;
 			for (int i = 0; i < items.Count; i++)
 			{
 				if(items[i].Running)
 					continue;
 				sum += itemCache[i].StopTime - itemCache[i].StartTime;
-				cnt++;
+				count++;
 			}
-			return sum / cnt;
+			return sum / count;
 		}
 	}
 }

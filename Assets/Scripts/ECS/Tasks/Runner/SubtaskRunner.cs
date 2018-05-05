@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Threading;
 
 namespace ECS.Tasks.Runner
 {
@@ -31,7 +29,7 @@ namespace ECS.Tasks.Runner
 
 		public void PushTask(ExecuteInfo.ISubtaskExecutor executor, int minIndex, int maxIndex)
 		{
-			ExecuteInfo info = new ExecuteInfo(executor, minIndex, maxIndex);
+			var info = new ExecuteInfo(executor, minIndex, maxIndex);
 			lock(pushLock)
 			{
 				taskQueues[currentPushQueueIndex].PushTask(info);
@@ -48,8 +46,8 @@ namespace ECS.Tasks.Runner
 		public void Help()
 		{
 			//Take a random executor id to not be contending the same executor all the time
-			int executorID = System.Environment.TickCount % taskQueueCount;
-			ExecuteInfo? info = GetTask(executorID: executorID);
+			var executorID = System.Environment.TickCount % taskQueueCount;
+			var info = GetTask(executorID: executorID);
 			if(info.HasValue)
 			{
 				try { info.Value.Execute(); }
@@ -67,17 +65,14 @@ namespace ECS.Tasks.Runner
 		{
 			for (int i = 0; i < taskQueueCount; i++)
 			{
-				int queueIndex = (executorID + i) % taskQueueCount;
-				ExecuteInfo? task = taskQueues[queueIndex].GetTask();
+				var queueIndex = (executorID + i) % taskQueueCount;
+				var task = taskQueues[queueIndex].GetTask();
 				if(task.HasValue)
 					return task;
 			}
 			return null;
 		}
 
-		ExecuteInfo? ITaskSource.GetTask(int executorID)
-		{
-			return GetTask(executorID);
-		}
+		ExecuteInfo? ITaskSource.GetTask(int executorID) => GetTask(executorID);
 	}
 }

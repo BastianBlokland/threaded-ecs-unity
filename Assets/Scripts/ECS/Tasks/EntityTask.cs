@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using ECS.Storage;
 using ECS.Tasks.Runner;
 
@@ -9,55 +8,46 @@ namespace ECS.Tasks
 	public abstract class EntityTask<Comp1> : EntityTask
 		where Comp1 : struct, IComponent
 	{
-		private readonly IComponentContainer<Comp1> container1;
+		private readonly IComponentContainer<Comp1> cont1;
 
 		public EntityTask(EntityContext context, SubtaskRunner runner, int batchSize, Profiler.Timeline profiler = null)
 			: base(context, runner, batchSize, profiler)
 		{
-			this.container1 = context.GetContainer<Comp1>();
+			this.cont1 = context.GetContainer<Comp1>();
 		}
 
-		protected sealed override void Execute(EntityID entity)
-		{
-			Execute(entity, ref container1.Data[entity]);
-		}
+		protected sealed override void Execute(EntityID entity) 
+			=> Execute(entity, ref cont1.Data[entity]);
 
 		protected abstract void Execute(EntityID entity, ref Comp1 comp);
 
-		protected override TagMask GetRequiredComponents(EntityContext context)
-		{
-			return base.GetRequiredComponents(context) 
-				+ context.GetMask<Comp1>();
-		}
+		protected override TagMask GetRequiredTags(EntityContext context) 
+			=> base.GetRequiredTags(context) + context.GetMask<Comp1>();
 	}
 
 	public abstract class EntityTask<Comp1, Comp2> : EntityTask
 		where Comp1 : struct, IComponent
 		where Comp2 : struct, IComponent
 	{
-		private readonly IComponentContainer<Comp1> container1;
-		private readonly IComponentContainer<Comp2> container2;
+		private readonly IComponentContainer<Comp1> cont1;
+		private readonly IComponentContainer<Comp2> cont2;
 
 		public EntityTask(EntityContext context, SubtaskRunner runner, int batchSize, Profiler.Timeline profiler = null)
 			: base(context, runner, batchSize, profiler)
 		{
-			this.container1 = context.GetContainer<Comp1>();
-			this.container2 = context.GetContainer<Comp2>();
+			this.cont1 = context.GetContainer<Comp1>();
+			this.cont2 = context.GetContainer<Comp2>();
 		}
 
-		protected sealed override void Execute(EntityID entity)
-		{
-			Execute(entity, ref container1.Data[entity], ref container2.Data[entity]);
-		}
+		protected sealed override void Execute(EntityID entity) 
+			=> Execute(entity, ref cont1.Data[entity], ref cont2.Data[entity]);
 
 		protected abstract void Execute(EntityID entity, ref Comp1 comp1, ref Comp2 comp2);
 
-		protected override TagMask GetRequiredComponents(EntityContext context)
-		{
-			return base.GetRequiredComponents(context) 
-				+ context.GetMask<Comp1>() 
-				+ context.GetMask<Comp2>();
-		}
+		protected override TagMask GetRequiredTags(EntityContext context)
+			=> base.GetRequiredTags(context)
+			+ context.GetMask<Comp1>()
+			+ context.GetMask<Comp2>();
 	}
 
 	public abstract class EntityTask<Comp1, Comp2, Comp3> : EntityTask
@@ -65,32 +55,31 @@ namespace ECS.Tasks
 		where Comp2 : struct, IComponent
 		where Comp3 : struct, IComponent
 	{
-		private readonly IComponentContainer<Comp1> container1;
-		private readonly IComponentContainer<Comp2> container2;
-		private readonly IComponentContainer<Comp3> container3;
+		private readonly IComponentContainer<Comp1> cont1;
+		private readonly IComponentContainer<Comp2> cont2;
+		private readonly IComponentContainer<Comp3> cont3;
 
 		public EntityTask(EntityContext context, SubtaskRunner runner, int batchSize, Profiler.Timeline profiler = null)
 			: base(context, runner, batchSize, profiler)
 		{
-			this.container1 = context.GetContainer<Comp1>();
-			this.container2 = context.GetContainer<Comp2>();
-			this.container3 = context.GetContainer<Comp3>();
+			this.cont1 = context.GetContainer<Comp1>();
+			this.cont2 = context.GetContainer<Comp2>();
+			this.cont3 = context.GetContainer<Comp3>();
 		}
 
 		protected sealed override void Execute(EntityID entity)
-		{
-			Execute(entity, 
-				ref container1.Data[entity],
-				ref container2.Data[entity],
-				ref container3.Data[entity]);
-		}
+			=> Execute(entity, 
+			ref cont1.Data[entity],
+			ref cont2.Data[entity],
+			ref cont3.Data[entity]);
 
 		protected abstract void Execute(EntityID entity, ref Comp1 comp1, ref Comp2 comp2, ref Comp3 comp3);
 
-		protected override TagMask GetRequiredComponents(EntityContext context)
-		{
-			return base.GetRequiredComponents(context) + context.GetMask<Comp1>() + context.GetMask<Comp2>() + context.GetMask<Comp3>();
-		}
+		protected override TagMask GetRequiredTags(EntityContext context)
+			=> base.GetRequiredTags(context) 
+			+ context.GetMask<Comp1>() 
+			+ context.GetMask<Comp2>() 
+			+ context.GetMask<Comp3>();
 	}
 
 	public abstract class EntityTask<Comp1, Comp2, Comp3, Comp4> : EntityTask
@@ -99,28 +88,26 @@ namespace ECS.Tasks
 		where Comp3 : struct, IComponent
 		where Comp4 : struct, IComponent
 	{
-		private readonly IComponentContainer<Comp1> container1;
-		private readonly IComponentContainer<Comp2> container2;
-		private readonly IComponentContainer<Comp3> container3;
-		private readonly IComponentContainer<Comp4> container4;
+		private readonly IComponentContainer<Comp1> cont1;
+		private readonly IComponentContainer<Comp2> cont2;
+		private readonly IComponentContainer<Comp3> cont3;
+		private readonly IComponentContainer<Comp4> cont4;
 
 		public EntityTask(EntityContext context, SubtaskRunner runner, int batchSize, Profiler.Timeline profiler = null)
 			: base(context, runner, batchSize, profiler)
 		{
-			this.container1 = context.GetContainer<Comp1>();
-			this.container2 = context.GetContainer<Comp2>();
-			this.container3 = context.GetContainer<Comp3>();
-			this.container4 = context.GetContainer<Comp4>();
+			this.cont1 = context.GetContainer<Comp1>();
+			this.cont2 = context.GetContainer<Comp2>();
+			this.cont3 = context.GetContainer<Comp3>();
+			this.cont4 = context.GetContainer<Comp4>();
 		}
 
 		protected sealed override void Execute(EntityID entity)
-		{
-			Execute(entity, 
-				ref container1.Data[entity],
-				ref container2.Data[entity],
-				ref container3.Data[entity],
-				ref container4.Data[entity]);
-		}
+			=> Execute(entity, 
+			ref cont1.Data[entity],
+			ref cont2.Data[entity],
+			ref cont3.Data[entity],
+			ref cont4.Data[entity]);
 
 		protected abstract void Execute(EntityID entity, 
 			ref Comp1 comp1, 
@@ -128,14 +115,12 @@ namespace ECS.Tasks
 			ref Comp3 comp3,
 			ref Comp4 comp4);
 
-		protected override TagMask GetRequiredComponents(EntityContext context)
-		{
-			return base.GetRequiredComponents(context)
-				+ context.GetMask<Comp1>()
-				+ context.GetMask<Comp2>()
-				+ context.GetMask<Comp3>()
-				+ context.GetMask<Comp4>();
-		}
+		protected override TagMask GetRequiredTags(EntityContext context)
+			=> base.GetRequiredTags(context)
+			+ context.GetMask<Comp1>()
+			+ context.GetMask<Comp2>()
+			+ context.GetMask<Comp3>()
+			+ context.GetMask<Comp4>();
 	}
 
 	public abstract class EntityTask<Comp1, Comp2, Comp3, Comp4, Comp5> : EntityTask
@@ -145,31 +130,29 @@ namespace ECS.Tasks
 		where Comp4 : struct, IComponent
 		where Comp5 : struct, IComponent
 	{
-		private readonly IComponentContainer<Comp1> container1;
-		private readonly IComponentContainer<Comp2> container2;
-		private readonly IComponentContainer<Comp3> container3;
-		private readonly IComponentContainer<Comp4> container4;
-		private readonly IComponentContainer<Comp5> container5;
+		private readonly IComponentContainer<Comp1> cont1;
+		private readonly IComponentContainer<Comp2> cont2;
+		private readonly IComponentContainer<Comp3> cont3;
+		private readonly IComponentContainer<Comp4> cont4;
+		private readonly IComponentContainer<Comp5> cont5;
 
 		public EntityTask(EntityContext context, SubtaskRunner runner, int batchSize, Profiler.Timeline profiler = null)
 			: base(context, runner, batchSize, profiler)
 		{
-			this.container1 = context.GetContainer<Comp1>();
-			this.container2 = context.GetContainer<Comp2>();
-			this.container3 = context.GetContainer<Comp3>();
-			this.container4 = context.GetContainer<Comp4>();
-			this.container5 = context.GetContainer<Comp5>();
+			this.cont1 = context.GetContainer<Comp1>();
+			this.cont2 = context.GetContainer<Comp2>();
+			this.cont3 = context.GetContainer<Comp3>();
+			this.cont4 = context.GetContainer<Comp4>();
+			this.cont5 = context.GetContainer<Comp5>();
 		}
 
 		protected sealed override void Execute(EntityID entity)
-		{
-			Execute(entity, 
-				ref container1.Data[entity],
-				ref container2.Data[entity],
-				ref container3.Data[entity],
-				ref container4.Data[entity],
-				ref container5.Data[entity]);
-		}
+			=> Execute(entity, 
+			ref cont1.Data[entity],
+			ref cont2.Data[entity],
+			ref cont3.Data[entity],
+			ref cont4.Data[entity],
+			ref cont5.Data[entity]);
 
 		protected abstract void Execute(EntityID entity, 
 			ref Comp1 comp1, 
@@ -178,15 +161,13 @@ namespace ECS.Tasks
 			ref Comp4 comp4,
 			ref Comp5 comp5);
 
-		protected override TagMask GetRequiredComponents(EntityContext context)
-		{
-			return base.GetRequiredComponents(context)
-				+ context.GetMask<Comp1>()
-				+ context.GetMask<Comp2>()
-				+ context.GetMask<Comp3>()
-				+ context.GetMask<Comp4>()
-				+ context.GetMask<Comp5>();
-		}
+		protected override TagMask GetRequiredTags(EntityContext context)
+			=> base.GetRequiredTags(context)
+			+ context.GetMask<Comp1>()
+			+ context.GetMask<Comp2>()
+			+ context.GetMask<Comp3>()
+			+ context.GetMask<Comp4>()
+			+ context.GetMask<Comp5>();
 	}
 
     public abstract class EntityTask : SubtaskExecutor
@@ -203,19 +184,13 @@ namespace ECS.Tasks
 			this.context = context;
 			this.entities = new EntitySet();
 			
-			requiredComponents = GetRequiredComponents(context);
-			illegalComponents = GetIllegalComponents(context);
+			requiredComponents = GetRequiredTags(context);
+			illegalComponents = GetIllegalTags(context);
 		}
 
-		protected virtual TagMask GetRequiredComponents(EntityContext context)
-		{
-			return TagMask.Empty;
-		}
+		protected virtual TagMask GetRequiredTags(EntityContext context) => TagMask.Empty;
 
-		protected virtual TagMask GetIllegalComponents(EntityContext context)
-		{
-			return TagMask.Empty;
-		}
+		protected virtual TagMask GetIllegalTags(EntityContext context) => TagMask.Empty;
 
 		protected sealed override int PrepareSubtasks()
 		{
@@ -223,11 +198,7 @@ namespace ECS.Tasks
 			return entities.Count;
 		}
 
-		protected sealed override void ExecuteSubtask(int index)
-		{
-			EntityID entity = entities.Data[index];
-			Execute(entity);
-		}
+		protected sealed override void ExecuteSubtask(int index) => Execute(entities.Data[index]);
 
 		protected abstract void Execute(EntityID entity);
 	}

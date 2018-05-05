@@ -1,11 +1,11 @@
-using Utils;
 using ECS.Storage;
 using ECS.Tasks;
 using ECS.Tasks.Runner;
-using UnityEngine;
 using Test.Components;
+using UnityEngine;
+using Utils;
 
-using EntityID = System.UInt16;
+using static UnityEngine.Mathf;
 
 namespace Test.Systems
 {
@@ -25,8 +25,8 @@ namespace Test.Systems
 
 		protected override int PrepareSubtasks()
 		{
-			int currentCubeCount = context.GetEntityCount(requiredComps: context.GetMask<CubeComponent>(), illegalComps: TagMask.Empty);
-			return Mathf.Max(0, targetObjectCount - currentCubeCount);
+			int currentCubeCount = context.GetEntityCount(requiredTags: context.GetMask<CubeComponent>(), illegalTags: TagMask.Empty);
+			return Max(0, targetObjectCount - currentCubeCount);
 		}
 
 		protected override void ExecuteSubtask(int index)
@@ -34,7 +34,7 @@ namespace Test.Systems
 			const float STARTING_HEIGHT = 100f;
 			const float STARTING_SPEED = 25f;
 
-			EntityID entity = context.CreateEntity();
+			var entity = context.CreateEntity();
 			context.SetComponent(entity, new TransformComponent(position: new Vector3(0f, STARTING_HEIGHT, 0f)));
 			context.SetComponent(entity, new VelocityComponent(velocity: random.Direction3D() * STARTING_SPEED));
 			context.SetComponent(entity, new GraphicsComponent(graphicsID: 1));

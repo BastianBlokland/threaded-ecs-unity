@@ -4,9 +4,6 @@ namespace Utils
     {
         public float Value { get; private set; }
 
-		public void Update(float deltaTime)
-		{
-			Value = deltaTime;
-		}
+		public void Update(float deltaTime) => Value = deltaTime;
     }
 }

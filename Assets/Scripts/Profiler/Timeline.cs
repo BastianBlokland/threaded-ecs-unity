@@ -20,19 +20,18 @@ namespace Profiler
 			}
 		}
 
-		public bool IsStarted { get { return started; } }
-		public float CurrentTime { get { return (float)timer.Elapsed.TotalSeconds; } }
-		public IList<TrackEntry> Tracks { get { return tracks; } }
+		public bool IsStarted => started;
+		public float CurrentTime => (float)timer.Elapsed.TotalSeconds;
+		public IList<TrackEntry> Tracks => tracks;
 
 		private readonly List<TrackEntry> tracks = new List<TrackEntry>();
 		private readonly Stopwatch timer = new Stopwatch();
-
 		private bool started;
 
 		public T CreateTrack<T>(string label) where T : TimelineTrack, new()
 		{
 			if(started)
-				throw new Exception("[Timeline] Unable to create a track after the timeline has allready started");
+				throw new Exception($"[{nameof(Timeline)}] Unable to create a track after the timeline has allready started");
 			T newTrack = new T();
 			tracks.Add(new TrackEntry(label, newTrack));
 			return newTrack;
@@ -41,7 +40,7 @@ namespace Profiler
 		public void StartTimers()
 		{
 			if(started)
-				throw new Exception("[Timeline] Allready started");
+				throw new Exception($"[{nameof(Timeline)}] Allready started");
 			for (int i = 0; i < tracks.Count; i++)
 				tracks[i].Track.StartTimer();
 			timer.Start();

@@ -2,10 +2,15 @@ using TagID = System.Byte;
 
 namespace ECS.Storage
 {
+	/// <summary>
+	/// A mask on which you can set/unset tags, uses the bits in a long for storage	
+	/// 
+	/// Thread-safety: NOT thread-safe
+	/// </summary>
     public struct TagMask
     {
+		public const int MAX_ENTRIES = 64;
 		public static TagMask Empty { get; } = new TagMask();
-		
 		public static TagMask Full { get; } = Empty.Invert();
 
 		public bool IsEmpty => val == 0;

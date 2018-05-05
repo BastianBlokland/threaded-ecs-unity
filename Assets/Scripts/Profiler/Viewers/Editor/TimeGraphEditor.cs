@@ -13,7 +13,7 @@ namespace Profiler
 		{
 			base.OnInspectorGUI();
 
-			TimeGraph timeGraph = target as TimeGraph;
+			var timeGraph = target as TimeGraph;
 			if(timeGraph != null && timeGraph.enabled)
 			{
 				Rect rect = GUILayoutUtility.GetRect(minWidth: WIDTH, maxWidth: WIDTH * 2f, minHeight: HEIGHT, maxHeight: HEIGHT * 2f);

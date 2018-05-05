@@ -1,9 +1,9 @@
-﻿using Utils;
-using ECS.Storage;
+﻿using ECS.Storage;
 using ECS.Tasks;
 using ECS.Tasks.Runner;
-using UnityEngine;
 using Test.Components;
+using UnityEngine;
+using Utils;
 
 using EntityID = System.UInt16;
 
@@ -21,7 +21,7 @@ namespace Test.Systems
 
         protected override void Execute(EntityID entity, ref GraphicsComponent graphics, ref TransformComponent trans)
 		{
-			Matrix4x4 matrix = Matrix4x4.TRS(trans.Position, trans.Rotation, Vector3.one);
+			var matrix = Matrix4x4.TRS(trans.Position, trans.Rotation, Vector3.one);
 			renderSet.Add(graphics.GraphicsID, matrix);
 		}
     }

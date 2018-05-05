@@ -29,11 +29,9 @@ namespace Test
 		{
 			if(assetsLibrary == null)
 			{
-				Debug.LogError("[TestController] No 'GraphicsAssetsLibrary' provided!");
+				Debug.LogError($"[{nameof(TestController)}] No 'GraphicsAssetsLibrary' provided!");
 				return;
 			}
-
-			Application.targetFrameRate = -1;
 
 			subtaskRunner = new SubtaskRunner(executorCount);
 			entityContext = new EntityContext();
@@ -49,13 +47,10 @@ namespace Test
 				new CreateRenderBatchesSystem(renderSet, entityContext, subtaskRunner, timeline)
 			});
 
-			if(timeline != null)
-			{
-				blockMainTrack = timeline.CreateTrack<Profiler.TimelineTrack>("Finishing systems on main");
-				renderTrack = timeline.CreateTrack<Profiler.TimelineTrack>("Rendering");
-				scheduleTrack = timeline.CreateTrack<Profiler.TimelineTrack>("Scheduling");
-				timeline.StartTimers();
-			}
+			blockMainTrack = timeline?.CreateTrack<Profiler.TimelineTrack>("Finishing systems on main");
+			renderTrack = timeline?.CreateTrack<Profiler.TimelineTrack>("Rendering");
+			scheduleTrack = timeline?.CreateTrack<Profiler.TimelineTrack>("Scheduling");
+			timeline?.StartTimers();
 		}
 		
 		protected void Update()
@@ -88,16 +83,8 @@ namespace Test
 
 		protected void OnDestroy()
 		{
-			if(entityContext != null)
-			{
-				entityContext.Dispose();
-				entityContext = null;
-			}
-			if(subtaskRunner != null)
-			{
-				subtaskRunner.Dispose();
-				subtaskRunner = null;
-			}
+			entityContext?.Dispose();
+			subtaskRunner?.Dispose();
 		}
 	}
 }

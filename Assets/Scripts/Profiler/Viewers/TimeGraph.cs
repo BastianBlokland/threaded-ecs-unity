@@ -6,8 +6,8 @@ namespace Profiler
 {
 	public class TimeGraph : MonoBehaviour
 	{
-		public float LeftTime { get { return RightTime - timeRange; } }
-		public float RightTime { get { return viewTime; } }
+		public float LeftTime => RightTime - timeRange;
+		public float RightTime => viewTime;
 	
 		[SerializeField] private Timeline timeline;
 		[SerializeField] private bool drawInGame;
@@ -17,7 +17,6 @@ namespace Profiler
 
 		private readonly List<TimelineItem> itemCache = new List<TimelineItem>();
 		private readonly Color[] trackColors = new Color[] { Color.blue, Color.green, Color.yellow, Color.cyan, Color.magenta, Color.red };
-
 		private float viewTime;
 
 		public void Draw(Rect rect)
@@ -40,14 +39,14 @@ namespace Profiler
 			int numTracks = timeline.Tracks.Count;
 			for (int i = 0; i < timeline.Tracks.Count; i++)
 			{
-				Rect itemRect = new Rect(rect.x, rect.y + (rect.height / numTracks) * i, rect.width, rect.height / numTracks);
+				var itemRect = new Rect(rect.x, rect.y + (rect.height / numTracks) * i, rect.width, rect.height / numTracks);
 
 				//Draw header
 				GUI.color = Color.white;
 				GUI.Label(new Rect(itemRect.x, itemRect.y, itemRect.width, HEADER_HEIGHT), timeline.Tracks[i].Label);
 				
 				//Draw content
-				Rect contentRect = new Rect(itemRect.x, itemRect.y + HEADER_HEIGHT, itemRect.width, Mathf.Max(1f, itemRect.height - HEADER_HEIGHT));
+				var contentRect = new Rect(itemRect.x, itemRect.y + HEADER_HEIGHT, itemRect.width, Mathf.Max(1f, itemRect.height - HEADER_HEIGHT));
 				DrawTrack(contentRect, trackColors[i % trackColors.Length], timeline.Tracks[i], LeftTime, RightTime, timeline.CurrentTime);
 			}
 		}
@@ -75,14 +74,14 @@ namespace Profiler
 			for (int i = 0; i < itemCache.Count; i++)
 			{
 				TimelineItem item = itemCache[i];
-				float itemStartTime = item.StartTime;
-				float itemStopTime = item.Running ? currentTime : item.StopTime;
+				var itemStartTime = item.StartTime;
+				var itemStopTime = item.Running ? currentTime : item.StopTime;
 				bool inView = MathUtils.DoesRangeOverlap(itemStartTime, itemStopTime, leftTime, rightTime);
 				if(inView)
 				{
 					//Convert to progress in the view
-					float p1 = Mathf.InverseLerp(leftTime, rightTime, itemStartTime);
-					float p2 = Mathf.InverseLerp(leftTime, rightTime, itemStopTime); 
+					var p1 = Mathf.InverseLerp(leftTime, rightTime, itemStartTime);
+					var p2 = Mathf.InverseLerp(leftTime, rightTime, itemStopTime); 
 
 					Rect itemRect = new Rect(rect.x + p1 * rect.width, rect.y, (p2 - p1) * rect.width, rect.height);
 					GUI.DrawTexture(itemRect, Texture2D.whiteTexture);

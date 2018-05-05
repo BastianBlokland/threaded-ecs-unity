@@ -4,18 +4,10 @@ namespace ECS.Tasks.Runner
 {
 	public sealed class TaskQueue
 	{
-		private readonly ConcurrentQueue<ExecuteInfo> queue;
-	
-		public TaskQueue()
-		{
-			queue = new ConcurrentQueue<ExecuteInfo>();
-		}
+		private readonly ConcurrentQueue<ExecuteInfo> queue = new ConcurrentQueue<ExecuteInfo>();
 
-		public void PushTask(ExecuteInfo executeInfo)
-		{
-			queue.Enqueue(executeInfo);
-		}
-
+		public void PushTask(ExecuteInfo executeInfo) => queue.Enqueue(executeInfo);
+		
 		public ExecuteInfo? GetTask()
 		{
 			ExecuteInfo info;
