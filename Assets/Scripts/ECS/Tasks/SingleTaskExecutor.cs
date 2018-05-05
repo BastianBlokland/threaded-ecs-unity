@@ -21,7 +21,7 @@ namespace ECS.Tasks
 		private readonly Profiler.TimelineTrack profilerTrack;
 
 		private bool isScheduled;
-		private CountdownEvent countdownEvent;
+		private int remainingBatches;
 
 		public SingleTaskExecutor(IExecutableTask task, Runner.SubtaskRunner runner, int batchSize, Profiler.TimelineTrack profilerTrack = null)
 		{
@@ -44,8 +44,7 @@ namespace ECS.Tasks
 				Complete();
 			else
 			{
-				int batchCount = (subtaskCount - 1) / batchSize + 1; //'Trick' to round up using integer division
-				countdownEvent = new CountdownEvent(batchCount);
+				remainingBatches = (subtaskCount - 1) / batchSize + 1; //'Trick' to round up using integer division
 
 				int startOffset = batchSize - 1;
 				int maxIndex = subtaskCount - 1;
@@ -68,11 +67,8 @@ namespace ECS.Tasks
 					task.ExecuteSubtask(i);
 			} catch (Exception) { }
 
-			if(countdownEvent.Signal())
-			{
+			if(Interlocked.Decrement(ref remainingBatches) == 0)
 				Complete();
-				countdownEvent.Dispose();
-			}
 		}
 
 		private void Complete()
