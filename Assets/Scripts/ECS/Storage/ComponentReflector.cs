@@ -56,14 +56,14 @@ namespace ECS.Storage
 		{
 			CompID result;
 			if(!typeToIDLookup.TryGetValue(type, out result))
-				throw new Exception(string.Format("[ComponentReflector] '{0}' is not a known component", type.FullName));
+				throw new Exception($"[ComponentReflector] '{type.FullName}' is not a known component");
 			return result;
 		}
 
 		public Type GetType(CompID id)
 		{
 			if(id >= ComponentCount)
-				throw new Exception(string.Format("[ComponentReflector] '{0}' is higher then the component-count", id));
+				throw new Exception($"[ComponentReflector] '{id}' is higher then the component-count");
 			return idToTypeLookup[id];
 		}
 

@@ -20,7 +20,7 @@ namespace ECS.Tasks.Runner
 			cancelTokenSource = new CancellationTokenSource();
 			wakeEvent = new ManualResetEventSlim();
 			thread = new Thread(ExecuteLoop);
-			thread.Name = "taskExecutor_" + executorID;
+			thread.Name = $"taskExecutor_{executorID}";
 			thread.IsBackground = true;
 			thread.Priority = ThreadPriority.AboveNormal;
 			thread.Start();

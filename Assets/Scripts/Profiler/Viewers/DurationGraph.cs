@@ -71,7 +71,7 @@ namespace Profiler
 			//Draw info
 			float averageDuration = GetAverageDuration(itemCache);
 			GUI.color = Color.white;
-			GUI.Label(rect, "Avg: (ms) " + (averageDuration * 1000f));
+			GUI.Label(rect, $"Avg: (ms) {(averageDuration * 1000f)}");
 
 			if(linesMat != null)
 				linesMat.SetPass(0);
