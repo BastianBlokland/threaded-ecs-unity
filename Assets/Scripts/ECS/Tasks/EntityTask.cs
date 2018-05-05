@@ -24,10 +24,10 @@ namespace ECS.Tasks
 
 		protected abstract void Execute(EntityID entity, ref Comp1 comp);
 
-		protected override ComponentMask GetRequiredComponents(EntityContext context)
+		protected override TagMask GetRequiredComponents(EntityContext context)
 		{
-			return base.GetRequiredComponents(context)
-				.Add(context.GetMask<Comp1>());
+			return base.GetRequiredComponents(context) 
+				+ context.GetMask<Comp1>();
 		}
 	}
 
@@ -52,11 +52,11 @@ namespace ECS.Tasks
 
 		protected abstract void Execute(EntityID entity, ref Comp1 comp1, ref Comp2 comp2);
 
-		protected override ComponentMask GetRequiredComponents(EntityContext context)
+		protected override TagMask GetRequiredComponents(EntityContext context)
 		{
-			return base.GetRequiredComponents(context)
-				.Add(context.GetMask<Comp1>())
-				.Add(context.GetMask<Comp2>());
+			return base.GetRequiredComponents(context) 
+				+ context.GetMask<Comp1>() 
+				+ context.GetMask<Comp2>();
 		}
 	}
 
@@ -87,12 +87,9 @@ namespace ECS.Tasks
 
 		protected abstract void Execute(EntityID entity, ref Comp1 comp1, ref Comp2 comp2, ref Comp3 comp3);
 
-		protected override ComponentMask GetRequiredComponents(EntityContext context)
+		protected override TagMask GetRequiredComponents(EntityContext context)
 		{
-			return base.GetRequiredComponents(context)
-				.Add(context.GetMask<Comp1>())
-				.Add(context.GetMask<Comp2>())
-				.Add(context.GetMask<Comp3>());
+			return base.GetRequiredComponents(context) + context.GetMask<Comp1>() + context.GetMask<Comp2>() + context.GetMask<Comp3>();
 		}
 	}
 
@@ -131,13 +128,13 @@ namespace ECS.Tasks
 			ref Comp3 comp3,
 			ref Comp4 comp4);
 
-		protected override ComponentMask GetRequiredComponents(EntityContext context)
+		protected override TagMask GetRequiredComponents(EntityContext context)
 		{
 			return base.GetRequiredComponents(context)
-				.Add(context.GetMask<Comp1>())
-				.Add(context.GetMask<Comp2>())
-				.Add(context.GetMask<Comp3>())
-				.Add(context.GetMask<Comp4>());
+				+ context.GetMask<Comp1>()
+				+ context.GetMask<Comp2>()
+				+ context.GetMask<Comp3>()
+				+ context.GetMask<Comp4>();
 		}
 	}
 
@@ -181,14 +178,14 @@ namespace ECS.Tasks
 			ref Comp4 comp4,
 			ref Comp5 comp5);
 
-		protected override ComponentMask GetRequiredComponents(EntityContext context)
+		protected override TagMask GetRequiredComponents(EntityContext context)
 		{
 			return base.GetRequiredComponents(context)
-				.Add(context.GetMask<Comp1>())
-				.Add(context.GetMask<Comp2>())
-				.Add(context.GetMask<Comp3>())
-				.Add(context.GetMask<Comp4>())
-				.Add(context.GetMask<Comp5>());
+				+ context.GetMask<Comp1>()
+				+ context.GetMask<Comp2>()
+				+ context.GetMask<Comp3>()
+				+ context.GetMask<Comp4>()
+				+ context.GetMask<Comp5>();
 		}
 	}
 
@@ -197,8 +194,8 @@ namespace ECS.Tasks
 		private readonly EntityContext context;
 		private readonly EntitySet entities;
 
-		private readonly ComponentMask requiredComponents;
-		private readonly ComponentMask illegalComponents;
+		private readonly TagMask requiredComponents;
+		private readonly TagMask illegalComponents;
 
 		public EntityTask(EntityContext context, SubtaskRunner runner, int batchSize, Profiler.Timeline profiler = null)
 			: base(runner, batchSize, profiler)
@@ -210,14 +207,14 @@ namespace ECS.Tasks
 			illegalComponents = GetIllegalComponents(context);
 		}
 
-		protected virtual ComponentMask GetRequiredComponents(EntityContext context)
+		protected virtual TagMask GetRequiredComponents(EntityContext context)
 		{
-			return ComponentMask.Empty;
+			return TagMask.Empty;
 		}
 
-		protected virtual ComponentMask GetIllegalComponents(EntityContext context)
+		protected virtual TagMask GetIllegalComponents(EntityContext context)
 		{
-			return ComponentMask.Empty;
+			return TagMask.Empty;
 		}
 
 		protected sealed override int PrepareSubtasks()

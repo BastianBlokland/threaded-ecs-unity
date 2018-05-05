@@ -57,20 +57,20 @@ namespace ECS.Storage
 		public void RemoveEntity(EntityID entity)
 		{
 			entityAllocator.Free(entity);
-			tagContainer.RemoveTags(entity, ComponentMask.Full);
+			tagContainer.RemoveTags(entity, TagMask.Full);
 		}
 
-		public void GetEntities(ComponentMask requiredComps, ComponentMask illegalComps, EntitySet outputSet)
+		public void GetEntities(TagMask requiredComps, TagMask illegalComps, EntitySet outputSet)
 		{
 			tagContainer.GetEntities(requiredComps, illegalComps, outputSet);
 		}
 
-		public int GetEntityCount(ComponentMask requiredComps, ComponentMask illegalComps)
+		public int GetEntityCount(TagMask requiredComps, TagMask illegalComps)
 		{
 			return tagContainer.GetEntityCount(requiredComps, illegalComps);
 		}
 
-		public bool HasComponents(EntityID entity, ComponentMask mask)
+		public bool HasComponents(EntityID entity, TagMask mask)
 		{
 			return tagContainer.HasTags(entity, mask);
 		}
@@ -85,7 +85,7 @@ namespace ECS.Storage
 		public void SetComponent<T>(EntityID entity)
 			where T : struct, ITagComponent
 		{
-			ComponentMask compMask = GetMask<T>();
+			TagMask compMask = GetMask<T>();
 			tagContainer.SetTags(entity, compMask);
 		}
 
@@ -100,7 +100,7 @@ namespace ECS.Storage
 		public void RemoveComponent<T>(EntityID entity)
 			where T : struct, ITagComponent
 		{
-			ComponentMask compMask = GetMask<T>();
+			TagMask compMask = GetMask<T>();
 			tagContainer.RemoveTags(entity, compMask);
 		}
 
@@ -117,17 +117,10 @@ namespace ECS.Storage
 			return reflector.GetID<T>();
 		}
 
-		public ComponentMask GetMask<T1>()
+		public TagMask GetMask<T1>()
 			where T1 : struct, ITagComponent
 		{
-			return ComponentMask.CreateMask(GetID<T1>());
-		}
-
-		public ComponentMask GetMask<T1, T2>()
-			where T1 : struct, ITagComponent
-			where T2 : struct, ITagComponent
-		{
-			return ComponentMask.CreateMask(GetID<T1>(), GetID<T2>());
+			return new TagMask(GetID<T1>());
 		}
 
 		public void Dispose()

@@ -18,25 +18,25 @@ namespace ECS.Storage
 		//the 'ReaderWriterLockSlim' allows for multiple simultaneous readers but will stop all modifications we we are quering
 		//one done side is that this will NOT allow for concurrent 'GetEntities' queries even tho that would be save, but i suspect
 		//that will be a very rare occurrence. In the mean time if anyone comes up with a smarter way to do this locking feel free :)
-		private readonly ComponentMask[] entities;
+		private readonly TagMask[] entities;
 		private readonly object[] entityLocks;
 		private readonly ReaderWriterLockSlim entityQueryLock;
 		
 		public EntityTagContainer()
 		{
-			entities = new ComponentMask[EntityID.MaxValue];
+			entities = new TagMask[EntityID.MaxValue];
 			entityLocks = new object[EntityID.MaxValue];
 			entityQueryLock = new ReaderWriterLockSlim();
 
 			//Create a component-mask and a lock object for each entity
 			for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
 			{
-				entities[entity] = new ComponentMask();
+				entities[entity] = new TagMask();
 				entityLocks[entity] = new object();
 			}
 		}
 
-		public bool HasTags(EntityID entity, ComponentMask mask)
+		public bool HasTags(EntityID entity, TagMask mask)
 		{
 			bool has;
 			lock(entityLocks[entity])
@@ -46,7 +46,7 @@ namespace ECS.Storage
 			return has;
 		}
 
-		public void SetTags(EntityID entity, ComponentMask mask)
+		public void SetTags(EntityID entity, TagMask mask)
 		{
 			entityQueryLock.EnterReadLock();
 			{
@@ -59,7 +59,7 @@ namespace ECS.Storage
 			entityQueryLock.ExitReadLock();
 		}
 
-		public void RemoveTags(EntityID entity, ComponentMask mask)
+		public void RemoveTags(EntityID entity, TagMask mask)
 		{
 			entityQueryLock.EnterReadLock();
 			{
@@ -72,7 +72,7 @@ namespace ECS.Storage
 			entityQueryLock.ExitReadLock();
 		}
 
-		public void GetEntities(ComponentMask requiredTags, ComponentMask illegalTags, EntitySet outputSet)
+		public void GetEntities(TagMask requiredTags, TagMask illegalTags, EntitySet outputSet)
 		{
 			outputSet.Clear();
 			bool noIllegalComps = illegalTags.IsEmpty;
@@ -92,7 +92,7 @@ namespace ECS.Storage
 			entityQueryLock.ExitWriteLock();
 		}
 
-		public int GetEntityCount(ComponentMask requiredTags, ComponentMask illegalTags)
+		public int GetEntityCount(TagMask requiredTags, TagMask illegalTags)
 		{
 			int count = 0;
 			bool noIllegalComps = illegalTags.IsEmpty;

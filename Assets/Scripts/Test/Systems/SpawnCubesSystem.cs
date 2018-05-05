@@ -25,7 +25,7 @@ namespace Test.Systems
 
 		protected override int PrepareSubtasks()
 		{
-			int currentCubeCount = context.GetEntityCount(requiredComps: context.GetMask<CubeComponent>(), illegalComps: ComponentMask.Empty);
+			int currentCubeCount = context.GetEntityCount(requiredComps: context.GetMask<CubeComponent>(), illegalComps: TagMask.Empty);
 			return Mathf.Max(0, targetObjectCount - currentCubeCount);
 		}
 

@@ -26,10 +26,9 @@ namespace Test.Systems
 			velo.Velocity += Vector3.up * GRAVITY * deltaTime.Value;
 		}
 
-		protected override ComponentMask GetRequiredComponents(EntityContext context)
+		protected override TagMask GetRequiredComponents(EntityContext context)
 		{
-			 return base.GetRequiredComponents(context)
-			 	.Add(context.GetMask<GravityComponent>());
+			 return base.GetRequiredComponents(context) + context.GetMask<GravityComponent>();
 		}
     }
 }
