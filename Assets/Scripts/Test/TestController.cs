@@ -83,7 +83,6 @@ namespace Test
 
 		protected void OnDestroy()
 		{
-			entityContext?.Dispose();
 			subtaskRunner?.Dispose();
 		}
 	}

@@ -15,7 +15,7 @@ namespace ECS.Storage
 	/// important to manually keep track of not running tasks in parallel that touch the same components on the same entities. Adding and removing
 	/// entities is completely safe and also adding and removing of tags is completely safe.
 	/// </summary>
-    public sealed class EntityContext : IDisposable
+    public sealed class EntityContext
     {
 		private readonly EntityAllocator entityAllocator;
 		private readonly TagReflector reflector;
@@ -53,10 +53,10 @@ namespace ECS.Storage
 		}
 
 		public void GetEntities(TagMask requiredTags, TagMask illegalTags, EntitySet outputSet)
-			=> tagContainer.GetEntities(requiredTags, illegalTags, outputSet);
+			=> tagContainer.Query(requiredTags, illegalTags, outputSet);
 
 		public int GetEntityCount(TagMask requiredTags, TagMask illegalTags)
-			=> tagContainer.GetEntityCount(requiredTags, illegalTags);
+			=> tagContainer.Query(requiredTags, illegalTags);
 
 		public bool HasTags(EntityID entity, TagMask mask) => tagContainer.HasTags(entity, mask);
 
@@ -99,7 +99,5 @@ namespace ECS.Storage
 		public TagID GetID<T>() where T : struct, ITag => reflector.GetID<T>();
 
 		public TagMask GetMask<T>() where T : struct, ITag => reflector.GetMask<T>();
-
-		public void Dispose() => tagContainer.Dispose();
     }
 }

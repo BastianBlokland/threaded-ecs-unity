@@ -1,84 +1,86 @@
 using System;
 using System.Threading;
+using Utils;
 
 using EntityID = System.UInt16;
 
 namespace ECS.Storage
 {
-	public sealed class EntityTagContainer : IDisposable
-    {	
-		//Locking on the entities array is done with per element locks that are being held in the 'entityLocks' array, this
-		//makes it possible for multiple concurrent writers to different elements. There one additional method of locking for the
-		//'GetEntities' method because individually locking each element was adding to much time to the query so its using a 
-		//'ReaderWriterLockSlim' lock in reverse in the sense that its takes a 'writer' lock when querying and all the places
-		//that do modifictions take a 'read' lock. This we we can still have concurrent modifications (to different elements) as 
-		//the 'ReaderWriterLockSlim' allows for multiple simultaneous readers but will stop all modifications we we are quering
-		//one done side is that this will NOT allow for concurrent 'GetEntities' queries even tho that would be save, but i suspect
-		//that will be a very rare occurrence. In the mean time if anyone comes up with a smarter way to do this locking feel free :)
+	/// <summary>
+	/// Can be used for setting/unsetting tags on entities and quering for entities with certain tags
+	/// 
+	/// Thread-Safety: All public methods on this class are thread-safe. Locking is done by two mechanisms: There is a
+	/// total 'ModeLock' where you can specify wether you want to read or write to the 'entities' collection. (allows for concurrent
+	/// readers or concurrent writers but not both at the same time), on top of that writing is locked by individual locks per entity.
+	/// This is done this way so you can safely read from the entire 'entities' array while its in 'read' mode without having to individually 
+	/// lock entities. And also allows concurrent writes to different entities.
+	/// </summary>
+	public sealed class EntityTagContainer
+    {
+		private const int READ_LOCK_MODE = 1;
+		private const int WRITE_LOCK_MODE = 2;
+
 		private readonly TagMask[] entities;
-		private readonly object[] entityLocks;
-		private readonly ReaderWriterLockSlim entityQueryLock;
+		private readonly object[] entityWriteLocks;
+		private readonly ModeLock entitiesLock;
 		
 		public EntityTagContainer()
 		{
 			entities = new TagMask[EntityID.MaxValue];
-			entityLocks = new object[EntityID.MaxValue];
-			entityQueryLock = new ReaderWriterLockSlim();
+			entityWriteLocks = new object[EntityID.MaxValue];
+			entitiesLock = new ModeLock();
 
-			//Create a component-mask and a lock object for each entity
+			//Create a tag-mask and a lock object for each entity
 			for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
 			{
 				entities[entity] = new TagMask();
-				entityLocks[entity] = new object();
+				entityWriteLocks[entity] = new object();
 			}
 		}
 
 		public bool HasTags(EntityID entity, TagMask mask)
 		{
 			bool has;
-			lock(entityLocks[entity])
+			entitiesLock.Enter(READ_LOCK_MODE);
 			{
 				has = entities[entity].Has(mask);
 			}
+			entitiesLock.Exit();
 			return has;
 		}
 
 		public void SetTags(EntityID entity, TagMask mask)
 		{
-			entityQueryLock.EnterReadLock();
+			entitiesLock.Enter(WRITE_LOCK_MODE);
 			{
 				//Locks this particular entity for modification.
-				lock(entityLocks[entity])
+				lock(entityWriteLocks[entity])
 				{
 					entities[entity].Add(mask);
 				}
 			}
-			entityQueryLock.ExitReadLock();
+			entitiesLock.Exit();
 		}
 
 		public void RemoveTags(EntityID entity, TagMask mask)
 		{
-			entityQueryLock.EnterReadLock();
+			entitiesLock.Enter(WRITE_LOCK_MODE);
 			{
 				//Locks this particular entity for modification.
-				lock(entityLocks[entity])
+				lock(entityWriteLocks[entity])
 				{
 					entities[entity].Remove(mask);
 				}
 			}
-			entityQueryLock.ExitReadLock();
+			entitiesLock.Exit();
 		}
 
-		public void GetEntities(TagMask requiredTags, TagMask illegalTags, EntitySet outputSet)
+		public void Query(TagMask requiredTags, TagMask illegalTags, EntitySet outputSet)
 		{
 			outputSet.Clear();
 			bool noIllegalComps = illegalTags.IsEmpty;
 
-			//I know this looks like its reversed but i wanted to avoid locking each individual entity in the
-			//for loop as that adds a significant cost, so thats why its using the 'write' portion of a 'ReaderWriterLockSlim'
-			//Its not using a entire 'lock' on  the 'entities' array as we still want to have multiple concurrent writers (as they
-			//still individually lock each entry they modify)
-			entityQueryLock.EnterWriteLock();
+			entitiesLock.Enter(READ_LOCK_MODE);
 			{
 				for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
 				{
@@ -86,16 +88,15 @@ namespace ECS.Storage
 						outputSet.Add(entity);
 				}
 			}
-			entityQueryLock.ExitWriteLock();
+			entitiesLock.Exit();
 		}
 
-		public int GetEntityCount(TagMask requiredTags, TagMask illegalTags)
+		public int Query(TagMask requiredTags, TagMask illegalTags)
 		{
 			int count = 0;
 			bool noIllegalComps = illegalTags.IsEmpty;
 
-			//For info about this reverse looking lock: see comment on 'GetEntities' method
-			entityQueryLock.EnterWriteLock();
+			entitiesLock.Enter(READ_LOCK_MODE);
 			{
 				for (EntityID entity = 0; entity < EntityID.MaxValue; entity++)
 				{
@@ -103,13 +104,8 @@ namespace ECS.Storage
 						count++;
 				}
 			}
-			entityQueryLock.ExitWriteLock();
+			entitiesLock.Exit();
 			return count;
-		}
-
-		public void Dispose()
-		{
-			entityQueryLock.Dispose();
 		}
     }
 }
