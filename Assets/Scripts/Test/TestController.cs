@@ -1,5 +1,6 @@
 ﻿using ECS.Storage;
 using ECS.Tasks;
+using ECS.Tasks.Runner;
 using Test.Systems;
 using UnityEngine;
 using Utils;
@@ -13,6 +14,7 @@ namespace Test
 		[SerializeField] private GraphicsAssetsLibrary assetsLibrary;
 		[SerializeField] private Profiler.Timeline timeline;
 
+		private SubtaskRunner subtaskRunner;
 		private EntityContext entityContext;
 		private DeltaTimeHandle deltaTime;
 		private IRandomProvider random;
@@ -33,17 +35,18 @@ namespace Test
 
 			Application.targetFrameRate = -1;
 
+			subtaskRunner = new SubtaskRunner(executorCount);
 			entityContext = new EntityContext();
 			deltaTime = new DeltaTimeHandle();
 			random = new ShiftRandomProvider();
 			renderSet = new RenderSet(assetsLibrary);
-			systemManager = new TaskManager(executorCount, new ECS.Tasks.ITask[]
+			systemManager = new TaskManager(subtaskRunner, new ECS.Tasks.ITaskExecutor[]
 			{
-				new SpawnCubesSystem(cubeCount, random, entityContext, timeline),
-				new ApplyVelocitySystem(deltaTime, entityContext, timeline),
-				new ApplyGravitySystem(deltaTime, entityContext, timeline),
-				new DestroyBelow0System(entityContext, timeline),
-				new CreateRenderBatchesSystem(renderSet, entityContext, timeline)
+				new SpawnCubesSystem(cubeCount, random, entityContext, subtaskRunner, timeline),
+				new ApplyVelocitySystem(deltaTime, entityContext, subtaskRunner, timeline),
+				new ApplyGravitySystem(deltaTime, entityContext, subtaskRunner, timeline),
+				new DestroyBelow0System(entityContext, subtaskRunner, timeline),
+				new CreateRenderBatchesSystem(renderSet, entityContext, subtaskRunner, timeline)
 			});
 
 			if(timeline != null)
@@ -90,10 +93,10 @@ namespace Test
 				entityContext.Dispose();
 				entityContext = null;
 			}
-			if(systemManager != null)
+			if(subtaskRunner != null)
 			{
-				systemManager.Dispose();
-				systemManager = null;
+				subtaskRunner.Dispose();
+				subtaskRunner = null;
 			}
 		}
 	}

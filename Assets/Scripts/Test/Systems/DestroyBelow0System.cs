@@ -1,6 +1,7 @@
 using Utils;
 using ECS.Storage;
 using ECS.Tasks;
+using ECS.Tasks.Runner;
 using UnityEngine;
 using Test.Components;
 
@@ -12,8 +13,8 @@ namespace Test.Systems
     {
 		private readonly EntityContext context;
 
-		public DestroyBelow0System(EntityContext context, Profiler.Timeline profiler) 
-			: base(context, batchSize: 100, profiler: profiler)
+		public DestroyBelow0System(EntityContext context, SubtaskRunner runner, Profiler.Timeline profiler) 
+			: base(context, runner, 100, profiler)
 		{
 			this.context = context;
 		}

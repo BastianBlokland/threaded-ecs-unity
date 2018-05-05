@@ -2,19 +2,32 @@
 
 namespace ECS.Tasks
 {
-	public sealed class TaskManager : IDisposable
+	public sealed class TaskManager
 	{
 		public bool IsRunning { get { return !isCompleted; } }
 
 		private readonly Runner.SubtaskRunner runner;
-		private readonly ITask[] tasks;
+		private readonly ITaskExecutor[] tasks;
 
 		private volatile bool isCompleted = true;
 
-		public TaskManager(int executorCount, params ITask[] tasks)
+		public TaskManager(Runner.SubtaskRunner runner, params ITaskExecutor[] tasks)
 		{
-			this.runner = new Runner.SubtaskRunner(executorCount);
+			this.runner = runner;
 			this.tasks = tasks;
+
+			ITaskExecutor previousTask = null;
+			for (int i = 0; i < tasks.Length; i++)
+			{
+				//Chain all the tasks together in a linear fashion
+				if(previousTask != null)
+					previousTask.Completed += tasks[i].Schedule;
+				previousTask = tasks[i];
+			}
+			
+			//Follow the completion of the last task
+			if(previousTask != null)
+				previousTask.Completed += LastTaskCompleted;
 		}
 
 		public void Complete()
@@ -30,35 +43,11 @@ namespace ECS.Tasks
 
 			isCompleted = false;
 
-			ITaskExecutor firstTask = null;
-			ITaskExecutor previousTask = null;
-			for (int i = 0; i < tasks.Length; i++)
-			{
-				ITaskExecutor executor = tasks[i].CreateExecutor(runner);
-				if(firstTask == null)
-					firstTask = executor;
-
-				//Chain all the tasks together in a linear fashion
-				if(previousTask != null)
-					previousTask.Completed += executor.Schedule;
-
-				previousTask = executor;
-			}
-
-			//Follow the completion of the last task
-			if(previousTask != null)
-				previousTask.Completed += LastTaskCompleted;
-
 			//Start the chain
-			if(firstTask != null)
-				firstTask.Schedule();
+			if(tasks.Length > 0)
+				tasks[0].Schedule();
 			else //If there is no task then consider it to be complete allready
 				LastTaskCompleted();
-		}
-
-		public void Dispose()
-		{
-			runner.Dispose();
 		}
 
 		private void LastTaskCompleted()

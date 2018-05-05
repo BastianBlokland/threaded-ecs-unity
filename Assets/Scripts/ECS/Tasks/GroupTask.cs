@@ -1,17 +1,50 @@
+using System;
+using System.Threading;
+
 namespace ECS.Tasks
 {
-	public class GroupTask : ITask
+	public class GroupTask : ITaskExecutor
     {
-		private readonly ITask[] tasks;
+		public event Action Completed;
 
-		public GroupTask(params ITask[] tasks)
+		private readonly ITaskExecutor[] innerTasks;
+
+		private volatile bool isRunning;
+		private int remainingTasks;
+
+		public GroupTask(Runner.SubtaskRunner runner, params ITaskExecutor[] innerTasks)
 		{
-			this.tasks = tasks;
+			this.innerTasks = innerTasks;
+			for (int i = 0; i < innerTasks.Length; i++)
+				innerTasks[i].Completed += InnerTaskComplete;
 		}
 
-		public ITaskExecutor CreateExecutor(Runner.SubtaskRunner runner)
+		public void Schedule()
 		{
-			return new GroupTaskExecutor(runner, tasks);
+			if(isRunning)
+				throw new Exception("[SubtaskExecutor] Allready running!");
+			isRunning = true;
+
+			remainingTasks = innerTasks.Length;
+			if(remainingTasks == 0)
+				Complete();
+			else
+			{
+				for (int i = 0; i < innerTasks.Length; i++)
+					innerTasks[i].Schedule();
+			}
+		}
+
+		private void InnerTaskComplete()
+		{
+			if(Interlocked.Decrement(ref remainingTasks) == 0)
+				Complete();
+		}
+
+		private void Complete()
+		{
+			isRunning = false;
+			Completed?.Invoke();
 		}
 	}
 }

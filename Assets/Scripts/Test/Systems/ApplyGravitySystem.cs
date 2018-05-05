@@ -1,6 +1,7 @@
 using Utils;
 using ECS.Storage;
 using ECS.Tasks;
+using ECS.Tasks.Runner;
 using UnityEngine;
 using Test.Components;
 
@@ -14,8 +15,8 @@ namespace Test.Systems
 
 		private readonly DeltaTimeHandle deltaTime;
 
-		public ApplyGravitySystem(DeltaTimeHandle deltaTime, EntityContext context, Profiler.Timeline profiler) 
-			: base(context, batchSize: 100, profiler: profiler)
+		public ApplyGravitySystem(DeltaTimeHandle deltaTime, 
+			EntityContext context, SubtaskRunner runner, Profiler.Timeline profiler) : base(context, runner, 100, profiler)
 		{
 			this.deltaTime = deltaTime;
 		}

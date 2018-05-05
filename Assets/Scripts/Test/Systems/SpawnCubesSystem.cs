@@ -1,6 +1,7 @@
 using Utils;
 using ECS.Storage;
 using ECS.Tasks;
+using ECS.Tasks.Runner;
 using UnityEngine;
 using Test.Components;
 
@@ -8,27 +9,27 @@ using EntityID = System.UInt16;
 
 namespace Test.Systems
 {
-    public class SpawnCubesSystem : RepeatedTask
+    public class SpawnCubesSystem : SubtaskExecutor
     {
 		private readonly int targetObjectCount;
 		private readonly IRandomProvider random;
 		private readonly EntityContext context;
 
-		public SpawnCubesSystem(int targetObjectCount, IRandomProvider random, EntityContext context, Profiler.Timeline profiler) 
-			: base(batchSize: 100, profiler: profiler)
+		public SpawnCubesSystem(int targetObjectCount, IRandomProvider random, 
+			EntityContext context, SubtaskRunner runner, Profiler.Timeline profiler) : base(runner, 100, profiler)
 		{
 			this.targetObjectCount = targetObjectCount;
 			this.random = random;
 			this.context = context;
 		}
 
-		protected override int GetRepeatCount()
+		protected override int PrepareSubtasks()
 		{
 			int currentCubeCount = context.GetEntityCount(requiredComps: context.GetMask<CubeComponent>(), illegalComps: ComponentMask.Empty);
 			return Mathf.Max(0, targetObjectCount - currentCubeCount);
 		}
 
-        protected override void Execute()
+		protected override void ExecuteSubtask(int index)
 		{
 			const float STARTING_HEIGHT = 100f;
 			const float STARTING_SPEED = 25f;
