@@ -17,7 +17,7 @@ namespace Test.Systems
 			this.context = context;
 		}
 
-        protected override void Execute(EntityID entity, ref TransformComponent trans)
+        protected override void Execute(int execID, EntityID entity, ref TransformComponent trans)
 		{
 			if(trans.Position.y <= 0)
 				context.RemoveEntity(entity);

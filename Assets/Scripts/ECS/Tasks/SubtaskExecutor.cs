@@ -56,12 +56,12 @@ namespace ECS.Tasks
 			}
 		}
 
-		void Runner.ExecuteInfo.ISubtaskExecutor.ExecuteSubtask(int minSubtaskIndex, int maxSubtaskIndex)
+		void Runner.ExecuteInfo.ISubtaskExecutor.ExecuteSubtask(int execID, int minSubtaskIndex, int maxSubtaskIndex)
 		{
 			try
 			{
 				for (int i = minSubtaskIndex; i <= maxSubtaskIndex; i++)
-					ExecuteSubtask(i);
+					ExecuteSubtask(execID, index: i);
 			} catch (Exception) { }
 
 			if(Interlocked.Decrement(ref remainingBatches) == 0)
@@ -77,6 +77,6 @@ namespace ECS.Tasks
 		}
 
 		protected abstract int PrepareSubtasks();
-		protected abstract void ExecuteSubtask(int index);
+		protected abstract void ExecuteSubtask(int execID, int index);
     }
 }

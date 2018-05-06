@@ -47,10 +47,10 @@ namespace ECS.Tasks.Runner
 		{
 			//Take a random executor id to not be contending the same executor all the time
 			var executorID = System.Environment.TickCount % taskQueueCount;
-			var info = GetTask(executorID: executorID);
+			var info = GetTask(execID: executorID);
 			if(info.HasValue)
 			{
-				try { info.Value.Execute(); }
+				try { info.Value.Execute(execID: -1); }
 				catch(Exception) { } 
 			}
 		}
@@ -61,11 +61,11 @@ namespace ECS.Tasks.Runner
 				executors[i].Dispose();
 		}		
 
-		private ExecuteInfo? GetTask(int executorID)
+		private ExecuteInfo? GetTask(int execID)
 		{
 			for (int i = 0; i < taskQueueCount; i++)
 			{
-				var queueIndex = (executorID + i) % taskQueueCount;
+				var queueIndex = (execID + i) % taskQueueCount;
 				var task = taskQueues[queueIndex].GetTask();
 				if(task.HasValue)
 					return task;
@@ -73,6 +73,6 @@ namespace ECS.Tasks.Runner
 			return null;
 		}
 
-		ExecuteInfo? ITaskSource.GetTask(int executorID) => GetTask(executorID);
+		ExecuteInfo? ITaskSource.GetTask(int execID) => GetTask(execID);
 	}
 }

@@ -21,7 +21,7 @@ namespace Test.Systems
 			this.deltaTime = deltaTime;
 		}
 
-        protected override void Execute(EntityID entity, ref VelocityComponent velo)
+        protected override void Execute(int execID, EntityID entity, ref VelocityComponent velo)
 		{
 			velo.Velocity += Vector3.up * GRAVITY * deltaTime.Value;
 		}

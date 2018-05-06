@@ -4,7 +4,7 @@ namespace ECS.Tasks.Runner
 	{
 		public interface ISubtaskExecutor
 		{
-			void ExecuteSubtask(int minSubtaskIndex, int maxSubtaskIndex);
+			void ExecuteSubtask(int execID, int minSubtaskIndex, int maxSubtaskIndex);
 		}
 
 		private readonly ISubtaskExecutor executor;
@@ -18,6 +18,6 @@ namespace ECS.Tasks.Runner
 			this.maxSubtaskIndex = maxSubtaskIndex;
 		}
 
-		public void Execute() => executor?.ExecuteSubtask(minSubtaskIndex, maxSubtaskIndex);
+		public void Execute(int execID) => executor?.ExecuteSubtask(execID, minSubtaskIndex, maxSubtaskIndex);
 	}
 }

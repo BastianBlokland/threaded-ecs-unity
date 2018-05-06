@@ -39,7 +39,7 @@ namespace ECS.Tasks
 			}
 		}
 
-		void Runner.ExecuteInfo.ISubtaskExecutor.ExecuteSubtask(int minSubtaskIndex, int maxSubtaskIndex)
+		void Runner.ExecuteInfo.ISubtaskExecutor.ExecuteSubtask(int execID, int minSubtaskIndex, int maxSubtaskIndex)
 		{
 			try
 			{

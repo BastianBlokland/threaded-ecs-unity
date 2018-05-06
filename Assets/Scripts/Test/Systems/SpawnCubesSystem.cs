@@ -29,7 +29,7 @@ namespace Test.Systems
 			return Max(0, targetObjectCount - currentCubeCount);
 		}
 
-		protected override void ExecuteSubtask(int index)
+		protected override void ExecuteSubtask(int execID, int index)
 		{
 			const float STARTING_HEIGHT = 100f;
 			const float STARTING_SPEED = 25f;

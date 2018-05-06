@@ -16,10 +16,10 @@ namespace ECS.Tasks
 			this.cont1 = context.GetContainer<Comp1>();
 		}
 
-		protected sealed override void Execute(EntityID entity) 
-			=> Execute(entity, ref cont1.Data[entity]);
+		protected sealed override void Execute(int execID, EntityID entity) 
+			=> Execute(execID, entity, ref cont1.Data[entity]);
 
-		protected abstract void Execute(EntityID entity, ref Comp1 comp);
+		protected abstract void Execute(int execID, EntityID entity, ref Comp1 comp);
 
 		protected override TagMask GetRequiredTags(EntityContext context) 
 			=> base.GetRequiredTags(context) + context.GetMask<Comp1>();
@@ -39,10 +39,10 @@ namespace ECS.Tasks
 			this.cont2 = context.GetContainer<Comp2>();
 		}
 
-		protected sealed override void Execute(EntityID entity) 
-			=> Execute(entity, ref cont1.Data[entity], ref cont2.Data[entity]);
+		protected sealed override void Execute(int execID, EntityID entity) 
+			=> Execute(execID, entity, ref cont1.Data[entity], ref cont2.Data[entity]);
 
-		protected abstract void Execute(EntityID entity, ref Comp1 comp1, ref Comp2 comp2);
+		protected abstract void Execute(int execID, EntityID entity, ref Comp1 comp1, ref Comp2 comp2);
 
 		protected override TagMask GetRequiredTags(EntityContext context)
 			=> base.GetRequiredTags(context)
@@ -67,13 +67,13 @@ namespace ECS.Tasks
 			this.cont3 = context.GetContainer<Comp3>();
 		}
 
-		protected sealed override void Execute(EntityID entity)
-			=> Execute(entity, 
+		protected sealed override void Execute(int execID, EntityID entity)
+			=> Execute(execID, entity, 
 			ref cont1.Data[entity],
 			ref cont2.Data[entity],
 			ref cont3.Data[entity]);
 
-		protected abstract void Execute(EntityID entity, ref Comp1 comp1, ref Comp2 comp2, ref Comp3 comp3);
+		protected abstract void Execute(int execID, EntityID entity, ref Comp1 comp1, ref Comp2 comp2, ref Comp3 comp3);
 
 		protected override TagMask GetRequiredTags(EntityContext context)
 			=> base.GetRequiredTags(context) 
@@ -102,14 +102,14 @@ namespace ECS.Tasks
 			this.cont4 = context.GetContainer<Comp4>();
 		}
 
-		protected sealed override void Execute(EntityID entity)
-			=> Execute(entity, 
+		protected sealed override void Execute(int execID, EntityID entity)
+			=> Execute(execID, entity, 
 			ref cont1.Data[entity],
 			ref cont2.Data[entity],
 			ref cont3.Data[entity],
 			ref cont4.Data[entity]);
 
-		protected abstract void Execute(EntityID entity, 
+		protected abstract void Execute(int execID, EntityID entity, 
 			ref Comp1 comp1, 
 			ref Comp2 comp2, 
 			ref Comp3 comp3,
@@ -146,15 +146,15 @@ namespace ECS.Tasks
 			this.cont5 = context.GetContainer<Comp5>();
 		}
 
-		protected sealed override void Execute(EntityID entity)
-			=> Execute(entity, 
+		protected sealed override void Execute(int execID, EntityID entity)
+			=> Execute(execID, entity, 
 			ref cont1.Data[entity],
 			ref cont2.Data[entity],
 			ref cont3.Data[entity],
 			ref cont4.Data[entity],
 			ref cont5.Data[entity]);
 
-		protected abstract void Execute(EntityID entity, 
+		protected abstract void Execute(int execID, EntityID entity, 
 			ref Comp1 comp1, 
 			ref Comp2 comp2, 
 			ref Comp3 comp3,
@@ -198,8 +198,9 @@ namespace ECS.Tasks
 			return entities.Count;
 		}
 
-		protected sealed override void ExecuteSubtask(int index) => Execute(entities.Data[index]);
+		protected sealed override void ExecuteSubtask(int execID, int index) => 
+			Execute(execID, entities.Data[index]);
 
-		protected abstract void Execute(EntityID entity);
+		protected abstract void Execute(int execID, EntityID entity);
 	}
 }

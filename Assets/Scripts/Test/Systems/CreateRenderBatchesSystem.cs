@@ -19,10 +19,10 @@ namespace Test.Systems
 			this.renderSet = renderSet;
 		}
 
-        protected override void Execute(EntityID entity, ref GraphicsComponent graphics, ref TransformComponent trans)
+        protected override void Execute(int execID, EntityID entity, ref GraphicsComponent graphics, ref TransformComponent trans)
 		{
 			var matrix = Matrix4x4.TRS(trans.Position, trans.Rotation, Vector3.one);
-			renderSet.Add(graphics.GraphicsID, matrix);
+			renderSet.Add(execID, graphics.GraphicsID, matrix);
 		}
     }
 }

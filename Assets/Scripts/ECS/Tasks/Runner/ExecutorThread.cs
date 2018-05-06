@@ -51,7 +51,7 @@ namespace ECS.Tasks.Runner
 					task = taskSource.GetTask(executorID);
 					if(task.HasValue)
 					{
-						try { task.Value.Execute(); }
+						try { task.Value.Execute(executorID); }
 						catch(Exception) { }
 					}
 				} while(task.HasValue);

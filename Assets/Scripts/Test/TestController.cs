@@ -36,7 +36,7 @@ namespace Test
 			entityContext = new EntityContext();
 			deltaTime = new DeltaTimeHandle();
 			random = new ShiftRandomProvider();
-			renderSet = new RenderSet(assetsLibrary);
+			renderSet = new RenderSet(executorCount, assetsLibrary);
 			systemManager = new TaskManager(subtaskRunner, new ECS.Tasks.ITaskExecutor[]
 			{
 				new SpawnCubesSystem(cubeCount, random, entityContext, subtaskRunner, timeline),

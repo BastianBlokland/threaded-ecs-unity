@@ -18,7 +18,7 @@ namespace Test.Systems
 			this.deltaTime = deltaTime;
 		}
 
-        protected override void Execute(EntityID entity, ref VelocityComponent velo, ref TransformComponent trans)
+        protected override void Execute(int execID, EntityID entity, ref VelocityComponent velo, ref TransformComponent trans)
 		{
 			trans.Position += velo.Velocity * deltaTime.Value;
 		}

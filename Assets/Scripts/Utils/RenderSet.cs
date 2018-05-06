@@ -26,20 +26,21 @@ namespace Utils
 
 		private readonly GraphicsAssetsLibrary assetsLibrary;
 
-		//Even tho this seems like the perfect usage for ThreadLocal<List<BatchData>> but i was see-ing considerable
-		//slowdowns of ThreadLocal vs just keeping a dictionary indexed by threadID. Very strange if anyone knows why, let me know.
-		private readonly ConcurrentDictionary<int, List<BatchData>> batchesLookupPerThread;
+		//Every executor has its own list of batches so there is no need for locking
+		private readonly List<BatchData>[] batchesPerThread;
 
-		public RenderSet(GraphicsAssetsLibrary assetsLibrary)
+		public RenderSet(int executorCount, GraphicsAssetsLibrary assetsLibrary)
 		{
 			this.assetsLibrary = assetsLibrary;
-			this.batchesLookupPerThread = new ConcurrentDictionary<int, List<BatchData>>();
+			
+			batchesPerThread = new List<BatchData>[executorCount + 1]; //1 extra for the main-thread
+			for (int i = 0; i < batchesPerThread.Length; i++)
+				batchesPerThread[i] = new List<BatchData>();
 		}
 
-		public void Add(byte graphicsID, Matrix4x4 matrix)
+		public void Add(int execID, byte graphicsID, Matrix4x4 matrix)
 		{
-			int threadId = Thread.CurrentThread.ManagedThreadId;
-			List<BatchData> list = batchesLookupPerThread.GetOrAdd(threadId, (_) => new List<BatchData>());
+			List<BatchData> list = batchesPerThread[execID + 1]; //+1 because main-thread uses execID of -1 and the executors use 0 and up
 			
 			bool added = false;
 			for (int i = 0; i < list.Count; i++)
@@ -65,40 +66,36 @@ namespace Utils
 
 		public void Clear()
 		{
-			foreach(KeyValuePair<int, List<BatchData>> kvp in batchesLookupPerThread)
+			for (int i = 0; i < batchesPerThread.Length; i++)
+			for (int j = 0; j < batchesPerThread[i].Count; j++)
 			{
-				for (int i = 0; i < kvp.Value.Count; i++)
-				{
-					BatchData batch = kvp.Value[i];
-					batch.Count = 0;
-					kvp.Value[i] = batch;
-				}
+				BatchData batch = batchesPerThread[i][j];
+				batch.Count = 0;
+				batchesPerThread[i][j] = batch;
 			}
 		}
 
 		public void Render()
 		{
-			foreach(KeyValuePair<int, List<BatchData>> kvp in batchesLookupPerThread)
+			for (int i = 0; i < batchesPerThread.Length; i++)
+			for (int j = 0; j < batchesPerThread[i].Count; j++)
 			{
-				for (int i = 0; i < kvp.Value.Count; i++)
-				{
-					BatchData batch = kvp.Value[i];
-					if(batch.Count == 0)
-						continue;
+				BatchData batch = batchesPerThread[i][j];
+				if(batch.Count == 0)
+					continue;
 					
-					GraphicsAssets assets = assetsLibrary.GetAssets(batch.GraphicsID);
-					if(assets == null)
-						continue;
-					
-					Graphics.DrawMeshInstanced
-					(
-						mesh: assets.Mesh,
-						submeshIndex: 0, 
-						material: assets.Material,
-						matrices: batch.Matrices,
-						count: batch.Count
-					);
-				}
+				GraphicsAssets assets = assetsLibrary.GetAssets(batch.GraphicsID);
+				if(assets == null)
+					continue;
+				
+				Graphics.DrawMeshInstanced
+				(
+					mesh: assets.Mesh,
+					submeshIndex: 0, 
+					material: assets.Material,
+					matrices: batch.Matrices,
+					count: batch.Count
+				);
 			}
 		}
 	}
