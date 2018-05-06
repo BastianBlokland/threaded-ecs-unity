@@ -6,6 +6,7 @@ namespace ECS.Tasks
 	{
 		event Action Completed;
 
-		void Schedule();
+		void QuerySubtasks();
+		void RunSubtasks();
 	}
 }

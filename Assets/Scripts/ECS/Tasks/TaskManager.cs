@@ -4,51 +4,47 @@ namespace ECS.Tasks
 {
 	public sealed class TaskManager
 	{
-		public bool IsRunning => !isCompleted;
-
 		private readonly Runner.SubtaskRunner runner;
-		private readonly ITaskExecutor[] tasks;
-		private volatile bool isCompleted = true;
+		private readonly TaskQuerier querier;
+		private volatile bool isRunning;
 
-		public TaskManager(Runner.SubtaskRunner runner, params ITaskExecutor[] tasks)
+		public TaskManager(Runner.SubtaskRunner runner, ITaskExecutor[] tasks, Profiler.Timeline profiler = null)
 		{
 			this.runner = runner;
-			this.tasks = tasks;
+			this.querier = new TaskQuerier(runner, tasks, profiler);
 
-			ITaskExecutor previousTask = null;
+			//Setup chain between tasks, starting form the querier
 			for (int i = 0; i < tasks.Length; i++)
 			{
-				//Chain all the tasks together in a linear fashion
-				if(previousTask != null)
-					previousTask.Completed += tasks[i].Schedule;
-				previousTask = tasks[i];
+				switch(i)
+				{
+					case 0: querier.Completed += tasks[i].RunSubtasks;  break;
+					default: tasks[i - 1].Completed += tasks[i].RunSubtasks; break;
+				}
 			}
-			
-			//Follow the completion of the last task
-			if(previousTask != null)
-				previousTask.Completed += LastTaskCompleted;
+			if(tasks.Length > 0)
+				tasks[tasks.Length - 1].Completed += LastTaskCompleted;
+			else
+				querier.Completed += LastTaskCompleted;
 		}
 
 		public void Complete()
 		{
-			while(!isCompleted)
+			while(isRunning)
 				runner.Help();
 		}
 
-		public void Schedule()
+		public void Run()
 		{
 			//First complete the previous run
 			Complete();
 
-			isCompleted = false;
+			isRunning = true;
 
 			//Start the chain
-			if(tasks.Length > 0)
-				tasks[0].Schedule();
-			else //If there is no task then consider it to be complete allready
-				LastTaskCompleted();
+			querier.QueryTasks();
 		}
 
-		private void LastTaskCompleted() => isCompleted = true;
+		private void LastTaskCompleted() => isRunning = false;
 	}
 }

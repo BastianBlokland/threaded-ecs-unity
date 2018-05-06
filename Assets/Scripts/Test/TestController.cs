@@ -23,7 +23,6 @@ namespace Test
 
 		private Profiler.TimelineTrack blockMainTrack;
 		private Profiler.TimelineTrack renderTrack;
-		private Profiler.TimelineTrack scheduleTrack;
 
 		protected void Awake()
 		{
@@ -45,11 +44,10 @@ namespace Test
 				new ApplyGravitySystem(deltaTime, entityContext, subtaskRunner, timeline),
 				new DestroyBelow0System(entityContext, subtaskRunner, timeline),
 				new CreateRenderBatchesSystem(renderSet, entityContext, subtaskRunner, timeline)
-			});
+			}, timeline);
 
 			blockMainTrack = timeline?.CreateTrack<Profiler.TimelineTrack>("Finishing systems on main");
 			renderTrack = timeline?.CreateTrack<Profiler.TimelineTrack>("Rendering");
-			scheduleTrack = timeline?.CreateTrack<Profiler.TimelineTrack>("Scheduling");
 			timeline?.StartTimers();
 		}
 		
@@ -73,12 +71,8 @@ namespace Test
 			renderSet.Clear();
 			deltaTime.Update(Time.deltaTime);
 
-			scheduleTrack?.LogStartWork();
-			{
-				//Schedule the systems
-				systemManager.Schedule();
-			}
-			scheduleTrack?.LogEndWork();
+			//Start the systems
+			systemManager.Run();
 		}
 
 		protected void OnDestroy()

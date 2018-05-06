@@ -12,6 +12,7 @@ namespace ECS.Tasks
 		private readonly Profiler.TimelineTrack profilerTrack;
 
 		private volatile bool isRunning;
+		private int totalSubtaskCount;
 		private int remainingBatches;
 
 		public SubtaskExecutor(Runner.SubtaskRunner runner, int batchSize, Profiler.Timeline profiler = null)
@@ -21,7 +22,12 @@ namespace ECS.Tasks
 			this.profilerTrack = profiler?.CreateTrack<Profiler.TimelineTrack>(GetType().Name);
 		}
 
-		public void Schedule()
+		public void QuerySubtasks()
+		{
+			totalSubtaskCount = PrepareSubtasks();
+		}
+
+		public void RunSubtasks()
 		{
 			if(isRunning)
 				throw new Exception($"[{nameof(SubtaskExecutor)}] Allready running!");
@@ -29,23 +35,22 @@ namespace ECS.Tasks
 
 			profilerTrack?.LogStartWork();
 
-			int subtaskCount = PrepareSubtasks();
-			if(subtaskCount == 0)
+			if(totalSubtaskCount == 0)
 			{	
 				remainingBatches = 0;
 				Complete();
 			}
 			else
 			{
-				remainingBatches = (subtaskCount - 1) / batchSize + 1; //'Trick' to round up using integer division
+				remainingBatches = (totalSubtaskCount - 1) / batchSize + 1; //'Trick' to round up using integer division
 
 				int startOffset = batchSize - 1;
-				int maxIndex = subtaskCount - 1;
-				for (int i = 0; i < subtaskCount; i += batchSize)
+				int maxIndex = totalSubtaskCount - 1;
+				for (int i = 0; i < totalSubtaskCount; i += batchSize)
 				{
 					int start = i;
 					int end = start + startOffset;
-					runner.PushTask(this, start, end >= subtaskCount ? maxIndex : end);
+					runner.PushTask(this, start, end >= totalSubtaskCount ? maxIndex : end);
 				}
 				runner.WakeExecutors();
 			}

@@ -11,14 +11,20 @@ namespace ECS.Tasks
 		private volatile bool isRunning;
 		private int remainingTasks;
 
-		public GroupTask(Runner.SubtaskRunner runner, params ITaskExecutor[] innerTasks)
+		public GroupTask(params ITaskExecutor[] innerTasks)
 		{
 			this.innerTasks = innerTasks;
 			for (int i = 0; i < innerTasks.Length; i++)
 				innerTasks[i].Completed += InnerTaskComplete;
 		}
 
-		public void Schedule()
+		public void QuerySubtasks()
+		{
+			for (int i = 0; i < innerTasks.Length; i++)
+				innerTasks[i].QuerySubtasks();
+		}
+
+		public void RunSubtasks()
 		{
 			if(isRunning)
 				throw new Exception($"[{nameof(GroupTask)}] Allready running!");
@@ -30,7 +36,7 @@ namespace ECS.Tasks
 			else
 			{
 				for (int i = 0; i < innerTasks.Length; i++)
-					innerTasks[i].Schedule();
+					innerTasks[i].RunSubtasks();
 			}
 		}
 
