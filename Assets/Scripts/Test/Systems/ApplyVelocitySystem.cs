@@ -19,7 +19,7 @@ namespace Test.Systems
 
         protected override void Execute(int execID, EntityID entity, ref VelocityComponent velo, ref TransformComponent trans)
 		{
-			trans.Position += velo.Velocity * deltaTime.Value;
+			trans.Matrix.Position += velo.Velocity * deltaTime.Value;
 		}
     }
 }

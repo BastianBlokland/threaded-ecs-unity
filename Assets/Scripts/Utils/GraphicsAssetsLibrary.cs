@@ -1,31 +1,33 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Utils
 {
 	[Serializable] 
-	public class GraphicsAssets
+	public class GraphicsAsset
 	{
-		[SerializeField] private byte graphicsID;			
-		[SerializeField] private Mesh mesh;
-		[SerializeField] private Material material;
-
-		public byte GraphicsID { get { return graphicsID; } }
-		public Mesh Mesh { get { return mesh; } }
-		public Material Material { get { return material; } }
+		public Mesh Mesh;
+		public Material Material;
+		public int MaxRenderCount;
 	}
 
 	[CreateAssetMenu(fileName = "GraphicsAssetLibrary", menuName = "GraphicsAssetLibrary")]
-	public class GraphicsAssetsLibrary : ScriptableObject
+	public class GraphicsAssetsLibrary : ScriptableObject, IEnumerable<GraphicsAsset>
 	{
-		[SerializeField] private GraphicsAssets[] entries;
+		public int AssetCount => entries.Count;
 
-		public GraphicsAssets GetAssets(byte graphicID)
+		[SerializeField] private List<GraphicsAsset> entries;
+
+		public GraphicsAsset GetAsset(byte graphicID)
 		{
-			for (int i = 0; i < entries.Length; i++)
-				if(entries[i].GraphicsID == graphicID)
-					return entries[i];
-			return null;
+			if(graphicID >= entries.Count)
+				throw new Exception($"[{nameof(GraphicsAssetsLibrary)}] Graphic id '{graphicID}' is higher then the amount of configured entries");
+			return entries[graphicID];
 		}
+
+		public IEnumerator<GraphicsAsset> GetEnumerator() => entries.GetEnumerator();
+		IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)entries).GetEnumerator();
 	}
 }

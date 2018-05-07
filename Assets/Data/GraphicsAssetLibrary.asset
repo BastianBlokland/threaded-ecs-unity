@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Name: GraphicsAssetLibrary
   m_EditorClassIdentifier: 
   entries:
-  - graphicsID: 1
-    mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-    material: {fileID: 2100000, guid: 5f77eb819d312417daa66292d8bf52c2, type: 2}
+  - Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+    Material: {fileID: 2100000, guid: 5f77eb819d312417daa66292d8bf52c2, type: 2}
+    MaxRenderCount: 65000

@@ -1,50 +1,42 @@
 ﻿Shader "TestShader"
 {
-    SubShader
-    {
-        Tags { "RenderType"="Opaque" }
-        LOD 100
+	SubShader
+	{
+		Pass 
+		{
+			CGPROGRAM
+			#pragma exclude_renderers gles //Because non-square matrices
+			#pragma vertex vert
+			#pragma fragment frag
+			#pragma target 4.5
+			#include "UnityCG.cginc"
 
-        Pass
-        {
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            #pragma multi_compile_instancing
-            #include "UnityCG.cginc"
+			struct appdata
+			{
+				float4 vertex : POSITION;
+			};
 
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
+			struct v2f
+			{
+				fixed4 pos : SV_POSITION;
+			};
 
-            struct v2f
-            {
-                float4 vertex : SV_POSITION;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
+			StructuredBuffer<float3x4> matrixBuffer;
 
-            UNITY_INSTANCING_BUFFER_START(Props)
-            UNITY_INSTANCING_BUFFER_END(Props)
-           
-            v2f vert(appdata v)
-            {
-                v2f o;
+			v2f vert(appdata v, uint instanceID : SV_InstanceID)
+			{
+				float4 modelPos = float4(mul(matrixBuffer[instanceID], v.vertex), 1);
 
-                UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_TRANSFER_INSTANCE_ID(v, o);
+				v2f o;
+				o.pos = mul(UNITY_MATRIX_VP, modelPos);
+				return o;
+			}
 
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                return o;
-            }
-           
-            fixed4 frag(v2f i) : SV_Target
-            {
-                UNITY_SETUP_INSTANCE_ID(i);
-                return float4(1, 1, 1, 1);
-            }
-            ENDCG
-        }
-    }
+			fixed4 frag(v2f i) : SV_Target
+			{
+				return fixed4(1, 1, 1, 1);
+			}
+			ENDCG
+		}
+	}
 }

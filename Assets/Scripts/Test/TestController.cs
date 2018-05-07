@@ -83,6 +83,7 @@ namespace Test
 		protected void OnDestroy()
 		{
 			subtaskRunner?.Dispose();
+			renderSet?.Dispose();
 		}
 	}
 }
