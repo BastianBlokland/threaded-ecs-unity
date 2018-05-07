@@ -38,6 +38,7 @@ namespace Test.Systems
 			context.SetComponent(entity, new TransformComponent(position: new Vector3(0f, STARTING_HEIGHT, 0f)));
 			context.SetComponent(entity, new VelocityComponent(velocity: random.Direction3D() * STARTING_SPEED));
 			context.SetComponent(entity, new GraphicsComponent(graphicsID: 1));
+			context.SetComponent(entity, new LifetimeComponent(lifetime: random.GetNext() * 5f));
 			context.SetTag<GravityComponent>(entity);
 			context.SetTag<CubeComponent>(entity);
 		}

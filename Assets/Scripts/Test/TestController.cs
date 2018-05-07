@@ -42,7 +42,7 @@ namespace Test
 				new SpawnCubesSystem(cubeCount, random, entityContext, subtaskRunner, timeline),
 				new ApplyVelocitySystem(deltaTime, entityContext, subtaskRunner, timeline),
 				new ApplyGravitySystem(deltaTime, entityContext, subtaskRunner, timeline),
-				new DestroyBelow0System(entityContext, subtaskRunner, timeline),
+				new LifetimeSystem(deltaTime, entityContext, subtaskRunner, timeline),
 				new CreateRenderBatchesSystem(renderSet, entityContext, subtaskRunner, timeline)
 			}, timeline);
 
