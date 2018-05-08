@@ -8,13 +8,12 @@ using EntityID = System.UInt16;
 
 namespace Test.Systems
 {
-    public class LifetimeSystem : EntityTask<LifetimeComponent>
+    public sealed class LifetimeSystem : EntityTask<LifetimeComponent>
     {
 		private readonly DeltaTimeHandle deltaTime;
 		private readonly EntityContext context;
 
-		public LifetimeSystem(DeltaTimeHandle deltaTime, EntityContext context, SubtaskRunner runner, Profiler.Timeline profiler) 
-			: base(context, runner, 100, profiler)
+		public LifetimeSystem(DeltaTimeHandle deltaTime, EntityContext context) : base(context, batchSize: 100)
 		{
 			this.deltaTime = deltaTime;
 			this.context = context;

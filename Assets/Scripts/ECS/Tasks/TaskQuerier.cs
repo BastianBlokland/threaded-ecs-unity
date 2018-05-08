@@ -3,27 +3,29 @@ using System.Threading;
 
 namespace ECS.Tasks
 {
-	public class TaskQuerier : Runner.ExecuteInfo.ISubtaskExecutor
+	public sealed class TaskQuerier : Runner.ExecuteInfo.ISubtaskExecutor
     {
 		public event Action Completed;
 
 		private readonly Runner.SubtaskRunner runner;
 		private readonly ITaskExecutor[] tasks;
+		private readonly Utils.Logger logger;
 		private readonly Profiler.TimelineTrack profilerTrack;
 		private volatile bool isRunning;
 		private int remainingQueries;
 
-		public TaskQuerier(Runner.SubtaskRunner runner, ITaskExecutor[] tasks, Profiler.Timeline profiler = null)
+		public TaskQuerier(Runner.SubtaskRunner runner, ITaskExecutor[] tasks, Utils.Logger logger, Profiler.Timeline profiler = null)
 		{
 			this.runner = runner;
 			this.tasks = tasks;
+			this.logger = logger;
 			this.profilerTrack = profiler?.CreateTrack<Profiler.TimelineTrack>(GetType().Name);
 		}
 
 		public void QueryTasks()
 		{
 			if(isRunning)
-				throw new Exception($"[{nameof(GroupTask)}] Allready running!");
+				throw new Exception($"[{nameof(TaskQuerier)}] Allready running!");
 			isRunning = true;
 
 			profilerTrack?.LogStartWork();
@@ -45,7 +47,7 @@ namespace ECS.Tasks
 			{
 				for (int i = minSubtaskIndex; i <= maxSubtaskIndex; i++)
 					tasks[i].QuerySubtasks();
-			} catch (Exception) { }
+			} catch (Exception e) { logger?.Log(e); }
 
 			if(Interlocked.Decrement(ref remainingQueries) == 0)
 				Complete();

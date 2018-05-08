@@ -9,12 +9,11 @@ using EntityID = System.UInt16;
 
 namespace Test.Systems
 {
-    public class CreateRenderBatchesSystem : EntityTask<GraphicsComponent, TransformComponent>
+    public sealed class CreateRenderBatchesSystem : EntityTask<GraphicsComponent, TransformComponent>
     {
 		private readonly RenderSet renderSet;
 
-		public CreateRenderBatchesSystem(RenderSet renderSet, 
-			EntityContext context, SubtaskRunner runner, Profiler.Timeline profiler) : base(context, runner, 100, profiler)
+		public CreateRenderBatchesSystem(RenderSet renderSet, EntityContext context) : base(context, batchSize: 100)
 		{
 			this.renderSet = renderSet;
 		}

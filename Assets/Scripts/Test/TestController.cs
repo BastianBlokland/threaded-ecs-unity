@@ -14,6 +14,7 @@ namespace Test
 		[SerializeField] private GraphicsAssetsLibrary assetsLibrary;
 		[SerializeField] private Profiler.Timeline timeline;
 
+		private Utils.Logger logger;
 		private SubtaskRunner subtaskRunner;
 		private EntityContext entityContext;
 		private DeltaTimeHandle deltaTime;
@@ -32,19 +33,20 @@ namespace Test
 				return;
 			}
 
+			logger = new Utils.Logger(UnityEngine.Debug.Log);
 			subtaskRunner = new SubtaskRunner(executorCount);
 			entityContext = new EntityContext();
 			deltaTime = new DeltaTimeHandle();
 			random = new ShiftRandomProvider();
 			renderSet = new RenderSet(executorCount, assetsLibrary);
-			systemManager = new TaskManager(subtaskRunner, new ECS.Tasks.ITaskExecutor[]
+			systemManager = new TaskManager(subtaskRunner, new ECS.Tasks.ITask[]
 			{
-				new SpawnCubesSystem(cubeCount, random, entityContext, subtaskRunner, timeline),
-				new ApplyVelocitySystem(deltaTime, entityContext, subtaskRunner, timeline),
-				new ApplyGravitySystem(deltaTime, entityContext, subtaskRunner, timeline),
-				new LifetimeSystem(deltaTime, entityContext, subtaskRunner, timeline),
-				new CreateRenderBatchesSystem(renderSet, entityContext, subtaskRunner, timeline)
-			}, timeline);
+				new SpawnCubesSystem(cubeCount, random, entityContext),
+				new ApplyVelocitySystem(deltaTime, entityContext),
+				new ApplyGravitySystem(deltaTime, entityContext),
+				new LifetimeSystem(deltaTime, entityContext),
+				new CreateRenderBatchesSystem(renderSet, entityContext)
+			}, logger, timeline);
 
 			blockMainTrack = timeline?.CreateTrack<Profiler.TimelineTrack>("Finishing systems on main");
 			renderTrack = timeline?.CreateTrack<Profiler.TimelineTrack>("Rendering");
@@ -66,6 +68,9 @@ namespace Test
 				renderSet.Render();
 			}
 			renderTrack?.LogEndWork();
+
+			//Log any messages that where recorded on other threads
+			logger?.Print();
 
 			//Setup the systems
 			renderSet.Clear();

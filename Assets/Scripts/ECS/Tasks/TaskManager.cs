@@ -8,22 +8,29 @@ namespace ECS.Tasks
 		private readonly TaskQuerier querier;
 		private volatile bool isRunning;
 
-		public TaskManager(Runner.SubtaskRunner runner, ITaskExecutor[] tasks, Profiler.Timeline profiler = null)
+		public TaskManager(Runner.SubtaskRunner runner, ITask[] tasks, Utils.Logger logger = null, Profiler.Timeline profiler = null)
 		{
 			this.runner = runner;
-			this.querier = new TaskQuerier(runner, tasks, profiler);
 
-			//Setup chain between tasks, starting form the querier
+			//Create executors for all the tasks
+			ITaskExecutor[] executors = new ITaskExecutor[tasks.Length];
 			for (int i = 0; i < tasks.Length; i++)
+				executors[i] = tasks[i].CreateExecutor(runner, logger, profiler);
+
+			//Create a querier for querying all the executors for work
+			querier = new TaskQuerier(runner, executors, logger, profiler);
+
+			//Setup a chain between the executors, starting from the querier
+			for (int i = 0; i < executors.Length; i++)
 			{
 				switch(i)
 				{
-					case 0: querier.Completed += tasks[i].RunSubtasks;  break;
-					default: tasks[i - 1].Completed += tasks[i].RunSubtasks; break;
+					case 0: querier.Completed += executors[i].RunSubtasks;  break;
+					default: executors[i - 1].Completed += executors[i].RunSubtasks; break;
 				}
 			}
-			if(tasks.Length > 0)
-				tasks[tasks.Length - 1].Completed += LastTaskCompleted;
+			if(executors.Length > 0)
+				executors[executors.Length - 1].Completed += LastTaskCompleted;
 			else
 				querier.Completed += LastTaskCompleted;
 		}

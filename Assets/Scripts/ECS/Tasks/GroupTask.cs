@@ -1,55 +1,20 @@
 using System;
 using System.Threading;
+using ECS.Tasks.Runner;
+using Utils;
 
 namespace ECS.Tasks
 {
-	public class GroupTask : ITaskExecutor
+	public sealed class GroupTask : ITask
     {
-		public event Action Completed;
+		private readonly ITask[] innerTasks;
 
-		private readonly ITaskExecutor[] innerTasks;
-		private volatile bool isRunning;
-		private int remainingTasks;
-
-		public GroupTask(params ITaskExecutor[] innerTasks)
+		public GroupTask(params ITask[] innerTasks)
 		{
 			this.innerTasks = innerTasks;
-			for (int i = 0; i < innerTasks.Length; i++)
-				innerTasks[i].Completed += InnerTaskComplete;
 		}
 
-		public void QuerySubtasks()
-		{
-			for (int i = 0; i < innerTasks.Length; i++)
-				innerTasks[i].QuerySubtasks();
-		}
-
-		public void RunSubtasks()
-		{
-			if(isRunning)
-				throw new Exception($"[{nameof(GroupTask)}] Allready running!");
-			isRunning = true;
-
-			remainingTasks = innerTasks.Length;
-			if(remainingTasks == 0)
-				Complete();
-			else
-			{
-				for (int i = 0; i < innerTasks.Length; i++)
-					innerTasks[i].RunSubtasks();
-			}
-		}
-
-		private void InnerTaskComplete()
-		{
-			if(Interlocked.Decrement(ref remainingTasks) == 0)
-				Complete();
-		}
-
-		private void Complete()
-		{
-			isRunning = false;
-			Completed?.Invoke();
-		}
+		public ITaskExecutor CreateExecutor(SubtaskRunner runner, Logger logger = null, Profiler.Timeline profiler = null)
+			=> new GroupExecutor(innerTasks, runner, logger, profiler);
 	}
 }

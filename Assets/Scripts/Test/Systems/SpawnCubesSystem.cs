@@ -9,14 +9,13 @@ using static UnityEngine.Mathf;
 
 namespace Test.Systems
 {
-    public class SpawnCubesSystem : SubtaskExecutor
+    public sealed class SpawnCubesSystem : SingleTask
     {
 		private readonly int targetObjectCount;
 		private readonly IRandomProvider random;
 		private readonly EntityContext context;
 
-		public SpawnCubesSystem(int targetObjectCount, IRandomProvider random, 
-			EntityContext context, SubtaskRunner runner, Profiler.Timeline profiler) : base(runner, 100, profiler)
+		public SpawnCubesSystem(int targetObjectCount, IRandomProvider random, EntityContext context) : base(batchSize: 100)
 		{
 			this.targetObjectCount = targetObjectCount;
 			this.random = random;

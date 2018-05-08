@@ -9,14 +9,13 @@ using EntityID = System.UInt16;
 
 namespace Test.Systems
 {
-    public class ApplyGravitySystem : EntityTask<VelocityComponent>
+    public sealed class ApplyGravitySystem : EntityTask<VelocityComponent>
     {
 		private const float GRAVITY = -9.81f;
 
 		private readonly DeltaTimeHandle deltaTime;
 
-		public ApplyGravitySystem(DeltaTimeHandle deltaTime, 
-			EntityContext context, SubtaskRunner runner, Profiler.Timeline profiler) : base(context, runner, 100, profiler)
+		public ApplyGravitySystem(DeltaTimeHandle deltaTime, EntityContext context) : base(context, batchSize: 100)
 		{
 			this.deltaTime = deltaTime;
 		}
