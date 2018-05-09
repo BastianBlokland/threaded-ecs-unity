@@ -34,7 +34,7 @@ namespace ECS.Tasks
 			this.runner = runner;
 			this.batchSize = batchSize;
 			this.logger = logger;
-			this.profilerTrack = profiler?.CreateTrack<Profiler.TimelineTrack>(GetType().Name);
+			this.profilerTrack = profiler?.CreateTrack<Profiler.TimelineTrack>(provider.GetType().Name);
 		}
 
 		public void QuerySubtasks() => totalSubtaskCount = provider.PrepareSubtasks();
