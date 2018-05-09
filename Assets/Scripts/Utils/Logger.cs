@@ -17,7 +17,7 @@ namespace Utils
 			lockObject = new object();
 		}
 
-		public void Log(Exception exception) => Log($"Exception: '{exception.Message}'");
+		public void Log(Exception exception) => Log($"Exception: {exception.Message}\n{exception.StackTrace}");
 
 		public void Log(string message)
 		{
