@@ -10,19 +10,22 @@ namespace Utils.Rendering
 			public bool Full => Count >= Matrices.Length;
 
 			public readonly Float3x4[] Matrices;
+			public readonly float[] Ages;
 			public int Count;
 
 			public Data(int capacity)
 			{
 				Matrices = new Float3x4[capacity];
+				Ages = new float[capacity];
 				Count = 0;
 			}
 
-			public void Add(Float3x4 matrix)
+			public void Add(Float3x4 matrix, float age)
 			{
 				if(Full)
 					throw new Exception($"[{nameof(GraphicBatch)}] Unable to add: Allready full");
 				Matrices[Count] = matrix;
+				Ages[Count] = age;
 				Count++;
 			}
 
@@ -42,6 +45,7 @@ namespace Utils.Rendering
 		
 		//GPU buffers
 		private readonly ComputeBuffer matrixBuffer;
+		private readonly ComputeBuffer ageBuffer;
 		private readonly ComputeBuffer renderArgBuffer;
 
 		public GraphicBatch(int executorCount, GraphicAsset graphicAsset)
@@ -67,16 +71,18 @@ namespace Utils.Rendering
 
 			//Create GPU buffers
 			matrixBuffer = new ComputeBuffer(graphicAsset.MaxRenderCount, Float3x4.SIZE);
+			ageBuffer = new ComputeBuffer(graphicAsset.MaxRenderCount, sizeof(float));
 			renderArgBuffer = new ComputeBuffer(1, sizeof(uint) * renderArgs.Length, ComputeBufferType.IndirectArguments);
 
 			//Pass reference to the buffers to the material instance
 			material?.SetBuffer("matrixBuffer", matrixBuffer);
+			material?.SetBuffer("ageBuffer", ageBuffer);
 		}
 
-		public void Add(int execID, Float3x4 matrix)
+		public void Add(int execID, Float3x4 matrix, float age)
 		{
 			//+1 because the main-thread uses execID -1
-			dataPerThread[execID + 1].Add(matrix);
+			dataPerThread[execID + 1].Add(matrix, age);
 		}
 
 		public void UploadData()
@@ -87,6 +93,13 @@ namespace Utils.Rendering
 				matrixBuffer.SetData
 				(
 					data: dataPerThread[i].Matrices, 
+					managedBufferStartIndex: 0,
+					computeBufferStartIndex: (int)totalCount,
+					count: dataPerThread[i].Count
+				);
+				ageBuffer.SetData
+				(
+					data: dataPerThread[i].Ages, 
 					managedBufferStartIndex: 0,
 					computeBufferStartIndex: (int)totalCount,
 					count: dataPerThread[i].Count
@@ -127,6 +140,7 @@ namespace Utils.Rendering
 
 			//Release gpu buffers
 			matrixBuffer.Dispose();
+			ageBuffer.Dispose();
 			renderArgBuffer.Dispose();
 		}
 	}

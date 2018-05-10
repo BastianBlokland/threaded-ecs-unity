@@ -46,8 +46,9 @@ namespace Test
 				new SpawnCubesSystem(cubeCount, random, entityContext),
 				new ApplyVelocitySystem(deltaTime, entityContext),
 				new ApplyGravitySystem(deltaTime, entityContext),
-				new LifetimeSystem(deltaTime, entityContext),
-				new RegisterRenderObjects(renderManager, entityContext)
+				new AgeSystem(deltaTime, entityContext),
+				new RegisterRenderObjectsSystem(renderManager, entityContext),
+				new LifetimeSystem(entityContext)
 			}, logger, timeline);
 
 			blockMainTrack = timeline?.CreateTrack<Profiler.TimelineTrack>("Finishing systems on main");

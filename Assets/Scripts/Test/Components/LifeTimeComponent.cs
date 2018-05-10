@@ -5,11 +5,11 @@ namespace Test.Components
 {
     public struct LifetimeComponent : IComponent
     {
-		public float RemainingLifetime;
+		public float TotalLifetime;
 
-		public LifetimeComponent(float lifetime)
+		public LifetimeComponent(float totalLifetime)
 		{
-			RemainingLifetime = lifetime;
+			TotalLifetime = totalLifetime;
 		}
     }
 }
