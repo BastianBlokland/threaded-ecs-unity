@@ -4,7 +4,7 @@ using UnityEditor;
 namespace Profiler
 {
 	[CustomEditor(typeof(DurationGraph))]
-	public class DurationGraphEditor : Editor
+	public class DurationGraphEditor : UnityEditor.Editor
 	{
 		const float WIDTH = 300f;
 		const float HEIGHT = 300f;

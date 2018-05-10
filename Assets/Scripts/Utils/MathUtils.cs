@@ -40,5 +40,10 @@ namespace Utils
 		{
 			return aEnd >= bStart && aStart <= bEnd;
 		}
+
+		public static bool Bigger(float val, float ref1, float ref2, float ref3)
+		{
+			return val > ref1 && val > ref2 && val > ref3;
+		}
 	}
 }

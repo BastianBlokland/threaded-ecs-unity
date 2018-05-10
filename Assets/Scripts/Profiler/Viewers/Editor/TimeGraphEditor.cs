@@ -4,7 +4,7 @@ using UnityEditor;
 namespace Profiler
 {
 	[CustomEditor(typeof(TimeGraph))]
-	public class TimeGraphEditor : Editor
+	public class TimeGraphEditor : UnityEditor.Editor
 	{
 		const float WIDTH = 300f;
 		const float HEIGHT = 150f;
