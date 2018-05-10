@@ -11,7 +11,6 @@ namespace Editor
 	{
 		private Mesh mesh;
 		private int boneIndexUVChannel = 1;
-		private int maxBoneCount = 10;
 		private int textureWidth = 64;
 		private int textureHeight = 64;
 		private string textureOutputPath = "/Data/Textures/ExplosionAnimation.exr";
@@ -23,19 +22,18 @@ namespace Editor
 		{
 			mesh = EditorGUILayout.ObjectField("Mesh to bake", mesh, typeof(Mesh), allowSceneObjects: true) as Mesh;
 			boneIndexUVChannel = EditorGUILayout.IntField($"{nameof(boneIndexUVChannel)}", boneIndexUVChannel);
-			maxBoneCount = EditorGUILayout.IntField($"{nameof(maxBoneCount)}", maxBoneCount);
 			textureWidth = EditorGUILayout.IntField($"{nameof(textureWidth)}", textureWidth);
 			textureHeight = EditorGUILayout.IntField($"{nameof(textureHeight)}", textureHeight);
 			textureOutputPath = EditorGUILayout.TextField($"{nameof(textureOutputPath)}", textureOutputPath);
 
 			if(GUILayout.Button($"{nameof(BakeBoneIndexToUV)}") && mesh != null)
-				BakeBoneIndexToUV(mesh, boneIndexUVChannel, maxBoneCount);
+				BakeBoneIndexToUV(mesh, boneIndexUVChannel);
 
 			if(GUILayout.Button($"{nameof(CreateAnimationTexture)}"))
-				CreateAnimationTexture(maxBoneCount, textureWidth, textureHeight, textureOutputPath);
+				CreateAnimationTexture(textureWidth, textureHeight, textureOutputPath);
 		}
 
-		private static void CreateAnimationTexture(int maxBones, int textureWidth, int textureHeight, string textureOutputPath)
+		private static void CreateAnimationTexture(int textureWidth, int textureHeight, string textureOutputPath)
 		{
 			Color[] colors = new Color[10]
 			{
@@ -52,7 +50,7 @@ namespace Editor
 			};
 			
 			Texture2D texture = new Texture2D(textureWidth, textureHeight, format: TextureFormat.RGBAFloat, mipmap: false, linear: true);
-			for (int boneIndex = 0; boneIndex < maxBones; boneIndex++)
+			for (int boneIndex = 0; boneIndex < 10; boneIndex++)
 			{
 				for (int x = 0; x < textureWidth; x++)
 				{
@@ -67,16 +65,13 @@ namespace Editor
 			AssetDatabase.Refresh();
 		}
 
-		private static void BakeBoneIndexToUV(Mesh mesh, int uvIndex, int maxBones)
+		private static void BakeBoneIndexToUV(Mesh mesh, int uvIndex)
 		{
 			Debug.Log($"Baking bone-index to uv-{uvIndex} for mesh: {mesh.name}");
 
 			List<Vector2> uv2 = new List<Vector2>(mesh.vertexCount);
 			for (int i = 0; i < mesh.boneWeights.Length; i++)
-			{
-				int boneIndex = FindIndex(mesh.boneWeights[i]);
-				uv2.Add(new Vector2((float)boneIndex / maxBones, 1f));
-			}
+				uv2.Add(new Vector2(FindIndex(mesh.boneWeights[i]), 1f));
 			mesh.SetUVs(uvIndex, uv2);
 
 			EditorUtility.SetDirty(mesh);

@@ -6,7 +6,6 @@
 		animationMap ("animationMap", 2D) = "white" {}
 		animationMapHeight ("animationMapHeight", int) = 64
 		clipThreshold ("clipThreshold", float) = 0.05
-		maxBoneCount ("maxBoneCount", int) = 10
 		age ("age", Range(0, 1)) = 0.5
 	}
 	SubShader
@@ -25,7 +24,7 @@
 			{
 				float4 vertex : POSITION;
 				float2 uv : TEXCOORD0;
-				float2 uv2 : TEXCOORD1;
+				float2 boneIndex : TEXCOORD1;
 			};
 
 			struct v2f
@@ -39,13 +38,11 @@
 			sampler2D animationMap;
 			int animationMapHeight;
 			float clipThreshold;
-			int maxBoneCount;
 			float age;
 
 			v2f vert (appdata v)
 			{
-				fixed boneIndex = v.uv2.x * maxBoneCount;
-				fixed colorUV = boneIndex / animationMapHeight;
+				fixed colorUV = v.boneIndex.x / animationMapHeight;
 				fixed4 colorSample = tex2Dlod(animationMap, float4(saturate(age), colorUV, 0, 0));
 
 				v2f o;
