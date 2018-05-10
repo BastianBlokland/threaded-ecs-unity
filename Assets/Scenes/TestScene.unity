@@ -295,7 +295,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executorCount: 6
   cubeCount: 65000
-  assetsLibrary: {fileID: 11400000, guid: 6206a5aecfa5f499bb1ad0ad828eb2aa, type: 2}
+  assetLibrary: {fileID: 11400000, guid: 7eea5cdf6a0874dfd854c1b34fe6438c, type: 2}
   timeline: {fileID: 634226421}
 --- !u!4 &1739203811
 Transform:

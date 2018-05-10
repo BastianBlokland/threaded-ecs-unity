@@ -4,6 +4,8 @@ using ECS.Tasks.Runner;
 using Test.Systems;
 using UnityEngine;
 using Utils;
+using Utils.Random;
+using Utils.Rendering;
 
 namespace Test
 {
@@ -11,7 +13,7 @@ namespace Test
 	{
 		[SerializeField] private int executorCount = 1;
 		[SerializeField] private int cubeCount = 100;
-		[SerializeField] private GraphicsAssetsLibrary assetsLibrary;
+		[SerializeField] private GraphicAssetLibrary assetLibrary;
 		[SerializeField] private Profiler.Timeline timeline;
 
 		private Utils.Logger logger;
@@ -19,7 +21,7 @@ namespace Test
 		private EntityContext entityContext;
 		private DeltaTimeHandle deltaTime;
 		private IRandomProvider random;
-		private RenderSet renderSet;
+		private RenderManager renderManager;
 		private TaskManager systemManager;
 
 		private Profiler.TimelineTrack blockMainTrack;
@@ -27,9 +29,9 @@ namespace Test
 
 		protected void Awake()
 		{
-			if(assetsLibrary == null)
+			if(assetLibrary == null)
 			{
-				Debug.LogError($"[{nameof(TestController)}] No 'GraphicsAssetsLibrary' provided!");
+				Debug.LogError($"[{nameof(TestController)}] No '{nameof(GraphicAssetLibrary)}' provided!");
 				return;
 			}
 
@@ -38,14 +40,14 @@ namespace Test
 			entityContext = new EntityContext();
 			deltaTime = new DeltaTimeHandle();
 			random = new ShiftRandomProvider();
-			renderSet = new RenderSet(executorCount, assetsLibrary);
+			renderManager = new RenderManager(executorCount, assetLibrary);
 			systemManager = new TaskManager(subtaskRunner, new ECS.Tasks.ITask[]
 			{
 				new SpawnCubesSystem(cubeCount, random, entityContext),
 				new ApplyVelocitySystem(deltaTime, entityContext),
 				new ApplyGravitySystem(deltaTime, entityContext),
 				new LifetimeSystem(deltaTime, entityContext),
-				new CreateRenderBatchesSystem(renderSet, entityContext)
+				new RegisterRenderObjects(renderManager, entityContext)
 			}, logger, timeline);
 
 			blockMainTrack = timeline?.CreateTrack<Profiler.TimelineTrack>("Finishing systems on main");
@@ -65,7 +67,7 @@ namespace Test
 			renderTrack?.LogStartWork();
 			{
 				//Render the results of the systems
-				renderSet.Render();
+				renderManager.Render();
 			}
 			renderTrack?.LogEndWork();
 
@@ -73,7 +75,7 @@ namespace Test
 			logger?.Print();
 
 			//Setup the systems
-			renderSet.Clear();
+			renderManager.Clear();
 			deltaTime.Update(Time.deltaTime);
 
 			//Start the systems
@@ -83,7 +85,7 @@ namespace Test
 		protected void OnDestroy()
 		{
 			subtaskRunner?.Dispose();
-			renderSet?.Dispose();
+			renderManager?.Dispose();
 		}
 	}
 }

@@ -3,7 +3,7 @@
 using static UnityEngine.Mathf;
 using static Utils.MathUtils;
 
-namespace Utils
+namespace Utils.Random
 {
 	public static class RandomUtils
 	{

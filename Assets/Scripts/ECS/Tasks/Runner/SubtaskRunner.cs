@@ -46,7 +46,7 @@ namespace ECS.Tasks.Runner
 		public void Help()
 		{
 			//Take a random executor id to not be contending the same executor all the time
-			var executorID = System.Environment.TickCount % taskQueueCount;
+			var executorID = System.Environment.TickCount % taskQueueCount; //Note: 'TickCount' has a very bad resolution, need to think of a better way to distribute
 			var info = GetTask(execID: executorID);
 			if(info.HasValue)
 			{

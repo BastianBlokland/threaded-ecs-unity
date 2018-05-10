@@ -2,10 +2,16 @@
 
 namespace Utils
 {
+	/// <summary>
+	/// Simple 3x4 matrices that maps directly to the cg float3x4 object on the gpu.
+	/// Note: 3x4 because we don't need the projection column here
+	/// </summary>
 	public struct Float3x4
 	{
-		public static Float3x4 Identity
-			=> new Float3x4
+		public const int SIZE = sizeof(float) * 3 * 4;
+
+		public static Float3x4 Identity { get; } 
+			= new Float3x4
 			{
 				m00 = 1f, m01 = 0f, m02 = 0f,
 				m10 = 0f, m11 = 1f, m12 = 0f,

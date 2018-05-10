@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Utils
+namespace Utils.Random
 {
 	public sealed class ShiftRandomProvider : IRandomProvider
 	{
