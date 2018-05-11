@@ -9,74 +9,105 @@ namespace Editor
 {
 	public sealed class AnimationTextureBaker : EditorWindow
 	{
-		private Mesh mesh;
+		private GameObject skinnedMeshRoot;
+		private BoneColorLookup boneColorLookup;
 		private int boneIndexUVChannel = 1;
-		private int textureWidth = 64;
-		private int textureHeight = 64;
-		private string textureOutputPath = "/Data/Textures/ExplosionAnimation.exr";
+		private int textureSize = 64;
+		private string meshOutputPath = "Data/Meshes/ExplosionMesh.asset";
+		private string textureOutputPath = "Data/Textures/ExplosionAnimation.exr";
 
 		[MenuItem("Tools/AnimationTextureBaker")]
 		public static void OpenWindow() => EditorWindow.GetWindow<AnimationTextureBaker>().Show();
 
 		private void OnGUI()
 		{
-			mesh = EditorGUILayout.ObjectField("Mesh to bake", mesh, typeof(Mesh), allowSceneObjects: true) as Mesh;
+			skinnedMeshRoot = EditorGUILayout.ObjectField($"Root game-object of the skinned-mesh root", skinnedMeshRoot, typeof(GameObject), allowSceneObjects: true) as GameObject;
+			boneColorLookup = EditorGUILayout.ObjectField($"{nameof(BoneColorLookup)}", boneColorLookup, typeof(BoneColorLookup), allowSceneObjects: true) as BoneColorLookup;
 			boneIndexUVChannel = EditorGUILayout.IntField($"{nameof(boneIndexUVChannel)}", boneIndexUVChannel);
-			textureWidth = EditorGUILayout.IntField($"{nameof(textureWidth)}", textureWidth);
-			textureHeight = EditorGUILayout.IntField($"{nameof(textureHeight)}", textureHeight);
+			textureSize = EditorGUILayout.IntField($"{nameof(textureSize)}", textureSize);
+			meshOutputPath = EditorGUILayout.TextField($"{nameof(meshOutputPath)}", meshOutputPath);
 			textureOutputPath = EditorGUILayout.TextField($"{nameof(textureOutputPath)}", textureOutputPath);
 
-			if(GUILayout.Button($"{nameof(BakeBoneIndexToUV)}") && mesh != null)
-				BakeBoneIndexToUV(mesh, boneIndexUVChannel);
+			if(GUILayout.Button("Export mesh + texture") && skinnedMeshRoot != null)
+			{
+				Animation anim = skinnedMeshRoot.GetComponent<Animation>();
+				SkinnedMeshRenderer smr = skinnedMeshRoot.GetComponentInChildren<SkinnedMeshRenderer>(includeInactive: true);
+				if(anim != null && anim.clip != null && smr != null && smr.sharedMesh != null)
+				{
+					float uniformScale = GetUniformLocalScale(smr.transform); //Get base scale for the mesh (can be non-zero if a fbx export scale is used)
 
-			if(GUILayout.Button($"{nameof(CreateAnimationTexture)}"))
-				CreateAnimationTexture(textureWidth, textureHeight, textureOutputPath);
+					CreateAnimationTexture(smr, boneColorLookup, anim.clip, textureSize, uniformScale, textureOutputPath);
+					ExportMeshWithBoneInUV(smr.sharedMesh, boneIndexUVChannel, uniformScale, $"Assets/{meshOutputPath}");
+				}
+			}
 		}
 
-		private static void CreateAnimationTexture(int textureWidth, int textureHeight, string textureOutputPath)
+		private static void CreateAnimationTexture(SkinnedMeshRenderer smr, BoneColorLookup bcl, AnimationClip ac, int texSize, float refScale, string outputPath)
 		{
-			Color[] colors = new Color[10]
+			Debug.Log($"Creating animation texture for mesh-renderer: {smr.name}");
+
+			Texture2D texture = new Texture2D(texSize, texSize, format: TextureFormat.RGBAFloat, mipmap: false, linear: true);
+			for (int boneIndex = 0; boneIndex < smr.bones.Length; boneIndex++)
 			{
-				Color.gray,
-				Color.blue,
-				Color.yellow,
-				Color.clear,
-				Color.magenta,
-				Color.red,
-				Color.green,
-				Color.yellow,
-				Color.cyan,
-				Color.magenta
-			};
-			
-			Texture2D texture = new Texture2D(textureWidth, textureHeight, format: TextureFormat.RGBAFloat, mipmap: false, linear: true);
-			for (int boneIndex = 0; boneIndex < 10; boneIndex++)
-			{
-				for (int x = 0; x < textureWidth; x++)
+				int startY = boneIndex * 2; //because 2 elements per bone: color and (position, scale)
+				for (int x = 0; x < texSize; x++)
 				{
-					float prog = (float)x / textureWidth;
-					texture.SetPixel(x, boneIndex, Color.Lerp(colors[boneIndex], new Color(2f, 2f, 2f, 1f), prog));
+					float prog = x == 0 ? 0 : ((float)x / (texSize - 1));
+					
+					//Get color
+					Color color = bcl == null ? Color.white : bcl.GetColor(smr.bones[boneIndex].name, prog);
+
+					//Get position
+					ac.SampleAnimation(smr.transform.root.gameObject, prog * ac.length);
+					Vector3 position = smr.bones[boneIndex].localPosition;
+
+					//Get scale
+					float boneScale = GetUniformLocalScale(smr.bones[boneIndex]) / refScale;
+					float bindposeScale = GetUniformScale(smr.sharedMesh.bindposes[boneIndex].lossyScale);
+					float scale = boneScale * bindposeScale;
+
+					//Save the data in the texture
+					texture.SetPixel(x, startY, color);
+					texture.SetPixel(x, startY + 1, new Color(position.x, position.y, position.z, scale));
 				}
 			}
 			texture.Apply(updateMipmaps: false, makeNoLongerReadable: false);
 
 			byte[] exrData = ImageConversion.EncodeToEXR(texture, Texture2D.EXRFlags.OutputAsFloat);
-			File.WriteAllBytes($"{Application.dataPath}/{textureOutputPath}", exrData);
+			File.WriteAllBytes($"{Application.dataPath}/{outputPath}", exrData);
 			AssetDatabase.Refresh();
 		}
 
-		private static void BakeBoneIndexToUV(Mesh mesh, int uvIndex)
+		private static void ExportMeshWithBoneInUV(Mesh mesh, int uvIndex, float scale, string outputPath)
 		{
-			Debug.Log($"Baking bone-index to uv-{uvIndex} for mesh: {mesh.name}");
+			Debug.Log($"Exporting mesh {mesh.name} with bone-index in uv-{uvIndex} with scale: {scale}");
 
-			List<Vector2> uv2 = new List<Vector2>(mesh.vertexCount);
+			Mesh instantiatedMesh = Object.Instantiate(mesh) as Mesh;
+
+			//Set bone-index into uv2
+			var uv2 = new List<Vector2>(mesh.vertexCount);
 			for (int i = 0; i < mesh.boneWeights.Length; i++)
 				uv2.Add(new Vector2(FindIndex(mesh.boneWeights[i]), 1f));
-			mesh.SetUVs(uvIndex, uv2);
+			instantiatedMesh.SetUVs(uvIndex, uv2);
 
-			EditorUtility.SetDirty(mesh);
-			AssetDatabase.SaveAssets();
+			//Scale vertices
+			var vertices = new List<Vector3>();
+			mesh.GetVertices(vertices);
+			for (int i = 0; i < vertices.Count; i++)
+				vertices[i] *= scale;
+			instantiatedMesh.SetVertices(vertices);
+
+			//Recalculate after scaling
+			instantiatedMesh.RecalculateBounds();
+			instantiatedMesh.RecalculateNormals();
+
+			AssetDatabase.CreateAsset(instantiatedMesh, outputPath);
+			AssetDatabase.Refresh();
 		}
+
+		private static float GetUniformLocalScale(Transform transform) => GetUniformScale(transform.localScale);
+
+		private static float GetUniformScale(Vector3 scale) => (scale.x + scale.y + scale.z) / 3;
 
 		private static int FindIndex(BoneWeight weight)
 		{

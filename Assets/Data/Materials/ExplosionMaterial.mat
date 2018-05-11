@@ -59,7 +59,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - colorMap:
-        m_Texture: {fileID: 2800000, guid: dfa85357218abfc49bbe3f8b4c67d5b6, type: 3}
+        m_Texture: {fileID: 2800000, guid: 92a0da7dbf0424342a87c2d4d56d7ad2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -79,7 +79,7 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
-    - age: 0
+    - age: 1
     - alphaClipThreshold: 0
     - animationMapHeight: 64
     - clipThreshold: 0.05

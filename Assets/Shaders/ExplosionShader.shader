@@ -1,4 +1,4 @@
-﻿Shader "Test/ExplosionShader"
+﻿Shader "Test/Instanced/Explosion"
 {
 	Properties
 	{
@@ -6,18 +6,17 @@
 		animationMap ("animationMap", 2D) = "white" {}
 		animationMapHeight ("animationMapHeight", int) = 64
 		clipThreshold ("clipThreshold", float) = 0.05
-		age ("age", Range(0, 1)) = 0.5
 	}
 	SubShader
 	{
 		Cull Off
-		Blend SrcAlpha OneMinusSrcAlpha
-		ZWrite Off
 		Pass 
 		{
 			CGPROGRAM
+			#pragma exclude_renderers gles //Because non-square matrices
 			#pragma vertex vert
 			#pragma fragment frag
+			#pragma target 4.5
 			#include "UnityCG.cginc"
 
 			struct appdata
@@ -31,22 +30,35 @@
 			{
 				fixed4 pos : SV_POSITION;
 				float2 uv : TEXCOORD0;
-				fixed4 color : COLOR;
+				float4 color : COLOR;
 			};
 
 			sampler2D colorMap;
 			sampler2D animationMap;
 			int animationMapHeight;
 			float clipThreshold;
-			float age;
+			
+			StructuredBuffer<float3x4> matrixBuffer;
+			StructuredBuffer<float> ageBuffer;
 
-			v2f vert (appdata v)
+			v2f vert(appdata v, uint instanceID : SV_InstanceID)
 			{
-				fixed colorUV = v.boneIndex.x / animationMapHeight;
-				fixed4 colorSample = tex2Dlod(animationMap, float4(saturate(age), colorUV, 0, 0));
+				//Find out where to sample in the animationMap
+				fixed clampedAge = saturate(ageBuffer[instanceID]);
+				fixed boneStartOffset = v.boneIndex.x * 2; //because 2 elements per bone: color and (position, scale)
+
+				//Sample 'color, position, scale' from the animationMap
+				float4 colorSample = tex2Dlod(animationMap, float4(clampedAge, boneStartOffset / animationMapHeight, 0, 0));
+				float4 positionScaleSample = tex2Dlod(animationMap, float4(clampedAge, (boneStartOffset + 1) / animationMapHeight, 0, 0));
+				float3 positionSample = positionScaleSample.xyz;
+				float scaleSample = positionScaleSample.a;
+
+				//Calculate position
+				float3 modelPos = (v.vertex + positionSample) * scaleSample;
+				float4 worldPos = float4(mul(matrixBuffer[instanceID], float4(modelPos, 1)), 1);
 
 				v2f o;
-				o.pos = UnityObjectToClipPos(v.vertex);
+				o.pos = mul(UNITY_MATRIX_VP, worldPos);
 				o.uv = v.uv;
 				o.color = colorSample;
 				return o;
@@ -54,7 +66,7 @@
 
 			fixed4 frag(v2f i) : SV_Target
 			{
-				fixed4 color = tex2D(colorMap, i.uv) * i.color;
+				float4 color = tex2D(colorMap, i.uv) * i.color;
 				clip(color.a - clipThreshold);
 				return color;
 			}

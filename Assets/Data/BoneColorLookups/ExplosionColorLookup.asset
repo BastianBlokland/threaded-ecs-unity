@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83b2272e69d86d44a89d89f433db110a, type: 3}
+  m_Name: ExplosionColorLookup
+  m_EditorClassIdentifier: 
+  bones:
+  - BoneName: Bone_Flame
+    Entries:
+    - Color: {r: 1, g: 0.12941177, b: 0.02745098, a: 0}
+      Time: 0
+    - Color: {r: 2, g: 0.25882354, b: 0.05490196, a: 0.8117647}
+      Time: 0.2
+    - Color: {r: 21.361254, g: 2.7385993, b: 0.5038031, a: 0.58431375}
+      Time: 0.4
+    - Color: {r: 2, g: 0.25882354, b: 0.05490196, a: 0.078431375}
+      Time: 0.7
+    - Color: {r: 0.57937366, g: 0.05950324, b: 0, a: 0}
+      Time: 1
+  - BoneName: Bone_Rock1
+    Entries:
+    - Color: {r: 1, g: 1, b: 1, a: 0}
+      Time: 0
+    - Color: {r: 1, g: 1, b: 1, a: 1}
+      Time: 0.2
+    - Color: {r: 1, g: 1, b: 1, a: 1}
+      Time: 0.8
+    - Color: {r: 1, g: 1, b: 1, a: 0}
+      Time: 1
+  - BoneName: Bone_Rock2
+    Entries:
+    - Color: {r: 1, g: 1, b: 1, a: 0}
+      Time: 0
+    - Color: {r: 1, g: 1, b: 1, a: 1}
+      Time: 0.2
+    - Color: {r: 1, g: 1, b: 1, a: 1}
+      Time: 0.8
+    - Color: {r: 1, g: 1, b: 1, a: 0}
+      Time: 1
+  - BoneName: Bone_Rock3
+    Entries:
+    - Color: {r: 1, g: 1, b: 1, a: 0}
+      Time: 0
+    - Color: {r: 1, g: 1, b: 1, a: 1}
+      Time: 0.2
+    - Color: {r: 1, g: 1, b: 1, a: 1}
+      Time: 0.8
+    - Color: {r: 1, g: 1, b: 1, a: 0}
+      Time: 1
+  - BoneName: Bone_Rock4
+    Entries:
+    - Color: {r: 1, g: 1, b: 1, a: 0}
+      Time: 0
+    - Color: {r: 1, g: 1, b: 1, a: 1}
+      Time: 0.2
+    - Color: {r: 1, g: 1, b: 1, a: 1}
+      Time: 0.8
+    - Color: {r: 1, g: 1, b: 1, a: 0}
+      Time: 1
+  - BoneName: Bone_Rock5
+    Entries:
+    - Color: {r: 1, g: 1, b: 1, a: 0}
+      Time: 0
+    - Color: {r: 1, g: 1, b: 1, a: 1}
+      Time: 0.2
+    - Color: {r: 1, g: 1, b: 1, a: 1}
+      Time: 0.8
+    - Color: {r: 1, g: 1, b: 1, a: 0}
+      Time: 1
