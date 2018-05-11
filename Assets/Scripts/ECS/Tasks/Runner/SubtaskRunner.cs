@@ -63,6 +63,7 @@ namespace ECS.Tasks.Runner
 
 		private ExecuteInfo? GetTask(int execID)
 		{
+			execID = Math.Abs(execID);
 			for (int i = 0; i < taskQueueCount; i++)
 			{
 				var queueIndex = (execID + i) % taskQueueCount;
