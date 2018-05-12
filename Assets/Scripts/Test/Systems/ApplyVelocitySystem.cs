@@ -1,10 +1,11 @@
 using ECS.Storage;
 using ECS.Tasks;
-using ECS.Tasks.Runner;
 using Test.Components;
+using UnityEngine;
 using Utils;
 
 using EntityID = System.UInt16;
+using static Utils.MathUtils;
 
 namespace Test.Systems
 {
@@ -19,7 +20,11 @@ namespace Test.Systems
 
         protected override void Execute(int execID, EntityID entity, ref VelocityComponent velo, ref TransformComponent trans)
 		{
-			trans.Matrix.Position += velo.Velocity * deltaTime.Value;
+			if(velo.Velocity == Vector3.zero)
+				return;
+			Vector3 newPos = trans.Matrix.Position + velo.Velocity * deltaTime.Value;
+			Vector3 dir = FastNormalize(velo.Velocity);
+			trans.Matrix = Float3x4.FromPositionAndForward(newPos, dir);
 		}
     }
 }

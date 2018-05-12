@@ -35,7 +35,7 @@ namespace Test.Systems
 			const float STARTING_SPEED = 25f;
 
 			var entity = context.CreateEntity();
-			context.SetComponent(entity, new TransformComponent(position: new Vector3(0f, STARTING_HEIGHT, 0f)));
+			context.SetComponent(entity, new TransformComponent(Float3x4.FromPosition(new Vector3(0f, STARTING_HEIGHT, 0f))));
 			context.SetComponent(entity, new VelocityComponent(velocity: random.Direction3D() * STARTING_SPEED));
 			context.SetComponent(entity, new GraphicComponent(graphicID: 0));
 			context.SetComponent(entity, new LifetimeComponent(totalLifetime: random.GetNext() * 10f));

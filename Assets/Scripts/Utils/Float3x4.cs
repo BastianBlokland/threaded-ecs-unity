@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+using static UnityEngine.Vector3;
+using static Utils.MathUtils;
+
 namespace Utils
 {
 	/// <summary>
@@ -38,6 +41,15 @@ namespace Utils
 				m20 = 0f, m21 = 0f, m22 = 1f,
 				m30 = position.x, m31 = position.y, m32 = position.z
 			};
+
+		public static Float3x4 FromPositionAndForward(Vector3 position, Vector3 forward) => FromPositionAndForward(position, forward, Vector3.up);
+
+		public static Float3x4 FromPositionAndForward(Vector3 position, Vector3 forward, Vector3 upReference)
+		{
+ 			Vector3 right = FastNormalize(Cross(upReference, forward));
+            Vector3 up = FastNormalize(Cross(forward, right));
+			return FromPositionAndAxis(position, right, up, forward);
+		}
 
 		public static Float3x4 FromPositionAndAxis(Vector3 position, Vector3 right, Vector3 up, Vector3 forward)
 			=> new Float3x4
