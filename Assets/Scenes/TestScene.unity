@@ -187,13 +187,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 437228034}
-  m_LocalRotation: {x: 0.19598874, y: -0, z: -0, w: 0.9806062}
-  m_LocalPosition: {x: 0, y: 99, z: -246}
+  m_LocalRotation: {x: 0.041732285, y: 0.93514156, z: -0.11771372, w: 0.3315301}
+  m_LocalPosition: {x: 437.2, y: 22.66, z: 309.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 22.605001, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 14.349001, y: 140.959, z: 0}
 --- !u!1 &634226418
 GameObject:
   m_ObjectHideFlags: 0
@@ -294,7 +294,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   executorCount: 6
-  spaceshipCount: 10000
+  spaceshipCount: 25000
+  maxSpaceshipSpawnPerIteration: 10
   assetLibrary: {fileID: 11400000, guid: 7eea5cdf6a0874dfd854c1b34fe6438c, type: 2}
   timeline: {fileID: 634226421}
 --- !u!4 &1739203811

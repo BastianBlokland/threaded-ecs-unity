@@ -58,6 +58,8 @@ namespace ECS.Storage
 		public int GetEntityCount(TagMask requiredTags, TagMask illegalTags)
 			=> tagContainer.Query(requiredTags, illegalTags);
 
+		public bool HasTag<T>(EntityID entity) where T : struct, ITag => tagContainer.HasTags(entity, GetMask<T>());
+
 		public bool HasTags(EntityID entity, TagMask mask) => tagContainer.HasTags(entity, mask);
 
 		public bool TryGetComponent<T>(EntityID entity, out T component)

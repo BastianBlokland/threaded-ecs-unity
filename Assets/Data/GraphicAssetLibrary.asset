@@ -15,4 +15,8 @@ MonoBehaviour:
   - Mesh: {fileID: 4300002, guid: 44dea99ec27024c42b0f64779c742201, type: 3}
     SubmeshIndex: 0
     Material: {fileID: 2100000, guid: 2f885047e0f9e6848be6fe06a0c202d8, type: 2}
-    MaxRenderCount: 10000
+    MaxRenderCount: 25000
+  - Mesh: {fileID: 4300000, guid: 3bf4cc58636ef1146b02e9510adbf8fb, type: 2}
+    SubmeshIndex: 0
+    Material: {fileID: 2100000, guid: 96184e66277b5a845842c65794d275bf, type: 2}
+    MaxRenderCount: 25000

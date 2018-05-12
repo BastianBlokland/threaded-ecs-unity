@@ -13,6 +13,7 @@ namespace Test
 	{
 		[SerializeField] private int executorCount = 1;
 		[SerializeField] private int spaceshipCount = 1000;
+		[SerializeField] private int maxSpaceshipSpawnPerIteration = 100;
 		[SerializeField] private GraphicAssetLibrary assetLibrary;
 		[SerializeField] private Profiler.Timeline timeline;
 
@@ -43,11 +44,13 @@ namespace Test
 			renderManager = new RenderManager(executorCount, assetLibrary);
 			systemManager = new TaskManager(subtaskRunner, new ECS.Tasks.ITask[]
 			{
-				new SpawnSpaceshipSystem(spaceshipCount, random, entityContext),
-				new ApplyVelocitySystem(deltaTime, entityContext),
 				new ApplyGravitySystem(deltaTime, entityContext),
 				new AgeSystem(deltaTime, entityContext),
+				new DisableSpaceshipSystem(entityContext),
+				new ApplyVelocitySystem(deltaTime, entityContext),
 				new RegisterRenderObjectsSystem(renderManager, entityContext),
+				new ExplodeSpaceshipWhenHitGroundSystem(entityContext),
+				new SpawnSpaceshipSystem(spaceshipCount, maxSpaceshipSpawnPerIteration, random, entityContext),
 				new LifetimeSystem(entityContext)
 			}, logger, timeline);
 
