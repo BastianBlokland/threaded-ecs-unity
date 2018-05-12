@@ -6,11 +6,11 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: TestMaterial
-  m_Shader: {fileID: 4800000, guid: 41d3d60c31f9444baaa031690ee0634d, type: 3}
+  m_Name: ProjectileMaterial
+  m_Shader: {fileID: 4800000, guid: 5f289ee1f024bde42953c525d08b5c47, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 1
+  m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -54,6 +54,14 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - colorMap:
+        m_Texture: {fileID: 2800000, guid: 4c22364e33787284a8066db89c88a577, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - exhaustMap:
+        m_Texture: {fileID: 2800000, guid: aa6f9e8398acbfa4d8f125a2c34bb74e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 1
     - _Cutoff: 0.5
@@ -71,6 +79,8 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
+    - exhaustScale: 15
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - exhaustColor: {r: 0.5407379, g: 0.5407379, b: 4.9245777, a: 1}
