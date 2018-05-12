@@ -7,6 +7,14 @@ namespace Utils.Random
 {
 	public static class RandomUtils
 	{
+		public static Vector3 Inside(this IRandomProvider random, AABox box)
+			=> new Vector3
+			(
+				x: box.Min.x + box.Size.x * random.GetNext(),
+				y: box.Min.y + box.Size.y * random.GetNext(),
+				z: box.Min.z + box.Size.z * random.GetNext()
+			);
+
 		public static Vector2 Direction2D(this IRandomProvider random)
 		{
 			var dir = new Vector2

@@ -5,6 +5,7 @@
 		colorMap ("colorMap", 2D) = "white" {}
 		exhaustMap ("exhaustMap", 2D) = "white" {}
 		exhaustScale ("exhaustScale", float) = 1
+		exhaustSpeed ("exhaustSpeed", float) = 0.5
 		[HDR] exhaustColor ("exhaustColor", Color) = (0, 0, 1, 1)
 	}
 	SubShader
@@ -36,6 +37,7 @@
 			sampler2D exhaustMap;
 			float3 exhaustColor;
 			float exhaustScale;
+			float exhaustSpeed;
 			
 			StructuredBuffer<float3x4> matrixBuffer;
 			StructuredBuffer<float> ageBuffer;
@@ -44,7 +46,7 @@
 			{
 				float age = ageBuffer[instanceID];
 				float exhaustMult = saturate(age);
-				float3 exhaustSample = tex2Dlod(exhaustMap, float4(_Time.y + age, v.exhaustUV.y, 0, 0));
+				float3 exhaustSample = tex2Dlod(exhaustMap, float4((_Time.y + instanceID) * exhaustSpeed, v.exhaustUV.y, 0, 0));
 				float heightMap = exhaustSample.r;
 				float colorMultiplier = exhaustSample.g;
 

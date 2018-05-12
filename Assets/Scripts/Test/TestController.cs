@@ -12,7 +12,7 @@ namespace Test
 	public class TestController : MonoBehaviour
 	{
 		[SerializeField] private int executorCount = 1;
-		[SerializeField] private int cubeCount = 100;
+		[SerializeField] private int spaceshipCount = 1000;
 		[SerializeField] private GraphicAssetLibrary assetLibrary;
 		[SerializeField] private Profiler.Timeline timeline;
 
@@ -43,7 +43,7 @@ namespace Test
 			renderManager = new RenderManager(executorCount, assetLibrary);
 			systemManager = new TaskManager(subtaskRunner, new ECS.Tasks.ITask[]
 			{
-				new SpawnCubesSystem(cubeCount, random, entityContext),
+				new SpawnSpaceshipSystem(spaceshipCount, random, entityContext),
 				new ApplyVelocitySystem(deltaTime, entityContext),
 				new ApplyGravitySystem(deltaTime, entityContext),
 				new AgeSystem(deltaTime, entityContext),

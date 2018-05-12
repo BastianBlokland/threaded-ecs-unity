@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Name: GraphicAssetLibrary
   m_EditorClassIdentifier: 
   entries:
-  - Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  - Mesh: {fileID: 4300002, guid: 44dea99ec27024c42b0f64779c742201, type: 3}
     SubmeshIndex: 0
-    Material: {fileID: 2100000, guid: 5f77eb819d312417daa66292d8bf52c2, type: 2}
-    MaxRenderCount: 65000
+    Material: {fileID: 2100000, guid: 2f885047e0f9e6848be6fe06a0c202d8, type: 2}
+    MaxRenderCount: 10000
