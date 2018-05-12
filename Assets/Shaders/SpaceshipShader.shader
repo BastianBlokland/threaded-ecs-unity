@@ -1,4 +1,4 @@
-﻿Shader "Test/Instanced/SpaceshipShader"
+﻿Shader "Custom/Instanced/SpaceshipShader"
 {
 	Properties
 	{

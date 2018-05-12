@@ -1,4 +1,4 @@
-﻿Shader "Test/Instanced/Explosion"
+﻿Shader "Custom/Instanced/Explosion"
 {
 	Properties
 	{
