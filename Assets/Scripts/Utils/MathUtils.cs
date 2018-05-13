@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
@@ -35,6 +36,9 @@ namespace Utils
 			float invSqrRoot = FastInvSqrRoot(sqrMag);
 			return new Vector3(vector.x * invSqrRoot, vector.y * invSqrRoot, vector.z * invSqrRoot);
 		}
+
+		public static float ManhattanDistance(Vector3 vector)
+			=> Math.Abs(vector.x) + Math.Abs(vector.y) + Math.Abs(vector.z);
 
 		public static bool DoesRangeOverlap(float aStart, float aEnd, float bStart, float bEnd)
 			=> aEnd >= bStart && aStart <= bEnd;

@@ -12,11 +12,28 @@ MonoBehaviour:
   m_Name: GraphicAssetLibrary
   m_EditorClassIdentifier: 
   entries:
-  - Mesh: {fileID: 4300002, guid: 44dea99ec27024c42b0f64779c742201, type: 3}
+  - Name: Spaceship
+    Mesh: {fileID: 4300002, guid: 44dea99ec27024c42b0f64779c742201, type: 3}
     SubmeshIndex: 0
     Material: {fileID: 2100000, guid: 2f885047e0f9e6848be6fe06a0c202d8, type: 2}
     MaxRenderCount: 25000
-  - Mesh: {fileID: 4300000, guid: 3bf4cc58636ef1146b02e9510adbf8fb, type: 2}
+  - Name: Turret
+    Mesh: {fileID: 4300000, guid: ac2e39f4f55cdca4bbff4915be0233a7, type: 3}
+    SubmeshIndex: 0
+    Material: {fileID: 2100000, guid: 3d5d9b58cd1c6fc489fcf9e21b128549, type: 2}
+    MaxRenderCount: 1000
+  - Name: Projectile
+    Mesh: {fileID: 4300002, guid: 04af990229976374586a37365592cfef, type: 3}
+    SubmeshIndex: 0
+    Material: {fileID: 2100000, guid: d70c3ed9d6600cb498e46725b85d1c1e, type: 2}
+    MaxRenderCount: 20000
+  - Name: Impact
+    Mesh: {fileID: 4300002, guid: 2b912d883406a264c8e138098452a579, type: 3}
+    SubmeshIndex: 0
+    Material: {fileID: 2100000, guid: 08c1a9945ae4f8c40977808b86b467b6, type: 2}
+    MaxRenderCount: 25000
+  - Name: Explosion
+    Mesh: {fileID: 4300000, guid: 3bf4cc58636ef1146b02e9510adbf8fb, type: 2}
     SubmeshIndex: 0
     Material: {fileID: 2100000, guid: 96184e66277b5a845842c65794d275bf, type: 2}
-    MaxRenderCount: 25000
+    MaxRenderCount: 10000

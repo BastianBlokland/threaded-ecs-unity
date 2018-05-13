@@ -37,8 +37,8 @@ namespace Test.Systems
 
 			AABox spawnArea = new AABox
 			(
-				min: new Vector3(-1000f, 50f, -500f),
-				max: new Vector3(1000f, 100f, -250f)	
+				min: new Vector3(-500f, 25f, -500f),
+				max: new Vector3(500f, 75f, 500f)	
 			);
 			Vector3 position = random.Inside(spawnArea);
 			Vector3 velocity = Vector3.forward * random.Between(MIN_SPEED, MAX_SPEED);
@@ -48,6 +48,7 @@ namespace Test.Systems
 			context.SetComponent(entity, new VelocityComponent(velocity: velocity));
 			context.SetComponent(entity, new GraphicComponent(graphicID: 0));
 			context.SetComponent(entity, new AgeComponent());
+			context.SetComponent(entity, new LifetimeComponent(totalLifetime: 10));
 			context.SetTag<SpaceshipComponent>(entity);
 		}
     }

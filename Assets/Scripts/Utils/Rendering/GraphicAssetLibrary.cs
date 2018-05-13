@@ -8,6 +8,7 @@ namespace Utils.Rendering
 	[Serializable]
 	public class GraphicAsset
 	{
+		public string Name;
 		public Mesh Mesh;
 		public int SubmeshIndex;
 		public Material Material;

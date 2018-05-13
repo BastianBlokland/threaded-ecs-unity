@@ -26,7 +26,7 @@ namespace Test.Systems
 				//Spawn explosion
 				EntityID explosionEntity = context.CreateEntity();
 				context.SetComponent(explosionEntity, new TransformComponent(Float3x4.FromPosition(trans.Matrix.Position)));
-				context.SetComponent(explosionEntity, new GraphicComponent(graphicID: 1));
+				context.SetComponent(explosionEntity, new GraphicComponent(graphicID: 4));
 				context.SetComponent(explosionEntity, new LifetimeComponent(totalLifetime: 1));
 				context.SetComponent(explosionEntity, new AgeComponent());
 			}

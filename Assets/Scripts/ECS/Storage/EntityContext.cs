@@ -62,22 +62,7 @@ namespace ECS.Storage
 
 		public bool HasTags(EntityID entity, TagMask mask) => tagContainer.HasTags(entity, mask);
 
-		public bool TryGetComponent<T>(EntityID entity, out T component)
-			where T : struct, IComponent
-		{
-			var tagID = GetID<T>();
-			TagMask mask = new TagMask(tagID);
-			if(tagContainer.HasTags(entity, mask))
-			{
-				component = ((IComponentContainer<T>)containers[tagID]).Get(entity);
-				return true;
-			}
-			else
-			{
-				component = default(T);
-				return false;
-			}
-		}
+		public T GetComponent<T>(EntityID entity) where T : struct, IComponent => GetContainer<T>().Get(entity);
 
 		public void SetTag<T>(EntityID entity)
 			where T : struct, ITag

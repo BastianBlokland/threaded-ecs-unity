@@ -79,6 +79,7 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
+    - colorMultiplier: 3
     - exhaustScale: 15
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}

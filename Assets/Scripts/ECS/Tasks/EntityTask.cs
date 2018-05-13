@@ -182,7 +182,7 @@ namespace ECS.Tasks
 			illegalComponents = GetIllegalTags(context);
 		}
 
-		protected sealed override int PrepareSubtasks()
+		protected override int PrepareSubtasks()
 		{
 			context.GetEntities(requiredComponents, illegalComponents, entities);
 			return entities.Count;

@@ -11,7 +11,7 @@ namespace Test.Systems
 {
     public sealed class ApplyGravitySystem : EntityTask<VelocityComponent>
     {
-		private const float GRAVITY = -9.81f;
+		public const float GRAVITY = -9.81f;
 
 		private readonly DeltaTimeHandle deltaTime;
 

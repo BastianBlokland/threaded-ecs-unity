@@ -1,4 +1,7 @@
-﻿using EntityID = System.UInt16;
+﻿using System.Collections;
+using System.Collections.Generic;
+
+using EntityID = System.UInt16;
 
 namespace ECS.Storage
 {
@@ -12,11 +15,17 @@ namespace ECS.Storage
 	/// 
 	/// Thread-safety: NOT thread-safe
 	/// </summary>
-	public sealed class EntitySet
+	public sealed class EntitySet : IReadOnlyList<EntityID>
 	{
 		public EntityID[] Data { get; } = new EntityID[EntityID.MaxValue];
 		public int Count { get; set; }
 
+		public EntityID this[int index]
+		{
+			get { return Data[index]; }
+			set { Data[index] = value; }
+		}
+		
 		public void Add(EntityID entity)
 		{
 			Data[Count] = entity;
@@ -24,5 +33,9 @@ namespace ECS.Storage
 		}
 
 		public void Clear() => Count = 0;
+
+		//Part of 'IReadOnlyList' but at the moment have no support for a enumerator
+		IEnumerator<ushort> IEnumerable<ushort>.GetEnumerator() { throw new System.NotImplementedException(); }
+		IEnumerator IEnumerable.GetEnumerator() { throw new System.NotImplementedException(); }
 	}
 }

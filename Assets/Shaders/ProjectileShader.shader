@@ -1,5 +1,9 @@
 ﻿Shader "Custom/Instanced/ProjectileShader"
 {
+	Properties
+	{
+		colorMultiplier ("colorMultiplier", float) = 1
+	}
 	SubShader
 	{
 		Blend One One
@@ -24,6 +28,8 @@
 				fixed4 color : COLOR;
 			};
 
+			float colorMultiplier;
+
 			StructuredBuffer<float3x4> matrixBuffer;
 
 			v2f vert(appdata v, uint instanceID : SV_InstanceID)
@@ -33,7 +39,7 @@
 
 				v2f o;
 				o.pos = mul(UNITY_MATRIX_VP, worldPos);
-				o.color = v.color;
+				o.color = v.color * colorMultiplier;
 				return o;
 			}
 

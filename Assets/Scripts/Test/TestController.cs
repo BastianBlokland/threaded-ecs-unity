@@ -14,6 +14,7 @@ namespace Test
 		[SerializeField] private int executorCount = 1;
 		[SerializeField] private int spaceshipCount = 1000;
 		[SerializeField] private int maxSpaceshipSpawnPerIteration = 100;
+		[SerializeField] private int turretCount = 1000;
 		[SerializeField] private GraphicAssetLibrary assetLibrary;
 		[SerializeField] private Profiler.Timeline timeline;
 
@@ -46,10 +47,11 @@ namespace Test
 			{
 				new ApplyGravitySystem(deltaTime, entityContext),
 				new AgeSystem(deltaTime, entityContext),
-				new DisableSpaceshipSystem(entityContext),
 				new ApplyVelocitySystem(deltaTime, entityContext),
 				new RegisterRenderObjectsSystem(renderManager, entityContext),
 				new ExplodeSpaceshipWhenHitGroundSystem(entityContext),
+				new SpawnProjectilesSystem(random, deltaTime, entityContext),
+				new SpawnTurretSystem(turretCount, random, entityContext),
 				new SpawnSpaceshipSystem(spaceshipCount, maxSpaceshipSpawnPerIteration, random, entityContext),
 				new LifetimeSystem(entityContext)
 			}, logger, timeline);

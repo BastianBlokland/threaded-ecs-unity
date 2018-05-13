@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 using static UnityEngine.Mathf;
 using static Utils.MathUtils;
@@ -38,6 +39,14 @@ namespace Utils.Random
 			if(dir == Vector3.zero) //Should be very rare
 				return Vector3.forward;
 			return FastNormalize(dir);
+		}
+
+		public static T PickRandom<T>(this IRandomProvider random, IReadOnlyList<T> list)
+		{
+			if(list.Count == 0)
+				return default(T);
+			int index = random.Between(0, list.Count);
+			return list[index];
 		}
 
 		public static int Between(this IRandomProvider random, int minValue, int maxValue)
