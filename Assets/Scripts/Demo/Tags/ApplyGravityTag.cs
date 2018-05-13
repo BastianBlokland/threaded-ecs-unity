@@ -1,6 +1,6 @@
 ﻿using ECS.Storage;
 
-namespace Test.Components
+namespace Demo
 {
     public struct ApplyGravityTag : ITag
     {

@@ -1,18 +1,18 @@
 ﻿using ECS.Storage;
 using ECS.Tasks;
-using Test.Components;
 using Utils;
 using Utils.Rendering;
 
 using EntityID = System.UInt16;
 
-namespace Test.Systems
+namespace Demo
 {
     public sealed class RegisterRenderObjectsSystem : EntityTask<GraphicComponent, AgeComponent, TransformComponent>
     {
 		private readonly RenderManager renderManager;
 
-		public RegisterRenderObjectsSystem(RenderManager renderManager, EntityContext context) : base(context, batchSize: 100)
+		public RegisterRenderObjectsSystem(RenderManager renderManager, EntityContext context) 
+			: base(context, batchSize: 100)
 		{
 			this.renderManager = renderManager;
 		}

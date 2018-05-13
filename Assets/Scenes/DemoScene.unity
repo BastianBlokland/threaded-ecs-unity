@@ -276,7 +276,7 @@ GameObject:
   - component: {fileID: 1739203811}
   - component: {fileID: 1739203810}
   m_Layer: 0
-  m_Name: TestController
+  m_Name: Controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -290,14 +290,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 1739203809}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48998b29b5f4c48628445327d6b41f49, type: 3}
+  m_Script: {fileID: 11500000, guid: 5775c7649514146d7891e587ce0549e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minArea: {x: -250, y: 0, z: -250}
-  maxArea: {x: 250, y: 200, z: 350}
+  minCollisionArea: {x: -250, y: 0, z: -100}
+  maxCollisionArea: {x: 250, y: 150, z: 200}
+  minSpaceshipSpawnArea: {x: -150, y: 25, z: -150}
+  maxSpaceshipSpawnArea: {x: 150, y: 150, z: -100}
+  minTurretSpawnArea: {x: -100, y: 1, z: -100}
+  maxTurretSpawnArea: {x: 100, y: 1, z: 100}
   executorCount: 6
   spaceshipCount: 1000
-  maxSpaceshipSpawnPerIteration: 10
   turretCount: 100
   assetLibrary: {fileID: 11400000, guid: 7eea5cdf6a0874dfd854c1b34fe6438c, type: 2}
   timeline: {fileID: 634226421}

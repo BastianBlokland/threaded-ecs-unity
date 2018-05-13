@@ -1,17 +1,17 @@
 using ECS.Storage;
 using ECS.Tasks;
-using Test.Components;
 using Utils;
 
 using EntityID = System.UInt16;
 
-namespace Test.Systems
+namespace Demo
 {
     public sealed class AgeSystem : EntityTask<AgeComponent>
     {
 		private readonly DeltaTimeHandle deltaTime;
 
-		public AgeSystem(DeltaTimeHandle deltaTime, EntityContext context) : base(context, batchSize: 100)
+		public AgeSystem(DeltaTimeHandle deltaTime, EntityContext context) 
+			: base(context, batchSize: 100)
 		{
 			this.deltaTime = deltaTime;
 		}

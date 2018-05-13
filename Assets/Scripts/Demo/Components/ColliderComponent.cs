@@ -1,7 +1,7 @@
 using ECS.Storage;
 using UnityEngine;
 
-namespace Test.Components
+namespace Demo
 {
     public struct ColliderComponent : IComponent
     {

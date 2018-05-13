@@ -1,17 +1,17 @@
 using ECS.Storage;
 using ECS.Tasks;
-using Test.Components;
 using Utils;
 
 using EntityID = System.UInt16;
 
-namespace Test.Systems
+namespace Demo
 {
     public sealed class DisableSpaceshipWhenHitSystem : EntityTask
     {
 		private readonly EntityContext context;
 
-		public DisableSpaceshipWhenHitSystem(EntityContext context) : base(context, batchSize: 100)
+		public DisableSpaceshipWhenHitSystem(EntityContext context) 
+			: base(context, batchSize: 100)
 		{
 			this.context = context;
 		}
@@ -20,12 +20,10 @@ namespace Test.Systems
 		{
 			//Slightly hacky but set age to 0 'disable' the engine graphics
 			context.SetComponent<AgeComponent>(entity, new AgeComponent());
+			context.RemoveTag<AgeComponent>(entity); //Removed the 'AgeComponent' tag so that the age will stay at 0
 
-			context.RemoveTag<LifetimeComponent>(entity);
-			context.RemoveTag<AgeComponent>(entity);
-
-			context.SetTag<DisabledTag>(entity);
-			context.SetTag<ApplyGravityTag>(entity);
+			context.SetTag<DisabledTag>(entity); 
+			context.SetTag<ApplyGravityTag>(entity); //Apply gravity so it will start falling
 		}
 
 		//Require the spaceship tag and hit tag

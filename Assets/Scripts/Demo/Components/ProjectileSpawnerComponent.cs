@@ -2,7 +2,7 @@ using ECS.Storage;
 
 using EntityID = System.UInt16;
 
-namespace Test.Components
+namespace Demo
 {
     public struct ProjectileSpawnerComponent : IComponent
     {

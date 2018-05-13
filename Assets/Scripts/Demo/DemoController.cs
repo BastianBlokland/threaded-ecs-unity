@@ -1,23 +1,26 @@
 ﻿using ECS.Storage;
 using ECS.Tasks;
 using ECS.Tasks.Runner;
-using Test.Systems;
 using UnityEngine;
 using Utils;
 using Utils.Random;
 using Utils.Rendering;
 
-namespace Test
+namespace Demo
 {
-	public class TestController : MonoBehaviour
+	public class DemoController : MonoBehaviour
 	{
-		[Header("Area within the action takes places (entities are destroyed when they leave")]
-		[SerializeField] private Vector3 minArea = new Vector3(-250f, 0f, -250f);
-		[SerializeField] private Vector3 maxArea = new Vector3(250f, 100f, 250f);
+		[SerializeField] private Vector3 minCollisionArea = new Vector3(-250f, 0f, -250f);
+		[SerializeField] private Vector3 maxCollisionArea = new Vector3(250f, 100f, 250f);
+
+		[SerializeField] private Vector3 minSpaceshipSpawnArea = new Vector3(-150f, 25f, -150f);
+		[SerializeField] private Vector3 maxSpaceshipSpawnArea = new Vector3(150f, 150f, -100f);
+
+		[SerializeField] private Vector3 minTurretSpawnArea = new Vector3(-100f, 1f, -100f);
+		[SerializeField] private Vector3 maxTurretSpawnArea = new Vector3(100f, 1f, 100f);
 
 		[SerializeField] private int executorCount = 1;
 		[SerializeField] private int spaceshipCount = 1000;
-		[SerializeField] private int maxSpaceshipSpawnPerIteration = 100;
 		[SerializeField] private int turretCount = 1000;
 		[SerializeField] private GraphicAssetLibrary assetLibrary;
 		[SerializeField] private Profiler.Timeline timeline;
@@ -38,11 +41,9 @@ namespace Test
 		{
 			if(assetLibrary == null)
 			{
-				Debug.LogError($"[{nameof(TestController)}] No '{nameof(GraphicAssetLibrary)}' provided!");
+				Debug.LogError($"[{nameof(DemoController)}] No '{nameof(GraphicAssetLibrary)}' provided!");
 				return;
 			}
-
-			AABox area = new AABox(minArea, maxArea);
 
 			logger = new Utils.Logger(UnityEngine.Debug.Log);
 			subtaskRunner = new SubtaskRunner(executorCount);
@@ -50,7 +51,7 @@ namespace Test
 			deltaTime = new DeltaTimeHandle();
 			random = new ShiftRandomProvider();
 			renderManager = new RenderManager(executorCount, assetLibrary);
-			colliderManager = new ColliderManager(area);
+			colliderManager = new ColliderManager(new AABox(minCollisionArea, maxCollisionArea));
 			systemManager = new TaskManager(subtaskRunner, new ECS.Tasks.ITask[]
 			{
 				new ApplyGravitySystem(deltaTime, entityContext),
@@ -59,11 +60,11 @@ namespace Test
 				new TestCollisionSystem(deltaTime, colliderManager, entityContext),
 				new AgeSystem(deltaTime, entityContext),
 				new RegisterRenderObjectsSystem(renderManager, entityContext),
-				new ExplodeSpaceshipWhenHitGroundSystem(entityContext),
+				new ExplodeSpaceshipWhenCrashSystem(entityContext),
 				new SpawnProjectilesSystem(random, deltaTime, entityContext),
-				new SpawnTurretSystem(turretCount, random, entityContext),
+				new SpawnTurretSystem(new AABox(minTurretSpawnArea, maxTurretSpawnArea), turretCount, random, entityContext),
 				new DisableSpaceshipWhenHitSystem(entityContext),
-				new SpawnSpaceshipSystem(spaceshipCount, maxSpaceshipSpawnPerIteration, random, entityContext),
+				new SpawnSpaceshipSystem(new AABox(minSpaceshipSpawnArea, maxSpaceshipSpawnArea), spaceshipCount, random, entityContext),
 				new LifetimeSystem(entityContext)
 			}, logger, timeline);
 
@@ -102,9 +103,9 @@ namespace Test
 
 		protected void OnDrawGizmosSelected()
 		{
-			AABox area = new AABox(minArea, maxArea);
+			AABox collisionArea = new AABox(minCollisionArea, maxCollisionArea);
 			Gizmos.color = new Color(0f, 1f, 0f, .1f);
-			Gizmos.DrawCube(area.Center, area.Size);
+			Gizmos.DrawCube(collisionArea.Center, collisionArea.Size);
 		}
 
 		protected void OnDestroy()

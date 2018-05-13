@@ -1,17 +1,17 @@
 using ECS.Storage;
 using ECS.Tasks;
-using Test.Components;
 using Utils;
 
 using EntityID = System.UInt16;
 
-namespace Test.Systems
+namespace Demo
 {
-    public sealed class ExplodeSpaceshipWhenHitGroundSystem : EntityTask<TransformComponent>
+    public sealed class ExplodeSpaceshipWhenCrashSystem : EntityTask<TransformComponent>
     {
 		private readonly EntityContext context;
 
-		public ExplodeSpaceshipWhenHitGroundSystem(EntityContext context) : base(context, batchSize: 100)
+		public ExplodeSpaceshipWhenCrashSystem(EntityContext context) 
+			: base(context, batchSize: 100)
 		{
 			this.context = context;
 		}
@@ -32,8 +32,8 @@ namespace Test.Systems
 			}
 		}
 
-		//Require the spaceship tag to be set so we only operate on spaceships
+		//Only operate on disabled spaceships
 		protected override TagMask GetRequiredTags(EntityContext context)
-			=> base.GetRequiredTags(context) + context.GetMask<SpaceshipTag>();	
+			=> base.GetRequiredTags(context) + context.GetMask<SpaceshipTag>() + context.GetMask<DisabledTag>();
     }
 }

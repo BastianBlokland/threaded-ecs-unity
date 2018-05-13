@@ -1,7 +1,7 @@
 using ECS.Storage;
 using Utils;
 
-namespace Test.Components
+namespace Demo
 {
     public struct TransformComponent : IComponent
     {

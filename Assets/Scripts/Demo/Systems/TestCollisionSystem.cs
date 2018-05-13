@@ -1,13 +1,12 @@
 ﻿using ECS.Storage;
 using ECS.Tasks;
-using Test.Components;
 using UnityEngine;
 using Utils;
 using Utils.Rendering;
 
 using EntityID = System.UInt16;
 
-namespace Test.Systems
+namespace Demo
 {
     public sealed class TestCollisionSystem : EntityTask<TransformComponent, VelocityComponent>
     {

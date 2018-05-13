@@ -1,15 +1,13 @@
 using ECS.Storage;
 using ECS.Tasks;
-using Test.Components;
 using UnityEngine;
 using Utils;
 using Utils.Random;
 
 using EntityID = System.UInt16;
-
 using static Utils.MathUtils;
 
-namespace Test.Systems
+namespace Demo
 {
     public sealed class SpawnProjectilesSystem : EntityTask<ProjectileSpawnerComponent, TransformComponent>
     {
@@ -18,7 +16,8 @@ namespace Test.Systems
 		private readonly EntityContext context;
 		private readonly EntitySet targets;
 
-		public SpawnProjectilesSystem(IRandomProvider random, DeltaTimeHandle deltaTime, EntityContext context) : base(context, batchSize: 100)
+		public SpawnProjectilesSystem(IRandomProvider random, DeltaTimeHandle deltaTime, EntityContext context) 
+			: base(context, batchSize: 100)
 		{
 			this.random = random;
 			this.deltaTime = deltaTime;

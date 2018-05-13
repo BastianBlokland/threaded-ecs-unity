@@ -1,19 +1,18 @@
 ﻿using ECS.Storage;
 using ECS.Tasks;
-using Test.Components;
 using UnityEngine;
 using Utils;
-using Utils.Rendering;
 
 using EntityID = System.UInt16;
 
-namespace Test.Systems
+namespace Demo
 {
     public sealed class RegisterColliderSystem : EntityTask<ColliderComponent, TransformComponent>
     {
 		private readonly ColliderManager colliderManager;
 
-		public RegisterColliderSystem(ColliderManager colliderManager, EntityContext context) : base(context, batchSize: 100)
+		public RegisterColliderSystem(ColliderManager colliderManager, EntityContext context) 
+			: base(context, batchSize: 100)
 		{
 			this.colliderManager = colliderManager;
 		}
