@@ -45,5 +45,16 @@ namespace Utils
 
 		public static bool Bigger(float val, float ref1, float ref2, float ref3)
 			=> val > ref1 && val > ref2 && val > ref3;
+
+		public static float CubeRoot(float val)
+			=> Mathf.Pow(val, 1f / 3f);
+
+		public static int PerfectCubeRoot(int val)
+		{
+			int cubeRoot = (int)CubeRoot(val);
+			if((cubeRoot * cubeRoot * cubeRoot) != val)
+				throw new Exception($"[{nameof(MathUtils)}] '{val}' has no perfect cube-root");
+			return cubeRoot;
+		}
 	}
 }

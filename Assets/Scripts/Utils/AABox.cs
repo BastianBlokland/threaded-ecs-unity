@@ -1,12 +1,14 @@
 ﻿using UnityEngine;
 
 using static UnityEngine.Mathf;
+using static Utils.MathUtils;
 
 namespace Utils
 {
 	public struct AABox
 	{
 		public Vector3 Size => new Vector3(Max.x - Min.x, Max.y - Min.y, Max.z - Min.z);
+		public Vector3 Center => Min + Size * .5f;
 
 		public Vector3 Min;
 		public Vector3 Max;
@@ -66,6 +68,31 @@ namespace Utils
 
 			time = tMin;
 			return true;
+		}
+
+		//Note: Output set needs to have a length that has a cube-root (like 8, so we can fit 2 cubes per axis (2 * 2 * 2 = 8))
+		public static void Subdivide(AABox box, AABox[] output)
+		{
+			int axisCount = PerfectCubeRoot(output.Length);
+
+			Vector3 sizePerSub = new Vector3
+			(
+				x: box.Size.x / axisCount, 
+				y: box.Size.y / axisCount,
+				z: box.Size.z / axisCount
+			);
+
+			for (int x = 0; x < axisCount; x++)
+			for (int y = 0; y < axisCount; y++)
+			for (int z = 0; z < axisCount; z++)
+			{
+				//How far this sub-box is from the 'min' point of the full box
+				Vector3 subBoxOffset = new Vector3(sizePerSub.x * x, sizePerSub.y * y, sizePerSub.z * z);
+
+				AABox subBox = new AABox(box.Min + subBoxOffset, box.Min + subBoxOffset + sizePerSub);
+				int index = x * axisCount * axisCount + y * axisCount + z;
+				output[index] = subBox;
+			}
 		}
 	}
 }
