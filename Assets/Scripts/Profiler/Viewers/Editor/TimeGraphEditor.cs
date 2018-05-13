@@ -7,7 +7,7 @@ namespace Profiler
 	public class TimeGraphEditor : UnityEditor.Editor
 	{
 		const float WIDTH = 300f;
-		const float HEIGHT = 150f;
+		const float HEIGHT = 250f;
 
 		public override void OnInspectorGUI()
 		{

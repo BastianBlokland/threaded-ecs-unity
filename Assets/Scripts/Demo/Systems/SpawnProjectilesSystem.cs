@@ -11,35 +11,23 @@ namespace Demo
 {
     public sealed class SpawnProjectilesSystem : EntityTask<ProjectileSpawnerComponent, TransformComponent>
     {
-		private readonly IRandomProvider random;
+		private readonly ColliderManager colliderManager;
 		private readonly DeltaTimeHandle deltaTime;
 		private readonly EntityContext context;
-		private readonly EntitySet targets;
+		private readonly TagMask disabledMask;
 
-		public SpawnProjectilesSystem(IRandomProvider random, DeltaTimeHandle deltaTime, EntityContext context) 
+		public SpawnProjectilesSystem(ColliderManager colliderManager, DeltaTimeHandle deltaTime, EntityContext context) 
 			: base(context, batchSize: 100)
 		{
-			this.random = random;
+			this.colliderManager = colliderManager;
 			this.deltaTime = deltaTime;
 			this.context = context;
-			this.targets = new EntitySet();
-		}
-
-		protected override int PrepareSubtasks()
-		{
-			//Gather all targets
-			context.GetEntities
-			(
-				requiredTags: context.GetMask<SpaceshipTag>(),
-				illegalTags: context.GetMask<DisabledTag>(),
-				outputSet: targets
-			);
-			return base.PrepareSubtasks();
+			this.disabledMask = context.GetMask<DisabledTag>();
 		}
 
         protected override void Execute(int execID, EntityID entity, ref ProjectileSpawnerComponent spawner, ref TransformComponent trans)
 		{
-			const int SHOTS_PER_BURST = 7;
+			const int SHOTS_PER_BURST = 5;
 			const float COOLDOWN_AFTER_BURST = 2f;
 			const float COOLDOWN_BETWEEN_SHOTS = .05f;
 
@@ -47,7 +35,7 @@ namespace Demo
 			if(spawner.Cooldown > 0f) //Still cooling down so early out
 				return;
 
-			if(spawner.Target != null)
+			if(spawner.Target != null && !context.HasTags(spawner.Target.Value, disabledMask))
 				FireProjectile(ref spawner, ref trans);			
 			spawner.Cooldown = COOLDOWN_BETWEEN_SHOTS;
 			spawner.ShotsRemaining--;
@@ -57,7 +45,10 @@ namespace Demo
 			{
 				spawner.ShotsRemaining = SHOTS_PER_BURST;
 				spawner.Cooldown = COOLDOWN_AFTER_BURST;
-				spawner.Target = random.PickRandom(targets);
+				
+				EntityID target;
+				if(colliderManager.Intersect(AABox.FromCenterAndExtents(trans.Matrix.Position, new Vector3(25f, 100f, 25f)), out target))
+					spawner.Target = target;
 			}
 		}
 
@@ -103,7 +94,7 @@ namespace Demo
 			context.SetComponent(entity, new VelocityComponent(velocity: projectileVelocity));
 			context.SetComponent(entity, new GraphicComponent(graphicID: 2));
 			context.SetComponent(entity, new AgeComponent());
-			context.SetComponent(entity, new LifetimeComponent(totalLifetime: 7f));
+			context.SetComponent(entity, new LifetimeComponent(totalLifetime: 3f));
 			context.SetTag<ProjectileTag>(entity);
 			context.SetTag<ApplyGravityTag>(entity);
 

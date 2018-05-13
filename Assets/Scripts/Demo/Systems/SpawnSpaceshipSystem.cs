@@ -10,7 +10,7 @@ namespace Demo
 {
     public sealed class SpawnSpaceshipSystem : SingleTask
     {
-		const int MAX_SPAWN_PER_ITERATION = 50;
+		const int MAX_SPAWN_PER_ITERATION = 5;
 
 		private readonly AABox spawnArea;
 		private readonly int targetCount;

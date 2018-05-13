@@ -22,6 +22,9 @@ namespace Demo
 			context.SetComponent<AgeComponent>(entity, new AgeComponent());
 			context.RemoveTag<AgeComponent>(entity); //Removed the 'AgeComponent' tag so that the age will stay at 0
 
+			//Remove the collider when disabled to make it a bit cheaper
+			context.RemoveTag<ColliderComponent>(entity);
+
 			context.SetTag<DisabledTag>(entity); 
 			context.SetTag<ApplyGravityTag>(entity); //Apply gravity so it will start falling
 		}

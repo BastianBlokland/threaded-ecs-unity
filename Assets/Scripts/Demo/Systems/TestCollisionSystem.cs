@@ -25,8 +25,8 @@ namespace Demo
         protected override void Execute(int execID, EntityID entity, ref TransformComponent trans, ref VelocityComponent velo)
 		{
 			Vector3 pos = trans.Matrix.Position;
-			Vector3 nextPos = pos + velo.Velocity * deltaTime.Value;
-			Line line = new Line(pos, nextPos);
+			Vector3 prevPos = pos - velo.Velocity * deltaTime.Value;
+			Line line = new Line(prevPos, pos);
 
 			EntityID target;
 			if(colliderManager.Intersect(line, out target))

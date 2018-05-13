@@ -7,7 +7,7 @@ namespace Profiler
 	public class DurationGraphEditor : UnityEditor.Editor
 	{
 		const float WIDTH = 300f;
-		const float HEIGHT = 300f;
+		const float HEIGHT = 500f;
 
 		public override void OnInspectorGUI()
 		{

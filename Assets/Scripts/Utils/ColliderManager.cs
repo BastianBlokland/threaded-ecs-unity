@@ -6,13 +6,13 @@ namespace Utils
 {
 	public class ColliderManager
 	{
-		private struct TestData
+		private struct LineTestData
 		{
 			public Line TestLine;
 			public AABox TestBounds;
 			public Ray TestRay;
 
-			public TestData(Line testLine)
+			public LineTestData(Line testLine)
 			{
 				TestLine = testLine;
 				TestBounds = testLine.GetBounds();
@@ -56,7 +56,7 @@ namespace Utils
 
 			public void Add(Entry entry)
 			{
-				if(AABox.Intersect(volume, entry.Box))
+				if(entry.Intersect(volume))
 				{
 					if(children.Count > 0)
 					{
@@ -73,7 +73,23 @@ namespace Utils
 				}
 			}
 
-			public bool Intersect(TestData intersectData, out EntityID entity)
+			public bool Intersect(AABox box, out EntityID entity)
+			{
+				if(AABox.Intersect(volume, box))
+				{
+					for (int i = 0; i < children.Count; i++)
+						if(children[i].Intersect(box, out entity))
+							return true;
+
+					for (int i = 0; i < entries.Count; i++)
+						if(entries[i].Intersect(box, out entity))
+							return true;
+				}
+				entity = 0;
+				return false;
+			}
+
+			public bool Intersect(LineTestData intersectData, out EntityID entity)
 			{
 				if(AABox.Intersect(volume, intersectData.TestBounds))
 				{
@@ -99,26 +115,34 @@ namespace Utils
 
 		private struct Entry
 		{
-			public AABox Box;
-			public EntityID Entity;
+			private readonly AABox box;
+			private readonly EntityID entity;
 
 			public Entry(AABox box, EntityID entity)
 			{
-				Box = box;
-				Entity = entity;
+				this.box = box;
+				this.entity = entity;
 			}
 
-			public bool Intersect(TestData intersectData, out EntityID entity)
+			public bool Intersect(AABox box) => AABox.Intersect(this.box, box);
+
+			public bool Intersect(AABox box, out EntityID entity)
 			{
-				entity = Entity;
+				entity = this.entity;
+				return AABox.Intersect(this.box, box);
+			}
+
+			public bool Intersect(LineTestData intersectData, out EntityID entity)
+			{
+				entity = this.entity;
 
 				//First test if the bounds intersect
-				if(!AABox.Intersect(Box, intersectData.TestBounds))
+				if(!AABox.Intersect(box, intersectData.TestBounds))
 					return false;
 
 				//Then test if the ray intersects
 				float rayTime;
-				if(!AABox.Intersect(Box, intersectData.TestRay, out rayTime))
+				if(!AABox.Intersect(box, intersectData.TestRay, out rayTime))
 					return false;
 
 				//Then test if that ray was still within the line
@@ -140,10 +164,15 @@ namespace Utils
 			root.Add(new Entry(box, entity));
 		}
 
-		public bool Intersect(Line line, out EntityID target)
+		public bool Intersect(AABox box, out EntityID entity)
 		{
-			TestData testData = new TestData(line);
-			return root.Intersect(testData, out target);
+			return root.Intersect(box, out entity);
+		}
+
+		public bool Intersect(Line line, out EntityID entity)
+		{
+			LineTestData testData = new LineTestData(line);
+			return root.Intersect(testData, out entity);
 		}
 
 		public void Clear()
