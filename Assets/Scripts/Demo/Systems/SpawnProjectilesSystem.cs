@@ -28,14 +28,14 @@ namespace Demo
         protected override void Execute(int execID, EntityID entity, ref ProjectileSpawnerComponent spawner, ref TransformComponent trans)
 		{
 			const int SHOTS_PER_BURST = 5;
-			const float COOLDOWN_AFTER_BURST = 1f;
+			const float COOLDOWN_AFTER_BURST = 1.5f;
 			const float COOLDOWN_BETWEEN_SHOTS = .05f;
 
 			spawner.Cooldown -= deltaTime.Value;
 			if(spawner.Cooldown > 0f) //Still cooling down so early out
 				return;
 
-			if(spawner.Target != null && !context.HasTags(spawner.Target.Value, disabledMask))
+			if(spawner.Target != null && context.HasEntity(spawner.Target.Value) && !context.HasTags(spawner.Target.Value, disabledMask))
 				FireProjectile(ref spawner, ref trans);			
 			spawner.Cooldown = COOLDOWN_BETWEEN_SHOTS;
 			spawner.ShotsRemaining--;

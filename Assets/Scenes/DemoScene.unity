@@ -324,7 +324,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.48584908, g: 0.6857966, b: 1, a: 0}
+  m_BackGroundColor: {r: 0.31287822, g: 0.51794654, b: 0.8396226, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -344,7 +344,7 @@ Camera:
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
-  m_HDR: 0
+  m_HDR: 1
   m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
@@ -610,7 +610,7 @@ MonoBehaviour:
   minTurretSpawnArea: {x: -600, y: 1, z: -75}
   maxTurretSpawnArea: {x: 600, y: 1, z: 75}
   executorCount: 6
-  spaceshipCount: 7500
+  spaceshipCount: 10000
   turretCount: 2000
   assetLibrary: {fileID: 11400000, guid: 7eea5cdf6a0874dfd854c1b34fe6438c, type: 2}
   timeline: {fileID: 634226421}
