@@ -11,6 +11,10 @@ namespace Test
 {
 	public class TestController : MonoBehaviour
 	{
+		[Header("Area within the action takes places (entities are destroyed when they leave")]
+		[SerializeField] private Vector3 minArea = new Vector3(-250f, 0f, -250f);
+		[SerializeField] private Vector3 maxArea = new Vector3(250f, 100f, 250f);
+
 		[SerializeField] private int executorCount = 1;
 		[SerializeField] private int spaceshipCount = 1000;
 		[SerializeField] private int maxSpaceshipSpawnPerIteration = 100;
@@ -38,13 +42,15 @@ namespace Test
 				return;
 			}
 
+			AABox area = new AABox(minArea, maxArea);
+
 			logger = new Utils.Logger(UnityEngine.Debug.Log);
 			subtaskRunner = new SubtaskRunner(executorCount);
 			entityContext = new EntityContext();
 			deltaTime = new DeltaTimeHandle();
 			random = new ShiftRandomProvider();
 			renderManager = new RenderManager(executorCount, assetLibrary);
-			colliderManager = new ColliderManager(maxEntries: spaceshipCount);
+			colliderManager = new ColliderManager(area);
 			systemManager = new TaskManager(subtaskRunner, new ECS.Tasks.ITask[]
 			{
 				new ApplyGravitySystem(deltaTime, entityContext),
@@ -92,6 +98,13 @@ namespace Test
 
 			//Start the systems
 			systemManager.Run();
+		}
+
+		protected void OnDrawGizmosSelected()
+		{
+			AABox area = new AABox(minArea, maxArea);
+			Gizmos.color = new Color(0f, 1f, 0f, .1f);
+			Gizmos.DrawCube(area.Center, area.Size);
 		}
 
 		protected void OnDestroy()

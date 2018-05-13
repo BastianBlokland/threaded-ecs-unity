@@ -293,8 +293,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48998b29b5f4c48628445327d6b41f49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  minArea: {x: -250, y: 0, z: -250}
+  maxArea: {x: 250, y: 200, z: 350}
   executorCount: 6
-  spaceshipCount: 2000
+  spaceshipCount: 1000
   maxSpaceshipSpawnPerIteration: 10
   turretCount: 100
   assetLibrary: {fileID: 11400000, guid: 7eea5cdf6a0874dfd854c1b34fe6438c, type: 2}

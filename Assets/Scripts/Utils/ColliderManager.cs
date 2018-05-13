@@ -1,10 +1,102 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using EntityID = System.UInt16;
 
 namespace Utils
 {
 	public class ColliderManager
 	{
+		private struct TestData
+		{
+			public Line TestLine;
+			public AABox TestBounds;
+			public Ray TestRay;
+
+			public TestData(Line testLine)
+			{
+				TestLine = testLine;
+				TestBounds = testLine.GetBounds();
+				TestRay = testLine.GetRay();
+			}
+		}
+
+		private struct Node
+		{
+			public AABox volume;
+			public List<Node> children;
+			public List<Entry> entries;
+			private object entriesLock;
+
+			public Node(AABox volume)
+			{
+				this.volume = volume;
+				children = new List<Node>();
+				entries = new List<Entry>();
+				entriesLock = new object();
+			}
+
+			public void Subdivide()
+			{
+				if(children.Count == 0)
+				{
+					AABox[] subBoxes = new AABox[8];
+					AABox.Subdivide(volume, subBoxes);
+					for (int i = 0; i < 8; i++)
+					{
+						Node subNode = new Node(subBoxes[i]);
+						children.Add(subNode);
+					}
+				}
+				else
+				{
+					for (int i = 0; i < children.Count; i++)
+						children[i].Subdivide();
+				}
+			}
+
+			public void Add(Entry entry)
+			{
+				if(AABox.Intersect(volume, entry.Box))
+				{
+					if(children.Count > 0)
+					{
+						for (int i = 0; i < children.Count; i++)
+							children[i].Add(entry);
+					}
+					else
+					{
+						lock(entriesLock)
+						{
+							entries.Add(entry);
+						}
+					}
+				}
+			}
+
+			public bool Intersect(TestData intersectData, out EntityID entity)
+			{
+				if(AABox.Intersect(volume, intersectData.TestBounds))
+				{
+					for (int i = 0; i < children.Count; i++)
+						if(children[i].Intersect(intersectData, out entity))
+							return true;
+
+					for (int i = 0; i < entries.Count; i++)
+						if(entries[i].Intersect(intersectData, out entity))
+							return true;
+				}
+				entity = 0;
+				return false;
+			}
+
+			public void ClearEntries()
+			{
+				for (int i = 0; i < children.Count; i++)
+					children[i].ClearEntries();
+				entries.Clear();
+			}
+		}
+
 		private struct Entry
 		{
 			public AABox Box;
@@ -15,65 +107,48 @@ namespace Utils
 				Box = box;
 				Entity = entity;
 			}
+
+			public bool Intersect(TestData intersectData, out EntityID entity)
+			{
+				entity = Entity;
+
+				//First test if the bounds intersect
+				if(!AABox.Intersect(Box, intersectData.TestBounds))
+					return false;
+
+				//Then test if the ray intersects
+				float rayTime;
+				if(!AABox.Intersect(Box, intersectData.TestRay, out rayTime))
+					return false;
+
+				//Then test if that ray was still within the line
+				return intersectData.TestLine.SqrMagnitude <= (rayTime * rayTime);
+			}
 		}
 
-		private readonly ReaderWriterLockSlim readWriteLock;
-		private readonly Entry[] entries;
-		private int count;
+		private readonly Node root;
 
-		public ColliderManager(int maxEntries)
+		public ColliderManager(AABox area, int depth = 5)
 		{
-			readWriteLock = new ReaderWriterLockSlim();
-			entries = new Entry[maxEntries];
+			root = new Node(area);
+			for (int i = 0; i < depth; i++)
+				root.Subdivide();
 		}
 
 		public void Add(AABox box, EntityID entity)
 		{
-			readWriteLock.EnterWriteLock();
-			{
-				if(count < entries.Length)
-				{
-					entries[count] = new Entry(box, entity);
-					count++;
-				}
-			}
-			readWriteLock.ExitWriteLock();
+			root.Add(new Entry(box, entity));
 		}
 
 		public bool Intersect(Line line, out EntityID target)
 		{
-			AABox bounds = line.GetBounds();
-			Ray ray = line.GetRay();
-
-			target = 0;
-			bool result = false;
-			readWriteLock.EnterReadLock();
-			{
-				for (int i = 0; i < count; i++)
-				{
-					if(AABox.Intersect(entries[i].Box, bounds))
-					{
-						float rayTime;
-						if(AABox.Intersect(entries[i].Box, ray, out rayTime) && line.SqrMagnitude <= (rayTime * rayTime))
-						{
-							target = entries[i].Entity;
-							result = true;
-							break;
-						}
-					}
-				}
-			}
-			readWriteLock.ExitReadLock();
-			return result;
+			TestData testData = new TestData(line);
+			return root.Intersect(testData, out target);
 		}
 
 		public void Clear()
 		{
-			readWriteLock.EnterWriteLock();
-			{
-				count = 0;
-			}
-			readWriteLock.ExitWriteLock();
+			root.ClearEntries();
 		}
 	}
 }
