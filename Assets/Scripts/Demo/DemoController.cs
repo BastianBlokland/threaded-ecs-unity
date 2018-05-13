@@ -59,12 +59,12 @@ namespace Demo
 				new TestCollisionSystem(deltaTime, colliderManager, entityContext),
 				new ApplyGravitySystem(deltaTime, entityContext),
 
-				new ExplodeSpaceshipWhenCrashSystem(entityContext),
-				new DisableSpaceshipWhenHitSystem(entityContext),
-
 				new SpawnProjectilesSystem(colliderManager, deltaTime, entityContext),
 				new SpawnTurretSystem(new AABox(minTurretSpawnArea, maxTurretSpawnArea), turretCount, random, entityContext),
 				new SpawnSpaceshipSystem(new AABox(minSpaceshipSpawnArea, maxSpaceshipSpawnArea), spaceshipCount, random, entityContext),
+
+				new ExplodeSpaceshipWhenCrashSystem(entityContext),
+				new DisableSpaceshipWhenHitSystem(entityContext),
 
 				new AgeSystem(deltaTime, entityContext),
 				new LifetimeSystem(entityContext),

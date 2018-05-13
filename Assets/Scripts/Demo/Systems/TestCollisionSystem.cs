@@ -41,7 +41,7 @@ namespace Demo
 				EntityID impactEntity = context.CreateEntity();
 				context.SetComponent(impactEntity, new TransformComponent(Float3x4.FromPosition(pos)));
 				context.SetComponent(impactEntity, new GraphicComponent(graphicID: 3));
-				context.SetComponent(impactEntity, new LifetimeComponent(totalLifetime: 1));
+				context.SetComponent(impactEntity, new LifetimeComponent(totalLifetime: .5f));
 				context.SetComponent(impactEntity, new AgeComponent());
 			}
 		}

@@ -28,7 +28,7 @@ namespace Demo
         protected override void Execute(int execID, EntityID entity, ref ProjectileSpawnerComponent spawner, ref TransformComponent trans)
 		{
 			const int SHOTS_PER_BURST = 5;
-			const float COOLDOWN_AFTER_BURST = 2f;
+			const float COOLDOWN_AFTER_BURST = 1f;
 			const float COOLDOWN_BETWEEN_SHOTS = .05f;
 
 			spawner.Cooldown -= deltaTime.Value;
@@ -47,7 +47,7 @@ namespace Demo
 				spawner.Cooldown = COOLDOWN_AFTER_BURST;
 				
 				EntityID target;
-				if(colliderManager.Intersect(AABox.FromCenterAndExtents(trans.Matrix.Position, new Vector3(25f, 100f, 25f)), out target))
+				if(colliderManager.Intersect(AABox.FromCenterAndExtents(trans.Matrix.Position, new Vector3(75f, 125f, 75f)), out target))
 					spawner.Target = target;
 			}
 		}

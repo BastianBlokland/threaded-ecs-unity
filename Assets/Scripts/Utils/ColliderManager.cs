@@ -146,7 +146,7 @@ namespace Utils
 					return false;
 
 				//Then test if that ray was still within the line
-				return intersectData.TestLine.SqrMagnitude <= (rayTime * rayTime);
+				return intersectData.TestLine.SqrMagnitude >= (rayTime * rayTime);
 			}
 		}
 
