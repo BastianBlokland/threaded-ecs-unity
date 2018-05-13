@@ -62,7 +62,7 @@ namespace Test
 				new ExplodeSpaceshipWhenHitGroundSystem(entityContext),
 				new SpawnProjectilesSystem(random, deltaTime, entityContext),
 				new SpawnTurretSystem(turretCount, random, entityContext),
-				new DisableSpaceshipWhenOutOfHealthSystem(entityContext),
+				new DisableSpaceshipWhenHitSystem(entityContext),
 				new SpawnSpaceshipSystem(spaceshipCount, maxSpaceshipSpawnPerIteration, random, entityContext),
 				new LifetimeSystem(entityContext)
 			}, logger, timeline);

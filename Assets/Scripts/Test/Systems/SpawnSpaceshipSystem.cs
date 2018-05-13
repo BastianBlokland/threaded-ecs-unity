@@ -48,7 +48,6 @@ namespace Test.Systems
 			context.SetComponent(entity, new VelocityComponent(velocity: velocity));
 			context.SetComponent(entity, new GraphicComponent(graphicID: 0));
 			context.SetComponent(entity, new AgeComponent());
-			context.SetComponent(entity, new HealthComponent(health: 5));
 			context.SetComponent(entity, new LifetimeComponent(totalLifetime: 25f));
 			context.SetComponent(entity, new ColliderComponent(size: new Vector3(3, 2, 3)));
 			context.SetTag<SpaceshipTag>(entity);

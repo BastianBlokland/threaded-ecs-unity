@@ -35,9 +35,8 @@ namespace Test.Systems
 				//Remove the projectile
 				context.RemoveEntity(entity);
 
-				HealthComponent targetHealth = context.GetComponent<HealthComponent>(target);
-				targetHealth.Health--;
-				context.SetComponent<HealthComponent>(target, targetHealth);
+				//Mark the target as hit
+				context.SetTag<HitTag>(target);
 
 				//Spawn a impact
 				EntityID impactEntity = context.CreateEntity();
