@@ -5,6 +5,7 @@ using UnityEngine;
 using Utils;
 
 using EntityID = System.UInt16;
+
 using static Utils.MathUtils;
 
 namespace Test.Systems

@@ -24,6 +24,7 @@ namespace Test
 		private DeltaTimeHandle deltaTime;
 		private IRandomProvider random;
 		private RenderManager renderManager;
+		private ColliderManager colliderManager;
 		private TaskManager systemManager;
 
 		private Profiler.TimelineTrack blockMainTrack;
@@ -43,15 +44,19 @@ namespace Test
 			deltaTime = new DeltaTimeHandle();
 			random = new ShiftRandomProvider();
 			renderManager = new RenderManager(executorCount, assetLibrary);
+			colliderManager = new ColliderManager(maxEntries: spaceshipCount);
 			systemManager = new TaskManager(subtaskRunner, new ECS.Tasks.ITask[]
 			{
 				new ApplyGravitySystem(deltaTime, entityContext),
-				new AgeSystem(deltaTime, entityContext),
 				new ApplyVelocitySystem(deltaTime, entityContext),
+				new RegisterColliderSystem(colliderManager, entityContext),
+				new TestCollisionSystem(deltaTime, colliderManager, entityContext),
+				new AgeSystem(deltaTime, entityContext),
 				new RegisterRenderObjectsSystem(renderManager, entityContext),
 				new ExplodeSpaceshipWhenHitGroundSystem(entityContext),
 				new SpawnProjectilesSystem(random, deltaTime, entityContext),
 				new SpawnTurretSystem(turretCount, random, entityContext),
+				new DisableSpaceshipWhenOutOfHealthSystem(entityContext),
 				new SpawnSpaceshipSystem(spaceshipCount, maxSpaceshipSpawnPerIteration, random, entityContext),
 				new LifetimeSystem(entityContext)
 			}, logger, timeline);
@@ -82,6 +87,7 @@ namespace Test
 
 			//Setup the systems
 			renderManager.Clear();
+			colliderManager.Clear();
 			deltaTime.Update(Time.deltaTime);
 
 			//Start the systems

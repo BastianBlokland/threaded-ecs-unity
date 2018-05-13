@@ -32,13 +32,13 @@ namespace Test.Systems
 
 		protected override void ExecuteSubtask(int execID, int index)
 		{
-			const float MIN_SPEED = 15f;
-			const float MAX_SPEED = 50f;
+			const float MIN_SPEED = 10f;
+			const float MAX_SPEED = 15f;
 
 			AABox spawnArea = new AABox
 			(
-				min: new Vector3(-500f, 25f, -500f),
-				max: new Vector3(500f, 75f, 500f)	
+				min: new Vector3(-150f, 25f, -150f),
+				max: new Vector3(150f, 150f, -100f)
 			);
 			Vector3 position = random.Inside(spawnArea);
 			Vector3 velocity = Vector3.forward * random.Between(MIN_SPEED, MAX_SPEED);
@@ -48,7 +48,9 @@ namespace Test.Systems
 			context.SetComponent(entity, new VelocityComponent(velocity: velocity));
 			context.SetComponent(entity, new GraphicComponent(graphicID: 0));
 			context.SetComponent(entity, new AgeComponent());
-			context.SetComponent(entity, new LifetimeComponent(totalLifetime: 10));
+			context.SetComponent(entity, new HealthComponent(health: 5));
+			context.SetComponent(entity, new LifetimeComponent(totalLifetime: 25f));
+			context.SetComponent(entity, new ColliderComponent(size: new Vector3(3, 2, 3)));
 			context.SetTag<SpaceshipComponent>(entity);
 		}
     }

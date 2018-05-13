@@ -294,7 +294,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   executorCount: 6
-  spaceshipCount: 10000
+  spaceshipCount: 2000
   maxSpaceshipSpawnPerIteration: 10
   turretCount: 100
   assetLibrary: {fileID: 11400000, guid: 7eea5cdf6a0874dfd854c1b34fe6438c, type: 2}

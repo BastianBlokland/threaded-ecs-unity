@@ -105,6 +105,7 @@ namespace Test.Systems
 			context.SetComponent(entity, new GraphicComponent(graphicID: 2));
 			context.SetComponent(entity, new AgeComponent());
 			context.SetComponent(entity, new LifetimeComponent(totalLifetime: 7f));
+			context.SetTag<ProjectileComponent>(entity);
 			context.SetTag<GravityComponent>(entity);
 
 			//Update the turret to face the target
