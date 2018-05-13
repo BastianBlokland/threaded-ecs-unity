@@ -49,6 +49,6 @@ namespace Test.Systems
 		}
 
 		protected override TagMask GetRequiredTags(EntityContext context)
-			=> base.GetRequiredTags(context) + context.GetMask<ProjectileComponent>();
+			=> base.GetRequiredTags(context) + context.GetMask<ProjectileTag>();
     }
 }

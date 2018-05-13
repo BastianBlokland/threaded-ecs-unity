@@ -26,6 +26,6 @@ namespace Test.Systems
 		}
 
 		protected override TagMask GetRequiredTags(EntityContext context)
-			=> base.GetRequiredTags(context) + context.GetMask<GravityComponent>();
+			=> base.GetRequiredTags(context) + context.GetMask<ApplyGravityTag>();
     }
 }

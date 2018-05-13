@@ -1,5 +1,4 @@
 ﻿using ECS.Storage;
-using UnityEngine;
 
 namespace Test.Components
 {

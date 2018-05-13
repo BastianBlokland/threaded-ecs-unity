@@ -34,6 +34,6 @@ namespace Test.Systems
 
 		//Require the spaceship tag to be set so we only operate on spaceships
 		protected override TagMask GetRequiredTags(EntityContext context)
-			=> base.GetRequiredTags(context) + context.GetMask<SpaceshipComponent>();	
+			=> base.GetRequiredTags(context) + context.GetMask<SpaceshipTag>();	
     }
 }

@@ -31,8 +31,8 @@ namespace Test.Systems
 			//Gather all targets
 			context.GetEntities
 			(
-				requiredTags: context.GetMask<SpaceshipComponent>(),
-				illegalTags: context.GetMask<DisabledComponent>(),
+				requiredTags: context.GetMask<SpaceshipTag>(),
+				illegalTags: context.GetMask<DisabledTag>(),
 				outputSet: targets
 			);
 			return base.PrepareSubtasks();
@@ -105,8 +105,8 @@ namespace Test.Systems
 			context.SetComponent(entity, new GraphicComponent(graphicID: 2));
 			context.SetComponent(entity, new AgeComponent());
 			context.SetComponent(entity, new LifetimeComponent(totalLifetime: 7f));
-			context.SetTag<ProjectileComponent>(entity);
-			context.SetTag<GravityComponent>(entity);
+			context.SetTag<ProjectileTag>(entity);
+			context.SetTag<ApplyGravityTag>(entity);
 
 			//Update the turret to face the target
 			turretTrans.Matrix = Float3x4.FromPositionAndForward(turretTrans.Matrix.Position, velocityDir);

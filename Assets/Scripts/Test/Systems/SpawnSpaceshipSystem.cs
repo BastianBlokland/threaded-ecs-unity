@@ -26,7 +26,7 @@ namespace Test.Systems
 
 		protected override int PrepareSubtasks()
 		{
-			int currentCount = context.GetEntityCount(requiredTags: context.GetMask<SpaceshipComponent>(), illegalTags: TagMask.Empty);
+			int currentCount = context.GetEntityCount(requiredTags: context.GetMask<SpaceshipTag>(), illegalTags: TagMask.Empty);
 			return Max(0, Min(targetCount - currentCount, maxSpawnPerIteration));
 		}
 
@@ -51,7 +51,7 @@ namespace Test.Systems
 			context.SetComponent(entity, new HealthComponent(health: 5));
 			context.SetComponent(entity, new LifetimeComponent(totalLifetime: 25f));
 			context.SetComponent(entity, new ColliderComponent(size: new Vector3(3, 2, 3)));
-			context.SetTag<SpaceshipComponent>(entity);
+			context.SetTag<SpaceshipTag>(entity);
 		}
     }
 }

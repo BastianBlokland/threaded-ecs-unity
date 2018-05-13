@@ -1,9 +1,8 @@
 ﻿using ECS.Storage;
-using UnityEngine;
 
 namespace Test.Components
 {
-    public struct ProjectileComponent : ITag
+    public struct SpaceshipTag : ITag
     {
 		
     }

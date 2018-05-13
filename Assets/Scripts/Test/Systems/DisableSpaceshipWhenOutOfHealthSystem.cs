@@ -28,13 +28,13 @@ namespace Test.Systems
 				context.RemoveTag<LifetimeComponent>(entity);
 				context.RemoveTag<AgeComponent>(entity);
 
-				context.SetTag<DisabledComponent>(entity);
-				context.SetTag<GravityComponent>(entity);
+				context.SetTag<DisabledTag>(entity);
+				context.SetTag<ApplyGravityTag>(entity);
 			}
 		}
 
 		//Require the spaceship tag to be set so we only operate on spaceships
 		protected override TagMask GetRequiredTags(EntityContext context)
-			=> base.GetRequiredTags(context) + context.GetMask<SpaceshipComponent>();	
+			=> base.GetRequiredTags(context) + context.GetMask<SpaceshipTag>();	
     }
 }
