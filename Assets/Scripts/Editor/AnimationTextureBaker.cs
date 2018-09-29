@@ -46,7 +46,7 @@ namespace Editor
 		{
 			Debug.Log($"Creating animation texture for mesh-renderer: {smr.name}");
 
-			Texture2D texture = new Texture2D(texSize, texSize, format: TextureFormat.RGBAFloat, mipmap: false, linear: true);
+			Texture2D texture = new Texture2D(texSize, texSize, TextureFormat.RGBAFloat, mipChain: false, linear: true);
 			for (int boneIndex = 0; boneIndex < smr.bones.Length; boneIndex++)
 			{
 				int startY = boneIndex * 2; //because 2 elements per bone: color and (position, scale)
