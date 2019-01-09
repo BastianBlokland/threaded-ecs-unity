@@ -1,4 +1,4 @@
-# Work-in-progress ECS
+# [Retired] Prototype ECS
 
 Prototype idea for a multi-threaded ecs
 
