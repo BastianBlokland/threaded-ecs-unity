@@ -6,9 +6,9 @@ namespace Demo
     {
         public byte GraphicID;
 
-		public GraphicComponent(byte graphicID)
-		{
-			GraphicID = graphicID;
-		}
+        public GraphicComponent(byte graphicID)
+        {
+            GraphicID = graphicID;
+        }
     }
 }

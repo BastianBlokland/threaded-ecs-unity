@@ -7,9 +7,9 @@ namespace Demo
     {
         public Float3x4 Matrix;
 
-		public TransformComponent(Float3x4 matrix)
-		{
-			Matrix = matrix;
-		}
+        public TransformComponent(Float3x4 matrix)
+        {
+            Matrix = matrix;
+        }
     }
 }

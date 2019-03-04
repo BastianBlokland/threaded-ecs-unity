@@ -4,6 +4,6 @@ namespace Demo
 {
     public struct AgeComponent : IComponent
     {
-		public float Value;
+        public float Value;
     }
 }

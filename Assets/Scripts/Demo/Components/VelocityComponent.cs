@@ -7,9 +7,9 @@ namespace Demo
     {
         public Vector3 Velocity;
 
-		public VelocityComponent(Vector3 velocity)
-		{
-			Velocity = velocity;
-		}
+        public VelocityComponent(Vector3 velocity)
+        {
+            Velocity = velocity;
+        }
     }
 }

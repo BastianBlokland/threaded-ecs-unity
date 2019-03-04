@@ -2,78 +2,78 @@ using System;
 
 namespace ECS.Tasks.Runner
 {
-	public sealed class SubtaskRunner : ITaskSource, IDisposable
-	{
-		private readonly int taskQueueCount;
-		private readonly int executorCount;
-		private readonly TaskQueue[] taskQueues;
-		private readonly ExecutorThread[] executors;
-		private readonly object pushLock;
-		private int currentPushQueueIndex;
-	
-		public SubtaskRunner(int numberOfExecutors)
-		{
-			taskQueueCount = numberOfExecutors > 0 ? numberOfExecutors : 1;
-			executorCount = numberOfExecutors;
+    public sealed class SubtaskRunner : ITaskSource, IDisposable
+    {
+        private readonly int taskQueueCount;
+        private readonly int executorCount;
+        private readonly TaskQueue[] taskQueues;
+        private readonly ExecutorThread[] executors;
+        private readonly object pushLock;
+        private int currentPushQueueIndex;
 
-			taskQueues = new TaskQueue[taskQueueCount];
-			for (int i = 0; i < taskQueueCount; i++)
-				taskQueues[i] = new TaskQueue();
+        public SubtaskRunner(int numberOfExecutors)
+        {
+            taskQueueCount = numberOfExecutors > 0 ? numberOfExecutors : 1;
+            executorCount = numberOfExecutors;
 
-			executors = new ExecutorThread[executorCount];
-			for (int i = 0; i < executorCount; i++)
-				executors[i] = new ExecutorThread(executorID: i, taskSource: this);
-			
-			pushLock = new object();
-		}
+            taskQueues = new TaskQueue[taskQueueCount];
+            for (int i = 0; i < taskQueueCount; i++)
+                taskQueues[i] = new TaskQueue();
 
-		public void PushTask(ExecuteInfo.ISubtaskExecutor executor, int minIndex, int maxIndex)
-		{
-			var info = new ExecuteInfo(executor, minIndex, maxIndex);
-			lock(pushLock)
-			{
-				taskQueues[currentPushQueueIndex].PushTask(info);
-				currentPushQueueIndex = (currentPushQueueIndex + 1) % taskQueueCount;
-			}
-		}
+            executors = new ExecutorThread[executorCount];
+            for (int i = 0; i < executorCount; i++)
+                executors[i] = new ExecutorThread(executorID: i, taskSource: this);
 
-		public void WakeExecutors()
-		{
-			for (int i = 0; i < executorCount; i++)
-				executors[i].Wake();
-		}
+            pushLock = new object();
+        }
 
-		public void Help()
-		{
-			//Take a random executor id to not be contending the same executor all the time
-			var executorID = System.Environment.TickCount % taskQueueCount; //Note: 'TickCount' has a very bad resolution, need to think of a better way to distribute
-			var info = GetTask(execID: executorID);
-			if(info.HasValue)
-			{
-				try { info.Value.Execute(execID: -1); }
-				catch(Exception) { } 
-			}
-		}
+        public void PushTask(ExecuteInfo.ISubtaskExecutor executor, int minIndex, int maxIndex)
+        {
+            var info = new ExecuteInfo(executor, minIndex, maxIndex);
+            lock(pushLock)
+            {
+                taskQueues[currentPushQueueIndex].PushTask(info);
+                currentPushQueueIndex = (currentPushQueueIndex + 1) % taskQueueCount;
+            }
+        }
 
-		public void Dispose()
-		{
-			for (int i = 0; i < executorCount; i++)
-				executors[i].Dispose();
-		}		
+        public void WakeExecutors()
+        {
+            for (int i = 0; i < executorCount; i++)
+                executors[i].Wake();
+        }
 
-		private ExecuteInfo? GetTask(int execID)
-		{
-			execID = Math.Abs(execID);
-			for (int i = 0; i < taskQueueCount; i++)
-			{
-				var queueIndex = (execID + i) % taskQueueCount;
-				var task = taskQueues[queueIndex].GetTask();
-				if(task.HasValue)
-					return task;
-			}
-			return null;
-		}
+        public void Help()
+        {
+            //Take a random executor id to not be contending the same executor all the time
+            var executorID = System.Environment.TickCount % taskQueueCount; //Note: 'TickCount' has a very bad resolution, need to think of a better way to distribute
+            var info = GetTask(execID: executorID);
+            if(info.HasValue)
+            {
+                try { info.Value.Execute(execID: -1); }
+                catch(Exception) { }
+            }
+        }
 
-		ExecuteInfo? ITaskSource.GetTask(int execID) => GetTask(execID);
-	}
+        public void Dispose()
+        {
+            for (int i = 0; i < executorCount; i++)
+                executors[i].Dispose();
+        }
+
+        private ExecuteInfo? GetTask(int execID)
+        {
+            execID = Math.Abs(execID);
+            for (int i = 0; i < taskQueueCount; i++)
+            {
+                var queueIndex = (execID + i) % taskQueueCount;
+                var task = taskQueues[queueIndex].GetTask();
+                if(task.HasValue)
+                    return task;
+            }
+            return null;
+        }
+
+        ExecuteInfo? ITaskSource.GetTask(int execID) => GetTask(execID);
+    }
 }

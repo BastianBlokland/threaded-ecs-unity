@@ -4,6 +4,5 @@ namespace Demo
 {
     public struct DisabledTag : ITag
     {
-		
     }
 }

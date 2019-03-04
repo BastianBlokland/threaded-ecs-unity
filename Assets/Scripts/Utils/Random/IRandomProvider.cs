@@ -1,7 +1,7 @@
 ﻿namespace Utils.Random
 {
-	public interface IRandomProvider
-	{
-		float GetNext();
-	}
+    public interface IRandomProvider
+    {
+        float GetNext();
+    }
 }

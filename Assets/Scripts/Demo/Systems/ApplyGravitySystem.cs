@@ -10,22 +10,22 @@ namespace Demo
 {
     public sealed class ApplyGravitySystem : EntityTask<VelocityComponent>
     {
-		public const float GRAVITY = -9.81f;
+        public const float GRAVITY = -9.81f;
 
-		private readonly DeltaTimeHandle deltaTime;
+        private readonly DeltaTimeHandle deltaTime;
 
-		public ApplyGravitySystem(DeltaTimeHandle deltaTime, EntityContext context) 
-			: base(context, batchSize: 100)
-		{
-			this.deltaTime = deltaTime;
-		}
+        public ApplyGravitySystem(DeltaTimeHandle deltaTime, EntityContext context)
+            : base(context, batchSize: 100)
+        {
+            this.deltaTime = deltaTime;
+        }
 
         protected override void Execute(int execID, EntityID entity, ref VelocityComponent velo)
-		{
-			velo.Velocity += Vector3.up * GRAVITY * deltaTime.Value;
-		}
+        {
+            velo.Velocity += Vector3.up * GRAVITY * deltaTime.Value;
+        }
 
-		protected override TagMask GetRequiredTags(EntityContext context)
-			=> base.GetRequiredTags(context) + context.GetMask<ApplyGravityTag>();
+        protected override TagMask GetRequiredTags(EntityContext context)
+            => base.GetRequiredTags(context) + context.GetMask<ApplyGravityTag>();
     }
 }

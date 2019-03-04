@@ -7,9 +7,9 @@ namespace Demo
     {
         public Vector3 Size;
 
-		public ColliderComponent(Vector3 size)
-		{
-			Size = size;
-		}
+        public ColliderComponent(Vector3 size)
+        {
+            Size = size;
+        }
     }
 }

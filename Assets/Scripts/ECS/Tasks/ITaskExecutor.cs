@@ -3,10 +3,10 @@ using System;
 namespace ECS.Tasks
 {
     public interface ITaskExecutor
-	{
-		event Action Completed;
+    {
+        event Action Completed;
 
-		void QuerySubtasks();
-		void RunSubtasks();
-	}
+        void QuerySubtasks();
+        void RunSubtasks();
+    }
 }

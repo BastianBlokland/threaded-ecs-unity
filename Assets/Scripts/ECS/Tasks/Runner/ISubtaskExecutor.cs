@@ -1,7 +1,7 @@
 namespace ECS.Tasks.Runner
 {
-	public interface ISubtaskExecutor
-	{
-		void ExecuteSubtask(int subtaskIndex);
-	}
+    public interface ISubtaskExecutor
+    {
+        void ExecuteSubtask(int subtaskIndex);
+    }
 }

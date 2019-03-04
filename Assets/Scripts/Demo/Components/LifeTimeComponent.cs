@@ -4,11 +4,11 @@ namespace Demo
 {
     public struct LifetimeComponent : IComponent
     {
-		public float TotalLifetime;
+        public float TotalLifetime;
 
-		public LifetimeComponent(float totalLifetime)
-		{
-			TotalLifetime = totalLifetime;
-		}
+        public LifetimeComponent(float totalLifetime)
+        {
+            TotalLifetime = totalLifetime;
+        }
     }
 }
