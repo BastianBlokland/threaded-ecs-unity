@@ -3,7 +3,7 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -16,12 +16,12 @@ MonoBehaviour:
     Mesh: {fileID: 4300002, guid: 44dea99ec27024c42b0f64779c742201, type: 3}
     SubmeshIndex: 0
     Material: {fileID: 2100000, guid: 2f885047e0f9e6848be6fe06a0c202d8, type: 2}
-    MaxRenderCount: 10000
+    MaxRenderCount: 15000
   - Name: Turret
     Mesh: {fileID: 4300000, guid: ac2e39f4f55cdca4bbff4915be0233a7, type: 3}
     SubmeshIndex: 0
     Material: {fileID: 2100000, guid: 3d5d9b58cd1c6fc489fcf9e21b128549, type: 2}
-    MaxRenderCount: 2000
+    MaxRenderCount: 4000
   - Name: Projectile
     Mesh: {fileID: 4300002, guid: 04af990229976374586a37365592cfef, type: 3}
     SubmeshIndex: 0

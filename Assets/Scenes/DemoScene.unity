@@ -428,7 +428,7 @@ MonoBehaviour:
   timeline: {fileID: 634226421}
   drawInGame: 0
   minDuration: 0
-  maxDuration: 0.015
+  maxDuration: 0.003
 --- !u!114 &634226420
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -442,7 +442,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeline: {fileID: 634226421}
   drawInGame: 0
-  timeRange: 0.25
+  timeRange: 0.043
   paused: 0
 --- !u!114 &634226421
 MonoBehaviour:
@@ -614,8 +614,8 @@ MonoBehaviour:
   minTurretSpawnArea: {x: -600, y: 1, z: -75}
   maxTurretSpawnArea: {x: 600, y: 1, z: 75}
   executorCount: 10
-  spaceshipCount: 10000
-  turretCount: 2000
+  spaceshipCount: 15000
+  turretCount: 4000
   assetLibrary: {fileID: 11400000, guid: 7eea5cdf6a0874dfd854c1b34fe6438c, type: 2}
   timeline: {fileID: 634226421}
 --- !u!4 &1739203811
