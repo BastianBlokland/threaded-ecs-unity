@@ -57,7 +57,14 @@ namespace ECS.Tasks.Runner
                 } while(task.HasValue);
 
                 //No tasks left, go to sleep and wait to be woken
-                wakeEvent.Wait(token);
+                try
+                {
+                    wakeEvent.Wait(token);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
                 wakeEvent.Reset();
             }
         }
